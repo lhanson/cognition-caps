@@ -1,1 +1,1 @@
-web: lein ring server-headless
+web: lein run -m cognition-caps.heroku-start
