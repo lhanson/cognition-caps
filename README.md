@@ -1,7 +1,10 @@
 cognition-caps
 ==============
 
-This is the software which runs the Cognition Caps website.
+This is the software which runs the
+[Cognition Caps website](http://www.wearcognition.com). Or, it will soon.
+
+It's written in Clojure because it's awesome and I'm silly like that.
 
 License
 =======
