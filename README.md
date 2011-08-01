@@ -6,6 +6,21 @@ This is the software which runs the
 
 It's written in Clojure because it's awesome and I'm silly like that.
 
+Setup
+=====
+For Heroku deployment, we need to set the database credentials
+[as recommended](http://devcenter.heroku.com/articles/config-vars#local-setup),
+in environment variables. For local development (and migration work against
+other databases) we'll read a datasource.properties, so rename
+datasource.properties.example and enter the credentials there.
+
+TODO
+====
+Because a good project is never finished.
+
+* Write a database migration from ExpressionEngine/MySQL into SimpleDb. Exclude
+  that code from the Heroku slug since we won't want to run it there.
+
 License
 =======
 

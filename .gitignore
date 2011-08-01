@@ -1,4 +1,5 @@
 pom.xml
+datasource.properties
 *jar
 /lib/
 /classes/

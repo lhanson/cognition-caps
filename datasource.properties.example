@@ -1,0 +1,13 @@
+### This is a sample properties file for setting database connection properties.
+### Create a copy of it without the ".example" suffix and fill in your details.
+
+# Amazon Access Key
+amazon-access-id = access_key_id
+amazon-access-key = secret
+
+# Settings for MySQL database.
+mysql-host = database.host.biz
+mysql-port = 1234
+mysql-name = db_name
+mysql-user = database_user
+mysql-pass = secret
