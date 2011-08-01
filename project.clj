@@ -2,6 +2,7 @@
   :description "The software behind the Cognition Caps website"
   :dependencies [[org.clojure/clojure "1.2.1"]
                  [org.clojure/clojure-contrib "1.2.0"]
+                 [clj-time "0.3.0"]
                  [compojure "0.6.5"]
                  [com.cemerick/rummage "0.0.2"]
                  [ring/ring-jetty-adapter "0.3.11"]] ; start on Heroku

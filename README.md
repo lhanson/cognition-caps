@@ -20,6 +20,10 @@ Because a good project is never finished.
 
 * Write a database migration from ExpressionEngine/MySQL into SimpleDb. Exclude
   that code from the Heroku slug since we won't want to run it there.
+* Add a history tracking entity. When a cap attribute is changed, store a
+  diff into a History domain; something like
+  {:type cap :changed-field "price" :old-value "25" :date-changed "2011-02-01"}.
+  The same could apply to other items as well.
 
 License
 =======

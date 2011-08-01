@@ -22,7 +22,7 @@
   DataAccess
   (get-caps [this] (println "Getting caps from MySQL, have" (get-cap-count))))
 
-(defn MySQLAccess-instance []
+(defn make-MySQLAccess []
   (MySQLAccess.))
 
 (defn- select-single-result [query]

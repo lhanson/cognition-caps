@@ -3,5 +3,5 @@
             [cognition-caps.data.mysql :as mysql]))
 
 (defn migrate-data []
-  (let [mysql-data (mysql/MySQLAccess-instance)] ; ExpressionEngine database for old site
+  (let [mysql-data (mysql/make-MySQLAccess)] ; ExpressionEngine database for old site
     (println "Caps:" (count (data/get-caps mysql-data)))))

@@ -8,5 +8,5 @@
   (get-caps [this]
             (println "Getting caps from SimpleDB")))
 
-(defn SimpleDBAccess-instance []
+(defn make-SimpleDBAccess []
   (SimpleDBAccess.))
