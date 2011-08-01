@@ -9,10 +9,10 @@ It's written in Clojure because it's awesome and I'm silly like that.
 Setup
 =====
 For Heroku deployment, we need to set the database credentials
-[as recommended](http://devcenter.heroku.com/articles/config-vars#local-setup),
-in environment variables. For local development (and migration work against
-other databases) we'll read a datasource.properties, so rename
-datasource.properties.example and enter the credentials there.
+[in environment variables](http://devcenter.heroku.com/articles/config-vars#local-setup).
+For local development and migration work against other databases we'll read
+settings from a local file, so rename datasource.properties.example and enter
+the credentials there.
 
 TODO
 ====

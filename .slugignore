@@ -1,4 +1,5 @@
 datasource.properties*
 src/cognition_caps/data/mysql.clj
 src/cognition_caps/migrations
+src/leiningen
 test
