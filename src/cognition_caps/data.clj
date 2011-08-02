@@ -8,10 +8,12 @@
 ; Things to think about incorporating:
 ;   - where do we track inventory/availability? when we display a cap, we need
 ;     to show which sizes of it are in stock
-;   - price? (YES, probably should go here)
-;   - material-id and store material definitions in another entity? (NO, maybe just use the tag system i.e., material-cotton-poly, material-wool)
-(defrecord Cap [id nom image-urls description tags date-added hide])
+(defrecord Cap [id nom description image-urls price tags user-id date-added display-order hide])
+(defn make-Cap
+  "Creates a Cap from the given map, setting defaults when not present"
+  [{:keys [id nom description image-urls price tags user-id date-added display-order hide]
+     :or {date-added (now) display-order 0 hide false}}]
+    (Cap. id nom description image-urls price tags user-id date-added display-order hide))
 
-(defn make-Cap [& {:keys [id nom image-urls description tags date-added hide] 
-                   :or {date-added (now) hide false}}]
-  (Cap. id nom image-urls description tags date-added hide))
+(defrecord User [id nom nickname])
+(defn make-User [id nom nickname] (User. id nom nickname));

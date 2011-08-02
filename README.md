@@ -24,6 +24,7 @@ Because a good project is never finished.
   diff into a History domain; something like
   {:type cap :changed-field "price" :old-value "25" :date-changed "2011-02-01"}.
   The same could apply to other items as well.
+* Map all old URLs into the new application.
 
 License
 =======
