@@ -8,9 +8,6 @@
   (let [mysql-data (mysql/make-MySQLAccess) ; ExpressionEngine database for old site
         simpledb-data (simpledb/make-SimpleDBAccess)
         caps (data/get-caps mysql-data)]
-    (println "Loaded" (count caps) "from MySQL and" (count (data/get-caps simpledb-data)) "SimpleDB")
-    (data/put-caps simpledb-data caps)
-    ;(doseq [cap caps]
-    ;  (println "\tName: " (:nom cap)))
-    )
-  )
+    (println "Loaded" (count caps) "caps from MySQL and"
+             (count (data/get-caps simpledb-data)) "from SimpleDB")
+    (data/put-caps simpledb-data caps)))

@@ -6,7 +6,7 @@
             [cemerick.rummage.encoding :as enc]))
 
 (def *caps-domain* "items")
-(declare change-key split-large-descriptions merge-large-descriptions)
+(declare change-key marshal-cap merge-large-descriptions unmarshal-cap split-large-descriptions)
 
 (defonce config
   (do
@@ -19,21 +19,19 @@
 (defrecord SimpleDBAccess []
   DataAccess
   (get-caps [this]
-            (println "Getting caps from SimpleDB")
-            (println "DOMAINS: " + (sdb/list-domains config))
-            )
+            (sdb/query-all config '{select * from items}))
   (put-caps [this caps]
-    (let [scan-cap-attrs (fn [cap]
-                           ;(println "Checking out cap of type" (type cap) ": " cap)
-                           (if (> (count (:description cap)) 1024)
-                             (str "Description is too large for cap " (:id cap) ":" (:nom cap) " at " (count (:description cap)))
-                             nil))]
-      (println "Putting caps to SimpleDB!!!")
-      (println "Mapping scan-cap-attrs over" (count caps) "caps of type" (type caps) "of" (type (first caps)))
-      (println (filter #(not (nil? %)) (map scan-cap-attrs caps)))
-      ;(sdb/batch-put-attrs config *caps-domain* (map #(change-key :id ::sdb/id %) caps))
-      )))
+      (println "Persisting " (count caps) "caps to SimpleDB")
+      (sdb/batch-put-attrs config *caps-domain* (map marshal-cap caps))))
 (defn make-SimpleDBAccess [] (SimpleDBAccess.))
+
+(defn- marshal-cap [cap]
+  "Preprocesses the given cap before persisting to SimpleDB"
+  (split-large-descriptions (change-key :id ::sdb/id cap)))
+
+(defn- unmarshal-cap [cap]
+  "Reconstitutes the given cap after reading from SimpleDB"
+  (merge-large-descriptions (change-key ::sdb/id :id cap)))
 
 (defn- long-split [re maxlen s]
   "Splits s on the provided regex returning a lazy sequence of substrings of
