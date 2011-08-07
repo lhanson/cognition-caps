@@ -7,9 +7,15 @@
             [clojure.contrib.sql :as sql]))
 
 (declare get-cap-rows get-cap-count)
-
 (def *caps-weblog-id* 3)
 (def *merch-weblog-id* 4)
+
+(defrecord MySQLAccess []
+  DataAccess
+  (get-caps [this] (map make-Cap (get-cap-rows)))
+  (put-caps [this caps] (throw (UnsupportedOperationException.
+                                 "Writing to ExpressionEngine is not supported"))))
+(defn make-MySQLAccess [] (MySQLAccess.))
 
 (defonce db
   (let [db-host (get config/db-config "mysql-host")
@@ -20,11 +26,6 @@
      :subname (str "//" db-host ":" db-port "/" db-name)
      :user (get config/db-config "mysql-user")
      :password (get config/db-config "mysql-pass")}))
-
-(defrecord MySQLAccess []
-  DataAccess
-  (get-caps [this] (map make-Cap (get-cap-rows))))
-(defn make-MySQLAccess [] (MySQLAccess.))
 
 (defn- get-cap-rows []
   ; TODO: handle t.url-title

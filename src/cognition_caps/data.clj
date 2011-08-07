@@ -3,7 +3,8 @@
 
 (defprotocol DataAccess
   "A protocol abstracting access to product data"
-  (get-caps [this] "Provides a sequence of caps currently stored"))
+  (get-caps [this] "Provides a sequence of caps currently stored")
+  (put-caps [this caps] "Persists caps"))
 
 ; Things to think about incorporating:
 ;   - where do we track inventory/availability? when we display a cap, we need
