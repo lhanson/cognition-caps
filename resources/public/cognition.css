@@ -1,0 +1,8 @@
+@charset "UTF-8";
+
+body { background: white url(images/bg.jpg) repeat center top; }
+
+nav.topNav {
+    height: 53px;
+    background: black url(images/bg_top_bar.gif) repeat left top;
+}

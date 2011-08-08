@@ -20,8 +20,9 @@ Because a good project is never finished.
 
 * Write a database migration from ExpressionEngine/MySQL into SimpleDb. Exclude
   that code from the Heroku slug since we won't want to run it there.
-* Figure out how to work around the 1024 byte-per-attribute limit to store
-  blog entries and longer item descriptions.
+  - Finish mapping the image-urls, price, tags, and date added fields and
+    handle t.url-title field from MySQL
+* Make sure Jetty is returning Content-Type headers
 * Add a history tracking entity. When a cap attribute is changed, store a
   diff into a History domain; something like
   {:type cap :changed-field "price" :old-value "25" :date-changed "2011-02-01"}.

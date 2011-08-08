@@ -28,7 +28,6 @@
      :password (get config/db-config "mysql-pass")}))
 
 (defn- get-cap-rows []
-  ; TODO: handle t.url-title
   (let [query (str "SELECT t.entry_id AS \"id\", t.title AS \"nom\",
                            t.url_title AS \"url-title\", d.field_id_4 AS \"description\",
                            t.year, t.month, t.day, d.field_id_8 AS \"image1\",

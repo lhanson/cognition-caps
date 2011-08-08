@@ -1,10 +1,11 @@
 (ns cognition-caps.core
-  (:use compojure.core)
+  (:use compojure.core
+        cognition-caps.handlers)
   (:require [compojure.route :as route]
             [compojure.handler :as handler]))
 
 (defroutes main-routes
-  (GET "/" [] "<h1>Cognition Caps!</h1>")
+  (GET "/" [] root)
   (route/resources "/")
   (route/not-found "Page not found"))
 
