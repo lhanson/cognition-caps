@@ -2,6 +2,8 @@
 
 body { background: white url(images/bg.jpg) repeat center top; }
 
+img { display: block; margin-left: auto; margin-right: auto }
+
 nav.topNav {
     height: 53px;
     background: black url(images/bg_top_bar.gif) repeat left top;

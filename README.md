@@ -28,6 +28,9 @@ Because a good project is never finished.
   {:type cap :changed-field "price" :old-value "25" :date-changed "2011-02-01"}.
   The same could apply to other items as well.
 * Map all old URLs into the new application.
+* Use [Modernizr](http://www.modernizr.com)
+* [Optimize images](http://code.google.com/speed/page-speed/docs/payload.html#CompressImages)
+* Implement all recommendations given by Chrome's PageSpeed extension.
 
 License
 =======
