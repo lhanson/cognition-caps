@@ -22,8 +22,18 @@
             (sdb/query-all config '{select * from items}))
   (put-caps [this caps]
       (println "Persisting " (count caps) "caps to SimpleDB")
-      (sdb/batch-put-attrs config *caps-domain* (map marshal-cap caps))))
+      (sdb/batch-put-attrs config *caps-domain* (map marshal-cap caps)))
+  (get-sizes [this]
+             (sdb/query-all config '{select * from sizes})))
 (defn make-SimpleDBAccess [] (SimpleDBAccess.))
+
+(defn populate-defaults! []
+  "Sets up SimpleDB with our basic set of predefined values"
+  (sdb/create-domain config "items")
+  (sdb/create-domain config "sizes")
+  (sdb/batch-put-attrs config "sizes" [{::sdb/id "1" :nom "Small-ish"}
+                                       {::sdb/id "2" :nom "One Size Fits Most"}
+                                       {::sdb/id "3" :nom "Large"}]))
 
 (defn- marshal-cap [cap]
   "Preprocesses the given cap before persisting to SimpleDB"

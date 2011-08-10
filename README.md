@@ -20,8 +20,7 @@ Because a good project is never finished.
 
 * Write a database migration from ExpressionEngine/MySQL into SimpleDb. Exclude
   that code from the Heroku slug since we won't want to run it there.
-  - Finish mapping the image-urls, price, tags, and date added fields and
-    handle t.url-title field from MySQL
+  - Finish mapping the image-urls, tags, and handle t.url-title field from MySQL
 * Make sure Jetty is returning Content-Type headers
 * Add a history tracking entity. When a cap attribute is changed, store a
   diff into a History domain; something like
