@@ -4,7 +4,24 @@ body { background: white url(images/bg.jpg) repeat center top; }
 
 img { display: block; margin-left: auto; margin-right: auto }
 
-nav.topNav {
+nav li {
+    display: inline;
+    border-right: 1px solid #b2cd00;
+}
+
+li.last-child { border-right: none; }
+
+#topBar {
     height: 53px;
+    color: white;
     background: black url(images/bg_top_bar.gif) repeat left top;
+}
+
+#topNav { float: left; }
+
+#cartStatus { float: right; }
+#cartStatus ul { display: inline; }
+#cartStatus li {
+    display: inline;
+    border-right: 1px solid #666666;
 }
