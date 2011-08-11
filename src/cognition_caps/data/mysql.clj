@@ -4,13 +4,14 @@
 (ns cognition-caps.data.mysql
   (:use [cognition-caps.data]
         [clj-time.core :only (date-time)]
-        [clj-time.coerce :only (to-string)])
+        [clj-time.coerce :only (to-string)]
+        [clojure.contrib.string :only (blank?) :as s])
   (:require [cognition-caps.config :as config]
             [clojure.contrib.sql :as sql]))
 
 (declare get-cap-rows get-cap-count mapcap)
 (def *caps-weblog-id* 3)
-(def *merch-weblog-id* 4)
+(def *image-url-prefix* "http://wearcognition.com/images/uploads/")
 
 (defrecord MySQLAccess []
   DataAccess
@@ -63,7 +64,10 @@
 
 (defn- mapcap [capmap]
   "Does a little massaging of the data from the SQL database and creates a Cap"
-  (println "Mapping cap with keys" (:price capmap))
-  (let [{:keys [year month day]} capmap
-        date-added (apply date-time (map #(Integer. %) [year month day]))]
-    (make-Cap (assoc capmap :date-added (to-string date-added)))))
+  (let [{:keys [year month day image1 image2 image3 image4]} capmap
+        date-added (apply date-time (map #(Integer. %) [year month day]))
+        images (if (or image1 image2 image3 image4)
+                 (map #(s/trim %) (filter #(not (blank? %)) (vector image1 image2 image3 image4))))]
+    (make-Cap (-> capmap (assoc :description (s/trim (:description capmap)))
+                         (assoc :date-added (to-string date-added))
+                         (assoc :image-urls (map #(str *image-url-prefix* %) images))))))
