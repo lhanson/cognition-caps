@@ -2,6 +2,11 @@
 
 body { background: white url(images/bg.jpg) repeat center top; }
 
+body span, body div {
+    font-family: 'Oswald', arial, serif;
+    text-transform: uppercase;
+}
+
 .cognitionGreen { color: #b2cd00; }
 
 nav li {
@@ -16,8 +21,6 @@ li.last-child { border-right: none; }
     height: 53px;
     color: white;
     background: black url(images/bg_top_bar.gif) repeat left top;
-    font-family: 'Oswald', arial, serif;
-    text-transform: uppercase;
     letter-spacing: 1px;
 }
 
@@ -40,10 +43,34 @@ li.last-child { border-right: none; }
     margin: 0 auto;
 }
 
+#promoWrapper {
+    background: url(images/bg_promo.png) repeat left top;
+    width: 986px;
+    height: 418px;
+    color: white;
+    font-size: 14px;
+    letter-spacing: 1px;
+}
+
+#promoWrapper div {
+    position: absolute;
+    top: 40px;
+    left: 25px
+}
+
+#promoTickerBanner {
+    position: absolute;
+    margin-top: 20px;
+    left: -10px;
+}
+
+#promoTickerCount {
+    font-family: 'Ultra', arial, serif;
+    font-size: 21px;
+}
+
 footer {
     font-size: 16px;
-    font-family: 'Oswald', arial, serif;
-    text-transform: uppercase;
     background: url(images/bg_footer.gif) repeat left top;
     position:fixed;
     bottom:0px;
@@ -72,6 +99,4 @@ footer {
     background-color: black;
     padding: 3px;
     font-size: 16px;
-    text-transform: uppercase;
-    font-family: 'Oswald', arial, serif;
 }
