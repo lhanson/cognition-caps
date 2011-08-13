@@ -5,31 +5,48 @@
         <meta charset="utf-8" />
         <link rel="stylesheet" href="reset.css" />
         <link rel="stylesheet" href="cognition.css" />
+        <link href='http://fonts.googleapis.com/css?family=Oswald' rel='stylesheet' type='text/css'>
         <!--<link rel="shortcut icon" href="/favicon.ico">-->
         <!--<link rel="alternate" type="application/atom+xml" title="Cognition Caps - Store" href="/feed/" />-->
         <!--<link rel="alternate" type="application/atom+xml" title="Cognition Caps - Blog" href="/feed/" />-->
-        <!--TODO: HTML5 IE SHIV? -->
+        <!--TODO: use modernizr. Is this the same as a CSS reset too?-->
     </head>
     <body>
         <div id="topBar">
             <nav id="topNav">
                 <ul>
-                    <li>SHOP</li>
-                    <li>BLOG</li>
+                    <li>Shop</li>
+                    <li>Blog</li>
                     <li class="last-child">FAQ</li>
                 </ul>
             </nav>
             <div id="cartStatus">
-                CART
+                <span class="cognitionGreen"><img alt="" src="images/cart.gif" />CART</span>
                 <ul>
                     <li>0 ITEMS</li>
                     <li class="last-child">$0.00</li>
                 </ul>
             </div>
         </div>
-        <img alt="" src="images/top_animation.gif" width="1050" height="250" />
+        <div class="wrapper">
+            <img alt="" src="images/top_animation.gif" width="1050" height="250" />
+        </div>
 
-        <img alt="" src="images/footer_drawings.png" width="460" height="128" />
-        <footer></footer>
+        <footer>
+            <div class="wrapper">
+                <img id="footerDrawing" src="images/footer_drawings.png" alt="" width="460" height="128" />
+            </div>
+            <img src="images/footer_topline.gif" alt="" width="982" height="2" />
+            <div id="footerBox">
+                <img src="images/footer_logo.gif" alt="" width="167" height="33" />
+                <form>
+                    Sign up for email updates
+                    <input name="email" type="email" placeholder="email address" />
+                    <input id="emailSubmit" type="submit" value="Sign Up"/>
+                </form>
+                <img src="images/facebook.gif" alt="" width="104" height="22" />
+            </div>
+            <img src="images/footer_bottomlines.gif" alt="" width="982" height="14" />
+        </footer>
     </body>
 </html>

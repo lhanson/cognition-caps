@@ -2,11 +2,12 @@
 
 body { background: white url(images/bg.jpg) repeat center top; }
 
-img { display: block; margin-left: auto; margin-right: auto }
+.cognitionGreen { color: #b2cd00; }
 
 nav li {
     display: inline;
     border-right: 1px solid #b2cd00;
+    font-size: 18px;
 }
 
 li.last-child { border-right: none; }
@@ -15,13 +16,62 @@ li.last-child { border-right: none; }
     height: 53px;
     color: white;
     background: black url(images/bg_top_bar.gif) repeat left top;
+    font-family: 'Oswald', arial, serif;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 #topNav { float: left; }
 
-#cartStatus { float: right; }
+#cartStatus {
+    float: right;
+    display: inline;
+}
 #cartStatus ul { display: inline; }
 #cartStatus li {
     display: inline;
     border-right: 1px solid #666666;
+    font-size: 14px;
+}
+
+.wrapper {
+    width: 1028px;
+    position: relative;
+    margin: 0 auto;
+}
+
+footer {
+    font-size: 16px;
+    font-family: 'Oswald', arial, serif;
+    text-transform: uppercase;
+    background: url(images/bg_footer.gif) repeat left top;
+    position:fixed;
+    bottom:0px;
+    width:100%;
+    height: 169px;
+    text-align:center;
+    padding-top:5px;
+    padding-bottom:5px;
+}
+#footerDrawing{
+    position: absolute;
+    top: -110px;
+    left: 282px
+}
+#footerBox {
+    height: 58px;
+}
+#footerBox * {
+    display: inline;
+}
+#footerBox img {
+    vertical-align: middle;
+}
+#emailSubmit {
+    color: white;
+    background-color: black;
+    padding: 3px;
+    font-size: 16px;
+    text-transform: uppercase;
+    font-family: 'Oswald', arial, serif;
 }
