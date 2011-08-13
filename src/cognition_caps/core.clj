@@ -9,5 +9,10 @@
   (route/resources "/")
   (route/not-found "Page not found"))
 
-(def app
-  (handler/site main-routes))
+(defn wrap-time [handler]
+  "Ring middleware which inserts the start time (in nanos) into the request"
+  (fn [request]
+    (handler (merge request {:start-ts (System/nanoTime)}))))
+
+(def app (-> (handler/site main-routes)
+             wrap-time))

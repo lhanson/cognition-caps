@@ -1,7 +1,17 @@
 (ns cognition-caps.handlers
-  (:use [net.cgrand.enlive-html :only (deftemplate) :as html]))
+  (:require [net.cgrand.enlive-html :as html]))
 
-(html/deftemplate index "index.html" [ctx])
+(html/deftemplate index "index.html" [ctx]
+  ; The last thing we do is to set the elapsed time
+  [:#requestStats]
+    (html/content (str "Response generated in "
+                  (/ (- (System/nanoTime) (:start-ts ctx)) 1000000.0)
+                  " ms")))
 
-(defn root [uri]
-  (index {}))
+(defn root [request] (index request))
+
+(defn insert-elapsed-time [response]
+  (let [resource (html/html-resource (java.io.StringReader. (apply str (:body response))))
+        template (html/deftemplate t resource [] [:#requestStats]
+                                   (html/content (str "Response generated in " (:elapsed-millis response) "ms")))]
+    (assoc response :body (template))))
