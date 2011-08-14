@@ -43,8 +43,8 @@ li.last-child { border-right: none; }
     margin: 0 auto;
 }
 
-#promoWrapper {
-    background: url(images/bg_promo.png) repeat left top;
+#featureWrapper {
+    background: url(images/bg_feature.png) repeat left top;
     width: 986px;
     height: 418px;
     color: white;
@@ -52,19 +52,19 @@ li.last-child { border-right: none; }
     letter-spacing: 1px;
 }
 
-#promoWrapper div {
+#featureWrapper div {
     position: absolute;
     top: 40px;
     left: 25px
 }
 
-#promoTickerBanner {
+#featureTickerBanner {
     position: absolute;
     margin-top: 20px;
     left: -10px;
 }
 
-#promoTickerCount {
+#featureTickerCount {
     font-family: 'Ultra', arial, serif;
     font-size: 21px;
 }
