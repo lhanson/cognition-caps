@@ -12,7 +12,7 @@
   (simpledb/populate-defaults!)
   (println "Querying data from ExpressionEngine/MySQL")
   (let [mysql-data (mysql/make-MySQLAccess) ; ExpressionEngine database for old site
-        simpledb-data (simpledb/make-SimpleDBAccess)
+        simpledb-data simpledb/simpledb
         sizes (data/get-sizes simpledb-data)
         caps (map #(add-sizes % sizes) (data/get-caps mysql-data))]
     (println "Loaded" (count caps) "caps from MySQL and"

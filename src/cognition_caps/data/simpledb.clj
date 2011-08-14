@@ -5,8 +5,9 @@
             [cemerick.rummage :as sdb]
             [cemerick.rummage.encoding :as enc]))
 
-(def *caps-domain* "items")
 (declare change-key marshal-cap merge-large-descriptions unmarshal-cap split-large-descriptions)
+
+(def *caps-domain* "items")
 
 (defonce config
   (do
@@ -18,14 +19,16 @@
 
 (defrecord SimpleDBAccess []
   DataAccess
-  (get-caps [this]
-            (sdb/query-all config '{select * from items}))
+  (get-caps [this] (get-caps this nil))
+  (get-caps [this querycount]
+              (if querycount (swap! querycount inc))
+              (sdb/query-all config '{select * from items}))
   (put-caps [this caps]
       (println "Persisting " (count caps) "caps to SimpleDB")
       (sdb/batch-put-attrs config *caps-domain* (map marshal-cap caps)))
   (get-sizes [this]
              (sdb/query-all config '{select * from sizes})))
-(defn make-SimpleDBAccess [] (SimpleDBAccess.))
+(def simpledb (SimpleDBAccess.))
 
 (defn populate-defaults! []
   "Sets up SimpleDB with our basic set of predefined values"

@@ -3,7 +3,7 @@
 
 (defprotocol DataAccess
   "A protocol abstracting access to product data"
-  (get-caps [this] "Provides a sequence of caps currently stored")
+  (get-caps [this] [this queryCount] "Provides a sequence of caps currently stored")
   (put-caps [this caps] "Persists caps")
   (get-sizes [this] "Provides a list of available sizes"))
 
