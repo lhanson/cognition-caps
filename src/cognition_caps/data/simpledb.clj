@@ -22,7 +22,9 @@
   (get-caps [this] (get-caps this nil))
   (get-caps [this querycount]
               (if querycount (swap! querycount inc))
-              (sdb/query-all config '{select * from items}))
+              (sdb/query-all config '{select * from items
+                                      where (not-null :display-order)
+                                      order-by [:display-order desc]}))
   (put-caps [this caps]
       (println "Persisting " (count caps) "caps to SimpleDB")
       (sdb/batch-put-attrs config *caps-domain* (map marshal-cap caps)))
