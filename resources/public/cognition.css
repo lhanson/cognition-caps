@@ -1,9 +1,11 @@
 @charset "UTF-8";
 
-body { background: white url(images/bg.jpg) repeat center top; }
+body {
+    background: white url(images/bg.jpg) repeat center top;
+}
 
 body span, body div {
-    font-family: 'Oswald', arial, serif;
+    font-family: Oswald, arial, serif;
     text-transform: uppercase;
 }
 
@@ -44,7 +46,7 @@ li.last-child { border-right: none; }
 }
 
 #featureWrapper {
-    background: url(images/bg_feature.png) repeat left top;
+    background: url(images/bg_feature.png);
     width: 986px;
     height: 418px;
     color: white;
@@ -65,20 +67,41 @@ li.last-child { border-right: none; }
 }
 
 #featureTickerCount {
-    font-family: 'Ultra', arial, serif;
     font-size: 21px;
+}
+
+.item {
+    display: inline-block;
+    background: url(images/bg_item.png) no-repeat;
+    width: 229px;
+    margin: 14px;
+}
+.item img {
+    margin-bottom: 19px;
+}
+.itemText {
+    text-align: right;
+}
+.itemName {
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    font-size: 20px;
+    text-transform: lowercase;
+    margin-right: 5px;
+}
+.itemPrice {
+    font-size: 22px;
 }
 
 footer {
     font-size: 16px;
     background: url(images/bg_footer.gif) repeat left top;
-    position:fixed;
-    bottom:0px;
-    width:100%;
     height: 169px;
-    text-align:center;
-    padding-top:5px;
-    padding-bottom:5px;
+    text-align: center;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+footer * {
+    text-align: center;
 }
 #footerDrawing{
     position: absolute;
