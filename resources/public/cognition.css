@@ -1,43 +1,49 @@
 @charset "UTF-8";
 
 body {
-    background: white url(images/bg.jpg) repeat center top;
-}
-
-body span, body div {
-    font-family: Oswald, arial, serif;
     text-transform: uppercase;
+    font-family: Oswald, arial, serif;
+    background: white url(images/bg.jpg) repeat center top;
 }
 
 .cognitionGreen { color: #b2cd00; }
 
 nav li {
-    display: inline;
-    border-right: 1px solid #b2cd00;
+    float: left;
     font-size: 18px;
+    margin-right: 12px;
+    padding-right: 12px;
+    border-right: 2px solid #b2cd00;
 }
 
-li.last-child { border-right: none; }
-
-#topBar {
-    height: 53px;
+#topNav {
     color: white;
-    background: black url(images/bg_top_bar.gif) repeat left top;
+    width: 100%;
+    height: 53px;
     letter-spacing: 1px;
+    background: black url(images/bg_top_bar.gif) repeat left top;
 }
+#topNav li { margin-top: 17px; }
 
-#topNav { float: left; }
+#siteNav {
+    float: left;
+    margin-left: 75px;
+}
 
 #cartStatus {
     float: right;
-    display: inline;
+    margin-right: 75px;
 }
-#cartStatus ul { display: inline; }
 #cartStatus li {
-    display: inline;
-    border-right: 1px solid #666666;
     font-size: 14px;
+    border-right: 1px solid #666666;
+    margin-right: 8px;
+    padding-right: 8px;
 }
+li.noBorder, #cartStatus li.noBorder { border-right: none; }
+#cartStatus .cognitionGreen { font-size: 18px; }
+#cartStatus img { margin-right: 10px; }
+#cartStatus #cartItemCount, #cartStatus #cartTotalPrice { margin-top: 19px; }
 
 .wrapper {
     width: 1028px;
@@ -92,6 +98,7 @@ li.last-child { border-right: none; }
     font-size: 22px;
 }
 
+/* TODO: set a top margin above the footer to give space for logo */
 footer {
     font-size: 16px;
     background: url(images/bg_footer.gif) repeat left top;

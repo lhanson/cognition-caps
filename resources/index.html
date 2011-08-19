@@ -12,22 +12,20 @@
         <!--TODO: use modernizr. Is this the same as a CSS reset too?-->
     </head>
     <body>
-        <div id="topBar">
-            <nav id="topNav">
-                <ul>
-                    <li>Shop</li>
-                    <li>Blog</li>
-                    <li class="last-child">FAQ</li>
-                </ul>
-            </nav>
-            <div id="cartStatus">
-                <span class="cognitionGreen"><img src="images/cart.gif" alt="" width="17" height="15" />CART</span>
-                <ul>
-                    <li>0 ITEMS</li>
-                    <li class="last-child">$0.00</li>
-                </ul>
-            </div>
-        </div>
+        <nav id="topNav">
+            <ul id="siteNav">
+                <li>Shop</li>
+                <li>Blog</li>
+                <li class="noBorder">FAQ</li>
+            </ul>
+            <ul id="cartStatus">
+                <li class="cognitionGreen noBorder"><img src="images/cart.gif" alt="" width="17" height="15" />CART</li>
+                <li id="cartItemCount">0 ITEMS</li>
+                <li id="cartTotalPrice" class="noBorder">$0.00</li>
+            </ul>
+        </nav>
+        <!-- TODO: 1 wrapper div, everything else nests inside -->
+        <!-- wrap main image in an h1 with text, use CSS to replace the text with the image instead-->
         <div class="wrapper">
             <img alt="" src="images/top_animation.gif" width="1050" height="250" />
         </div>
@@ -40,8 +38,9 @@
 
         <div class="wrapper">
             <div id="items">
+                <!-- float all of these for IE(9?) -->
                 <div class="item">
-                    <img src="" alt="" width="210" height="210" />
+                    <img src="." alt="" width="210" height="210" />
                     <p class="itemText">
                         <span class="itemName"></span>
                         <span class="itemPrice"></span>
