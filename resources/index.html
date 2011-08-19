@@ -24,21 +24,20 @@
                 <li id="cartTotalPrice" class="noBorder">$0.00</li>
             </ul>
         </nav>
-        <!-- TODO: 1 wrapper div, everything else nests inside -->
-        <!-- wrap main image in an h1 with text, use CSS to replace the text with the image instead-->
-        <div class="wrapper">
-            <img alt="" src="images/top_animation.gif" width="1050" height="250" />
-        </div>
 
-        <div id="featureWrapper" class="wrapper">
-            <img src="images/feature/cows.png" alt="" width="964" height="397" />
-            <img id="featureTickerBanner" src="images/feature_ticker.png" alt="" width="280" height="68" />
-            <div>Over <span id="featureTickerCount" class="cognitionGreen">1283</span> caps served</div>
-        </div>
+        <div class="contentWrapper">
+            <!-- TODO: wrap main image in an h1 with text, use CSS to replace the text with the image instead-->
+            <!--<h1>Handmade cycling caps from Madison, Wisconsin.</h1>-->
+            <img src="images/top_animation.gif" alt="" width="1050" height="250" />
 
-        <div class="wrapper">
+            <div id="featureWrapper">
+                <img id="featureImage" src="images/feature/cows.png" alt="" width="964" height="397" />
+                <img id="featureTickerBanner" src="images/feature_ticker.png" alt="" width="280" height="68" />
+                <div>Over <span id="featureTickerCount" class="cognitionGreen">1283</span> caps served</div>
+            </div>
+
             <div id="items">
-                <!-- float all of these for IE(9?) -->
+                <!-- TODO: float all of these for IE(9?) -->
                 <div class="item">
                     <img src="." alt="" width="210" height="210" />
                     <p class="itemText">
@@ -50,15 +49,13 @@
         </div>
 
         <footer>
-            <div class="wrapper">
-                <img id="footerDrawing" src="images/footer_drawings.png" alt="" width="460" height="128" />
-            </div>
+            <img id="footerDrawing" src="images/footer_drawings.png" alt="" width="460" height="128" />
             <img src="images/footer_topline.gif" alt="" width="982" height="2" />
             <div id="footerBox">
-                <img src="images/footer_logo.gif" alt="" width="167" height="33" />
+                <img id="footerLogo" src="images/footer_logo.gif" alt="" width="167" height="33" />
                 <form>
-                    Sign up for email updates
-                    <input name="email" type="email" placeholder="email address" />
+                    <label for="emailEntry">Sign up for email updates</label>
+                    <input id="emailEntry" name="email" type="email" placeholder="email address" />
                     <input id="emailSubmit" type="submit" value="Sign Up"/>
                 </form>
                 <a href="http://www.facebook.com/pages/Cognition-Caps/165962633453031"

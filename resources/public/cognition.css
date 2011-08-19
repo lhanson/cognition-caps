@@ -1,6 +1,7 @@
 @charset "UTF-8";
 
 body {
+    text-align: center;
     text-transform: uppercase;
     font-family: Oswald, arial, serif;
     background: white url(images/bg.jpg) repeat center top;
@@ -45,37 +46,37 @@ li.noBorder, #cartStatus li.noBorder { border-right: none; }
 #cartStatus img { margin-right: 10px; }
 #cartStatus #cartItemCount, #cartStatus #cartTotalPrice { margin-top: 19px; }
 
-.wrapper {
+.contentWrapper {
     width: 1028px;
     position: relative;
     margin: 0 auto;
 }
 
 #featureWrapper {
-    background: url(images/bg_feature.png);
-    width: 986px;
-    height: 418px;
+    position: relative;
+    background: url(images/bg_feature.png) 21px 0px no-repeat;
     color: white;
+    height: 418px;
     font-size: 14px;
     letter-spacing: 1px;
 }
-
-#featureWrapper div {
-    position: absolute;
-    top: 40px;
-    left: 25px
-}
-
+#featureImage { margin-right: 22px; }
 #featureTickerBanner {
     position: absolute;
     margin-top: 20px;
-    left: -10px;
+    left: 10px;
 }
-
+#featureWrapper div {
+    position: absolute;
+    top: 40px;
+    left: 40px
+}
 #featureTickerCount {
     font-size: 21px;
+    font-family: Ultra, arial, serif;
 }
 
+#items { text-align: left; }
 .item {
     display: inline-block;
     background: url(images/bg_item.png) no-repeat;
@@ -83,46 +84,52 @@ li.noBorder, #cartStatus li.noBorder { border-right: none; }
     margin: 14px;
 }
 .item img {
+    margin-right: 19px;
     margin-bottom: 19px;
 }
-.itemText {
-    text-align: right;
-}
+.itemText { text-align: right; }
 .itemName {
     font-family: Georgia, 'Times New Roman', Times, serif;
     font-size: 20px;
     text-transform: lowercase;
     margin-right: 5px;
 }
-.itemPrice {
-    font-size: 22px;
-}
+.itemPrice { font-size: 22px; }
 
-/* TODO: set a top margin above the footer to give space for logo */
 footer {
-    font-size: 16px;
-    background: url(images/bg_footer.gif) repeat left top;
     height: 169px;
-    text-align: center;
-    padding-top: 5px;
-    padding-bottom: 5px;
+    font-size: 16px;
+    margin-top: 135px;
+    background: url(images/bg_footer.gif) repeat left top;
 }
-footer * {
-    text-align: center;
-}
-#footerDrawing{
-    position: absolute;
-    top: -110px;
-    left: 282px
+footer * { display: inline-block; }
+#footerDrawing {
+    margin-top: -105px;
+    margin-bottom: 10px;
 }
 #footerBox {
+    width: 982px;
     height: 58px;
 }
-#footerBox * {
-    display: inline;
-}
-#footerBox img {
+#footerBox form { margin-top: 12px; }
+#footerBox form * {
     vertical-align: middle;
+}
+#footerLogo {
+    float: left;
+    margin-top: 12px;
+}
+#footerBox a {
+    float: right;
+    margin-top: 18px;
+}
+#footer label, #emailSubmit {
+    text-transform: uppercase;
+}
+#emailEntry {
+    padding: 3px;
+    font-size: 12px;
+    font-family: Georgia, 'Times New Roman', Times, serif;
 }
 #emailSubmit {
     color: white;
@@ -133,4 +140,5 @@ footer * {
 
 #requestStats {
     font-size: 11px;
+    margin-top: 15px;
 }
