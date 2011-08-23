@@ -3,8 +3,15 @@
   (:require [cognition-caps.data :as data]
             [net.cgrand.enlive-html :as html]))
 
+(defn- item-type [tags]
+  "Returns a string representing the item type present in tags"
+  (let [t (if (string? tags) (hash-set tags) tags)]
+    (cond
+      (contains? t :item-type-cap) "caps")))
+
 ; Snippet to generate item markup
 (html/defsnippet item-model "index.html" [:#items :.item] [cap]
+  [:a] (html/set-attr :href (str "/" (item-type (:tags cap)) "/" (:url-title cap)))
   [:.itemName] (html/content (:nom cap))
   [:.itemPrice] (html/content "$666")
   [:img] (html/set-attr :src (first (:image-urls cap))))

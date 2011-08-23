@@ -70,4 +70,5 @@
                  (map #(s/trim %) (filter #(not (blank? %)) (vector image1 image2 image3 image4))))]
     (make-Cap (-> capmap (assoc :description (s/trim (:description capmap)))
                          (assoc :date-added (to-string date-added))
-                         (assoc :image-urls (map #(str *image-url-prefix* %) images))))))
+                         (assoc :image-urls (map #(str *image-url-prefix* %) images))
+                         (assoc :tags (hash-set :item-type-cap :second-tag))))))

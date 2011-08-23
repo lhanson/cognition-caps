@@ -5,7 +5,8 @@
             [cemerick.rummage :as sdb]
             [cemerick.rummage.encoding :as enc]))
 
-(declare change-key marshal-cap merge-large-descriptions unmarshal-cap split-large-descriptions)
+(declare change-key marshal-cap merge-large-descriptions unmarshal-cap
+         split-large-descriptions string-tags-to-keywords)
 
 (def *caps-domain* "items")
 
@@ -22,11 +23,11 @@
   (get-caps [this] (get-caps this nil))
   (get-caps [this querycount]
               (if querycount (swap! querycount inc))
-              (sdb/query-all config '{select * from items
-                                      where (not-null :display-order)
-                                      order-by [:display-order desc]}))
+              (map unmarshal-cap (sdb/query-all config '{select * from items
+                                                         where (not-null :display-order)
+                                                         order-by [:display-order desc]})))
   (put-caps [this caps]
-      (println "Persisting " (count caps) "caps to SimpleDB")
+      (println "Persisting" (count caps) "caps to SimpleDB")
       (sdb/batch-put-attrs config *caps-domain* (map marshal-cap caps)))
   (get-sizes [this]
              (sdb/query-all config '{select * from sizes})))
@@ -46,7 +47,10 @@
 
 (defn- unmarshal-cap [cap]
   "Reconstitutes the given cap after reading from SimpleDB"
-  (merge-large-descriptions (change-key ::sdb/id :id cap)))
+  (->> cap
+       (change-key ::sdb/id :id)
+       (merge-large-descriptions)
+       (string-tags-to-keywords)))
 
 (defn- long-split [re maxlen s]
   "Splits s on the provided regex returning a lazy sequence of substrings of
@@ -84,3 +88,11 @@
 
 (defn- change-key [old-key new-key m]
   (dissoc (assoc m new-key (old-key m) old-key)))
+
+(defn string-tags-to-keywords [m]
+  (let [t (:tags m)
+        tags (if (string? t) (hash-set t) t)]
+    (-> m
+      (dissoc :tags)
+      (assoc :tags (set (map #(if (= \: (.charAt % 0)) (keyword (.substring % 1)) %)
+                             tags))))))
