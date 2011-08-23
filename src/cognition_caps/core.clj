@@ -5,7 +5,8 @@
             [compojure.handler :as handler]))
 
 (defroutes main-routes
-  (GET "/" [] root)
+  (GET "/" {stats :stats} (index stats))
+  (GET "/caps/:url-title" [url-title & params :as request] (item (:stats request) url-title))
   (route/resources "/")
   (route/not-found "Page not found"))
 
