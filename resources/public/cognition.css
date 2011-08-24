@@ -7,7 +7,7 @@ body {
     background: white url(images/bg.jpg) repeat center top;
 }
 
-.cognitionGreen { color: #b2cd00; }
+.accentColor { color: #b2cd00; }
 
 nav li {
     float: left;
@@ -42,7 +42,7 @@ nav li {
     padding-right: 8px;
 }
 li.noBorder, #cartStatus li.noBorder { border-right: none; }
-#cartStatus .cognitionGreen { font-size: 18px; }
+#cartStatus .accentColor { font-size: 18px; }
 #cartStatus img { margin-right: 10px; }
 #cartStatus #cartItemCount, #cartStatus #cartTotalPrice { margin-top: 19px; }
 
