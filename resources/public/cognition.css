@@ -46,7 +46,7 @@ li.noBorder, #cartStatus li.noBorder { border-right: none; }
 #cartStatus img { margin-right: 10px; }
 #cartStatus #cartItemCount, #cartStatus #cartTotalPrice { margin-top: 19px; }
 
-.contentWrapper {
+#main {
     width: 1028px;
     position: relative;
     margin: 0 auto;
@@ -95,6 +95,24 @@ li.noBorder, #cartStatus li.noBorder { border-right: none; }
     margin-right: 5px;
 }
 .itemPrice { font-size: 22px; }
+
+#itemDetails {
+    position: relative;
+    text-align: left;
+    height: 600px;
+}
+#thumbnails {
+    position: absolute;
+    top: 510px;
+    margin: 21px 0px 0px 42px;
+}
+#itemImageWrapper {
+    float: left;
+    width: 509px;
+    height: 510px;
+    margin: 0px 21px 0px 21px;
+    background: url(images/bg_main_item.png) 0px 0px no-repeat;
+}
 
 footer {
     height: 169px;

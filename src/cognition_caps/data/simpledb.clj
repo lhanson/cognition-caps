@@ -82,9 +82,11 @@
    are merged into one :description"
   (let [descr-keys (filter #(re-matches #"description_\d+" (name %)) (keys m))
         sorted-keys (sort-by #(Integer. (.substring (name %) (inc (.indexOf (name %) "_")))) descr-keys)]
-    (reduce (fn [m- k] (dissoc m- k))
+    (if (empty? sorted-keys)
+      m
+      (reduce (fn [m- k] (dissoc m- k))
             (assoc m :description (reduce #(str %1 ((keyword %2) m)) "" sorted-keys))
-            sorted-keys)))
+            sorted-keys))))
 
 (defn- change-key [old-key new-key m]
   (dissoc (assoc m new-key (old-key m) old-key)))
