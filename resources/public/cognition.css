@@ -2,7 +2,7 @@
 
 body {
     text-align: center;
-    text-transform: uppercase;
+    /*text-transform: uppercase; TODO: apply this more specifically where required */
     font-family: Oswald, arial, serif;
     background: white url(images/bg.jpg) repeat center top;
 }
@@ -101,10 +101,29 @@ li.noBorder, #cartStatus li.noBorder { border-right: none; }
     text-align: left;
     height: 600px;
 }
+#itemDetails h1 {
+    font-size: 30px;
+    font-family: Georgia, 'Times New Roman', Times, serif;
+}
+#itemDetails .itemPrice {
+    color: #b2cd00;
+    font-size: 30px;
+    font-family: Oswald, arial, serif;
+}
+.itemDescription, .itemMaterials{
+    font-size: 14px;
+    line-height: 24px;
+    font-family: Georgia, 'Times New Roman', Times, serif;
+}
+.itemMaterials{ color: #555; }
 #thumbnails {
     position: absolute;
     top: 510px;
     margin: 21px 0px 0px 42px;
+}
+#itemInfoWrapper {
+    float: left;
+    width: 477px;
 }
 #itemImageWrapper {
     float: left;
@@ -113,6 +132,7 @@ li.noBorder, #cartStatus li.noBorder { border-right: none; }
     margin: 0px 21px 0px 21px;
     background: url(images/bg_main_item.png) 0px 0px no-repeat;
 }
+#facebookWidgets, #itemInfoWrapper { border-bottom: 1px dotted #999; }
 
 footer {
     height: 169px;
