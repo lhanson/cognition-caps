@@ -1,19 +1,15 @@
 <div id="main">
-    <header>
-        <!-- change to a background image on the hgroup -->
-        <a href="/" alt="Home page"><img src="/images/top_animation.gif" alt="" width="1050" height="250" /></a>
-        <hgroup>
-        <h1>Cognition</h1>
-        <h2>Handmade cycling caps</h2>
-        </hgroup>
-    </header>
-    <!-- TODO: wrap main image in an h1 with text, use CSS to replace the text with the image instead-->
-    <!--<h1>Handmade cycling caps from Madison, Wisconsin.</h1> if you want to add a city and state use the hcard microformat to do so.-->
+    <a href="/">
+        <header>
+            <!-- TODO: hide the hgroup with the background image -->
+            <hgroup class="vcard">
+                <h1 class="org">Cognition Caps</h1>
+                <p class="adr">Handmade cycling caps from <span class="locality">Madison</span>, <span class="region" title="Wisconsin">WI</span></p>
+            </hgroup>
+        </header>
+    </a>
     <section id="featureWrapper">
-        <img id="featureImage" src="/images/feature/cows.png" alt="" width="964" height="397" />
-        <!-- change to background image inline images slow dowmn page load too much, only use them if they are semantically important.-->
-        <img id="featureTickerBanner" src="/images/feature_ticker.png" alt="" width="280" height="68" />
-        <div>Over <span id="featureTickerCount" class="cognitionGreen">1283</span> caps served</div>
+        <div>Over <span id="featureTickerCount">1283</span> caps served</div>
     </section>
 
     <section id="items">

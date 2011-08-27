@@ -2,13 +2,11 @@
 
 body {
     text-align: center;
-    /*text-transform: uppercase; TODO: apply this more specifically where required */
     font-family: Oswald, arial, serif;
     background: white url(images/bg.jpg) repeat center top;
 }
 
-.accentColor { color: #b2cd00; }
-
+nav { text-transform: uppercase; }
 nav li {
     float: left;
     font-size: 18px;
@@ -41,37 +39,48 @@ nav li {
     margin-right: 8px;
     padding-right: 8px;
 }
-li.noBorder, #cartStatus li.noBorder { border-right: none; }
-#cartStatus .accentColor { font-size: 18px; }
 #cartStatus img { margin-right: 10px; }
 #cartStatus #cartItemCount, #cartStatus #cartTotalPrice { margin-top: 19px; }
+#cartStatus #cart, #cartStatus #cartTotalPrice, #faq { border-right: none; }
+#cartStatus #cart {
+    width: 68px;
+    color: #b2cd00;
+    font-size: 18px;
+    text-align: right;
+    background: url(/images/cart.gif) left no-repeat;
+}
 
 #main {
     width: 1028px;
     position: relative;
     margin: 0 auto;
 }
+#main header { height: 250px; }
+#main header hgroup{
+    position: absolute;
+    height: inherit;
+    width: 100%;
+    background: url(/images/top_animation.gif) -11px 0px no-repeat;
+}
 
 #featureWrapper {
     position: relative;
-    background: url(images/bg_feature.png) 21px 0px no-repeat;
+    background: url(images/feature_ticker.png) 10px 20px no-repeat,
+                url(images/feature/cows.png) 21px 0px no-repeat,
+                url(images/bg_feature.png) 21px 0px no-repeat;
     color: white;
     height: 418px;
     font-size: 14px;
     letter-spacing: 1px;
 }
-#featureImage { margin-right: 22px; }
-#featureTickerBanner {
-    position: absolute;
-    margin-top: 20px;
-    left: 10px;
-}
 #featureWrapper div {
     position: absolute;
     top: 40px;
-    left: 40px
+    left: 40px;
+    text-transform: uppercase;
 }
 #featureTickerCount {
+    color: #b2cd00;
     font-size: 21px;
     font-family: Ultra, arial, serif;
 }
@@ -141,28 +150,21 @@ footer {
     background: url(images/bg_footer.gif) repeat left top;
 }
 footer * { display: inline-block; }
-#footerDrawing {
-    margin-top: -105px;
-    margin-bottom: 10px;
-}
-#footerBox {
+#footerDrawing { margin: -105px 0px 25px 0px; }
+footer form {
     width: 982px;
-    height: 58px;
+    height: 73px;
+    background: url(images/footer_topline.gif) no-repeat,
+                url(images/footer_logo.gif) left 12px no-repeat,
+                url(images/footer_bottomlines.gif) bottom no-repeat;
 }
-#footerBox form { margin-top: 12px; }
-#footerBox form * {
-    vertical-align: middle;
-}
-#footerLogo {
-    float: left;
-    margin-top: 12px;
-}
-#footerBox a {
+footer form label, #emailSubmit { text-transform: uppercase; }
+footer a {
     float: right;
     margin-top: 18px;
-}
-#footer label, #emailSubmit {
-    text-transform: uppercase;
+    width: 104px;
+    height: 22px;
+    background: url(images/facebook.gif) no-repeat;
 }
 #emailEntry {
     padding: 3px;
@@ -174,6 +176,7 @@ footer * { display: inline-block; }
     background-color: black;
     padding: 3px;
     font-size: 16px;
+    font-family: Oswald, arial, serif;
 }
 
 #requestStats {

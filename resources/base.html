@@ -3,8 +3,8 @@
     <head>
         <meta charset="utf-8" />
         <title>Cognition Caps</title>
-        <link rel="stylesheet" href="public/reset.css" />
-        <link rel="stylesheet" href="public/cognition.css" />
+        <link rel="stylesheet" href="/reset.css" />
+        <link rel="stylesheet" href="/cognition.css" />
         <link rel='stylesheet' href='http://fonts.googleapis.com/css?family=Oswald|Ultra'>
         <script src="modernizr.js"></script>
         <!--<link rel="shortcut icon" href="/favicon.ico">-->
@@ -15,12 +15,12 @@
         <nav id="topNav">
             <ul id="siteNav">
                 <li>Blog</li>
-                <li class="noBorder">FAQ</li>
+                <li id="faq">FAQ</li>
             </ul>
             <ul id="cartStatus">
-                <li class="accentColor noBorder"><img src="/images/cart.gif" alt="" width="17" height="15" />CART</li>
+                <li id="cart">CART</li>
                 <li id="cartItemCount">0 ITEMS</li>
-                <li id="cartTotalPrice" class="noBorder">$0.00</li>
+                <li id="cartTotalPrice">$0.00</li>
             </ul>
         </nav>
 
@@ -28,21 +28,13 @@
 
         <footer>
             <img id="footerDrawing" src="/images/footer_drawings.png" alt="" width="460" height="128" />
-            <!-- get rid of this div and style the form instead. --->
-            <!-- <div id="footerBox">-->
-            	<!-- Since this is just an image and not a link add it as a background image on the form.-->
-                <!--<img id="footerLogo" src="/images/footer_logo.gif" alt="" width="167" height="33" />-->
-                <form>
-                    <label for="emailEntry">Sign up for email updates</label>
-                    <input id="emailEntry" name="email" type="email" placeholder="email address" />
-                    <input id="emailSubmit" type="submit" value="Sign Up"/>
-                </form>
-                <!-- take out the image and use image text replacement on the link.-->
+            <form>
+                <label for="emailEntry">Sign up for email updates</label>
+                <input id="emailEntry" name="email" type="email" placeholder="email address" />
+                <input id="emailSubmit" type="submit" value="Sign Up"/>
                 <a href="http://www.facebook.com/pages/Cognition-Caps/165962633453031"
-                   title="Cognition on Facebook">Facebook<!--<img src="/images/facebook.gif" alt="" width="104" height="22" />--></a>
-            <!--</div>-->
-            <!-- if you use3 css border images you can apply this as a border bottom on the form element. or you could also use multiple background images-->
-            <img src="/images/footer_bottomlines.gif" alt="" width="982" height="14" />
+                   title="Cognition on Facebook">Facebook</a>
+            </form>
             <div id="requestStats"></div>
         </footer>
     </body>
