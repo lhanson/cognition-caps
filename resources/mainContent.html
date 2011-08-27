@@ -1,41 +1,53 @@
 <div id="main">
-    <a href="/" alt="Home page"><img src="/images/top_animation.gif" alt="" width="1050" height="250" /></a>
+    <header>
+        <!-- change to a background image on the hgroup -->
+        <a href="/" alt="Home page"><img src="/images/top_animation.gif" alt="" width="1050" height="250" /></a>
+        <hgroup>
+        <h1>Cognition</h1>
+        <h2>Handmade cycling caps</h2>
+        </hgroup>
+    </header>
     <!-- TODO: wrap main image in an h1 with text, use CSS to replace the text with the image instead-->
-    <!--<h1>Handmade cycling caps from Madison, Wisconsin.</h1>-->
-    <div id="featureWrapper">
+    <!--<h1>Handmade cycling caps from Madison, Wisconsin.</h1> if you want to add a city and state use the hcard microformat to do so.-->
+    <section id="featureWrapper">
         <img id="featureImage" src="/images/feature/cows.png" alt="" width="964" height="397" />
+        <!-- change to background image inline images slow dowmn page load too much, only use them if they are semantically important.-->
         <img id="featureTickerBanner" src="/images/feature_ticker.png" alt="" width="280" height="68" />
-        <div>Over <span id="featureTickerCount" class="accentColor">1283</span> caps served</div>
-    </div>
+        <div>Over <span id="featureTickerCount" class="cognitionGreen">1283</span> caps served</div>
+    </section>
 
-    <div id="items">
-        <!-- TODO: float all of these for IE(9?) -->
-        <div class="item">
-            <a href="" title="item details">
-                <img src="." alt="" width="210" height="210" />
-                <p class="itemText">
+    <section id="items">
+        <!-- TODO: change classes to match the http://microformats.org/wiki/hproduct product microformat.-->
+        <ul>
+            <!-- TODO: float all of these for IE(9?) -->
+            <li class="item">
+                <a href="" title="item details" rel="bookmark">
+                    <img src="." alt="" width="210" height="210" />
                     <span class="itemName"></span>
                     <span class="itemPrice"></span>
-                </p>
-            </a>
-        </div>
-    </div>
+                </a>
+            </li>
+        </ul>
+    </section>
 
-    <div id="itemDetails">
-        <div id="itemImageWrapper">
-            <img src="." alt="" width="487" height="487" />
-        </div>
-        <div id="thumbnails">
-            <img src="." alt="" width="73" height="73" />
-        </div>
-        <div id="itemInfoWrapper">
+    <article id="itemDetails">
+        <section id="images">
+            <div id="itemImageWrapper">
+                <img src="." alt="" width="487" height="487" />
+            </div>
+            <div id="thumbnails">
+                <img src="." alt="" width="73" height="73" />
+            </div>
+        </section>
+        <section id="itemInfoWrapper">
             <h1>Item title</h1>
             <p class="itemPrice"></p>
             <p class="itemDescription"></p>
             <p class="itemMaterials"></p>
+            <!-- TODO: facebook share and like are available via a javascript widget. -->
             <div id="facebookWidgets">facebook [share | like]</div>
             <div>Size Selector</div>
             <button>Add to Cart</button>
-        </div>
-    </div>
+        </section>
+    </article>
 </div>
