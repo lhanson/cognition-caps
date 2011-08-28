@@ -1,5 +1,6 @@
 (ns cognition-caps.data
-  (:use [clj-time.core :only (now)]))
+  (:use [clj-time.core :only (now)])
+  (:require [clojure.string :as s]))
 
 (defprotocol DataAccess
   "A protocol abstracting access to product data"
@@ -17,4 +18,8 @@
 (defrecord Size [id nom])
 
 (defrecord User [id nom nickname])
-(defn make-User [id nom nickname] (User. id nom nickname));
+(defn make-User [id nom nickname] (User. id nom nickname))
+
+(defn url-title [nom]
+  "Returns the url-title for the given cap name"
+  (-> nom s/trim s/lower-case (s/replace #"'" "") (s/replace #"[\W&&[^\.]]+" "-")))

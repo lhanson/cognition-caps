@@ -5,8 +5,9 @@
   (:use [cognition-caps.data]
         [clj-time.core :only (date-time)]
         [clj-time.coerce :only (to-string)]
-        [clojure.contrib.string :only (blank?) :as s])
+        [clojure.contrib.string :only (blank?) :as cs])
   (:require [cognition-caps.config :as config]
+            [clojure.string :as s]
             [clojure.contrib.sql :as sql]))
 
 (declare get-cap-rows get-cap-count mapcap)
@@ -62,13 +63,23 @@
     (let [hats-weblog-id (select-single-result "select weblog_id from exp_weblogs where blog_name='hats'")]
       (select-single-result (str "select count(*) from exp_weblog_data where weblog_id='" hats-weblog-id "'")))))
 
-(defn- mapcap [capmap]
+(defn mapcap [capmap]
   "Does a little massaging of the data from the SQL database and creates a Cap"
   (let [{:keys [year month day image1 image2 image3 image4]} capmap
+        nom (s/replace (:nom capmap) #"(?i)\s*cap\s*$" "")
         date-added (apply date-time (map #(Integer. %) [year month day]))
         images (if (or image1 image2 image3 image4)
-                 (map #(s/trim %) (filter #(not (blank? %)) (vector image1 image2 image3 image4))))]
-    (make-Cap (-> capmap (assoc :description (s/trim (:description capmap)))
+                 (map #(cs/trim %) (filter #(not (blank? %)) (vector image1 image2 image3 image4))))
+        cap (make-Cap (-> capmap (assoc :nom nom)
+                         (assoc :url-title (url-title nom))
+                         (assoc :description (cs/trim (:description capmap)))
                          (assoc :date-added (to-string date-added))
                          (assoc :image-urls (map #(str *image-url-prefix* %) images))
-                         (assoc :tags (hash-set :item-type-cap :second-tag))))))
+                         (assoc :tags (hash-set :item-type-cap :second-tag))))]
+    (if (not= (:url-title capmap) (:url-title cap))
+      (do
+        (println (str "WARNING: existing URL title '" (:url-title capmap) "' "
+                      "will now be '" (:url-title cap) "'"))
+        ; Store the old URL title so we can redirect requests to the new one
+        (assoc cap :old-url-title (:url-title capmap)))
+      cap)))

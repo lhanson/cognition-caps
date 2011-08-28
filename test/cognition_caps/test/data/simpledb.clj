@@ -1,4 +1,4 @@
-(ns cognition-caps.test.simpledb
+(ns cognition-caps.test.data.simpledb
   (:use [clojure.test]
         [cognition-caps.data])
   (:require [cognition-caps.data.simpledb :as sdb]))
