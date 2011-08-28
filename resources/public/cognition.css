@@ -152,6 +152,12 @@ a.include { display: none; } /* Hide extraneous microformat markup */
     background: url(images/bg_main_item.png) 0px 0px no-repeat;
 }
 #facebookWidgets, #itemInfoWrapper { border-bottom: 1px dotted #999; }
+#itemDetails form input {
+    width: 156px;
+    height: 65px;
+    border: none;
+    background: url(images/cart_add.png) no-repeat left top;
+}
 
 footer {
     height: 169px;
