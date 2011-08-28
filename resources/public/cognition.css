@@ -15,6 +15,8 @@ nav li {
     border-right: 2px solid #b2cd00;
 }
 
+a.include { display: none; } /* Hide extraneous microformat markup */
+
 #topNav {
     color: white;
     width: 100%;
@@ -91,27 +93,32 @@ nav li {
     background: url(images/bg_item.png) no-repeat;
     width: 229px;
     margin: 14px;
+    text-align: right;
+}
+.item a {
+    text-decoration: none;
+    color: black;
 }
 .item img {
     margin-right: 19px;
     margin-bottom: 19px;
 }
-.itemText { text-align: right; }
-.itemName {
+.fn {
     font-family: Georgia, 'Times New Roman', Times, serif;
     font-size: 20px;
     text-transform: lowercase;
     margin-right: 5px;
 }
-.itemPrice { font-size: 22px; }
+#items .itemPrice, #items .price { font-size: 22px; }
 
 #itemDetails {
     position: relative;
     text-align: left;
     height: 600px;
 }
-#itemDetails h1 {
+#itemDetails .fn {
     font-size: 30px;
+    text-transform: none;
     font-family: Georgia, 'Times New Roman', Times, serif;
 }
 #itemDetails .itemPrice {
@@ -119,12 +126,15 @@ nav li {
     font-size: 30px;
     font-family: Oswald, arial, serif;
 }
-.itemDescription, .itemMaterials{
+.description, .itemMaterials{
     font-size: 14px;
     line-height: 24px;
     font-family: Georgia, 'Times New Roman', Times, serif;
 }
-.itemMaterials{ color: #555; }
+.itemMaterials{
+    color: #555;
+    display: block;
+}
 #thumbnails {
     position: absolute;
     top: 510px;
@@ -149,17 +159,18 @@ footer {
     margin-top: 135px;
     background: url(images/bg_footer.gif) repeat left top;
 }
-footer * { display: inline-block; }
 #footerDrawing { margin: -105px 0px 25px 0px; }
 footer form {
     width: 982px;
     height: 73px;
+    margin: 0px auto;
     background: url(images/footer_topline.gif) no-repeat,
                 url(images/footer_logo.gif) left 12px no-repeat,
                 url(images/footer_bottomlines.gif) bottom no-repeat;
 }
+footer form * { vertical-align: middle; margin-top: 15px; }
 footer form label, #emailSubmit { text-transform: uppercase; }
-footer a {
+footer form a {
     float: right;
     margin-top: 18px;
     width: 104px;

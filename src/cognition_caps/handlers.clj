@@ -21,21 +21,22 @@
 ; Snippet to generate item markup
 (html/defsnippet item-model "mainContent.html" [:#items :.item]
   [cap]
-  [:a] (html/set-attr :href (str "/" (item-type (:tags cap)) "/" (:url-title cap)))
-  [:.itemName] (html/content (:nom cap))
-  [:.itemPrice] (html/content "$666")
+  [[:a :.url]] (html/set-attr :href (str "/" (item-type (:tags cap)) "/" (:url-title cap)))
+  [:.fn] (html/content (:nom cap))
+  [:.price] (html/content "666")
   [:img] (html/set-attr :src (first (:image-urls cap))))
 
 (html/defsnippet show-caps "mainContent.html" [:#main]
   [caps]
-  [:#items] (html/content (map item-model caps))
+  [:#items :ul] (html/content (map item-model caps))
   [:#itemDetails] nil)
 
 (html/defsnippet item-details "mainContent.html" [:#itemDetails]
   [cap]
   [:#itemImageWrapper :img] (html/set-attr :src (first (:image-urls cap)))
-  [:h1] (html/content (:nom cap))
-  [:.itemDescription] (html/content (:description cap)))
+  [:.fn] (html/content (:nom cap))
+  [:.price] (html/content "666")
+  [:.description] (html/content (:description cap)))
 
 (html/defsnippet show-cap "mainContent.html" [:#main]
   [cap]

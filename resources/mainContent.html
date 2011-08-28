@@ -3,8 +3,12 @@
         <header>
             <!-- TODO: hide the hgroup with the background image -->
             <hgroup class="vcard">
-                <h1 class="org">Cognition Caps</h1>
-                <p class="adr">Handmade cycling caps from <span class="locality">Madison</span>, <span class="region" title="Wisconsin">WI</span></p>
+                <h1 class="fn org brand" id="hproduct-brand">Cognition Caps</h1>
+                <h2 class="adr">
+                    Handmade cycling caps from
+                    <span class="locality">Madison</span>,
+                    <span class="region" title="Wisconsin">WI</span>
+                </h2>
             </hgroup>
         </header>
     </a>
@@ -13,33 +17,32 @@
     </section>
 
     <section id="items">
-        <!-- TODO: change classes to match the http://microformats.org/wiki/hproduct product microformat.-->
         <ul>
             <!-- TODO: float all of these for IE(9?) -->
-            <li class="item">
-                <a href="" title="item details" rel="bookmark">
-                    <img src="." alt="" width="210" height="210" />
-                    <span class="itemName"></span>
-                    <span class="itemPrice"></span>
+            <li class="item hproduct">
+                <a class="include" href="#hproduct-brand">Cognition Caps</a>
+                <a href="" title="item details" rel="bookmark" class="url">
+                    <img class="photo" src="." alt="" width="210" height="210" />
+                    <span class="fn"></span>
+                    <span class="itemPrice">$<span class="price"></span></span>
                 </a>
             </li>
         </ul>
     </section>
 
-    <article id="itemDetails">
+    <article id="itemDetails" class="hproduct">
         <section id="images">
             <div id="itemImageWrapper">
-                <img src="." alt="" width="487" height="487" />
+                <img class="photo" src="." alt="" width="487" height="487" />
             </div>
             <div id="thumbnails">
-                <img src="." alt="" width="73" height="73" />
+                <img class="photo" src="." alt="" width="73" height="73" />
             </div>
         </section>
         <section id="itemInfoWrapper">
-            <h1>Item title</h1>
-            <p class="itemPrice"></p>
-            <p class="itemDescription"></p>
-            <p class="itemMaterials"></p>
+            <h1 class="fn"></h1>
+            <p class="itemPrice">$<span class="price"></span></p>
+            <p class="description"><span class="itemMaterials"></span></p>
             <!-- TODO: facebook share and like are available via a javascript widget. -->
             <div id="facebookWidgets">facebook [share | like]</div>
             <div>Size Selector</div>
