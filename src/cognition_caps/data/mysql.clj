@@ -16,7 +16,9 @@
 
 (defrecord MySQLAccess []
   DataAccess
-  (get-caps [this] (map mapcap (get-cap-rows)))
+  (get-caps [this queryCount]
+            (if queryCount (swap! queryCount inc))
+            (map mapcap (get-cap-rows)))
   (put-caps [this caps]
             (throw (UnsupportedOperationException.
                      "Writing to ExpressionEngine is not supported")))

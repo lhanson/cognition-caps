@@ -20,7 +20,13 @@
 
 (defrecord SimpleDBAccess []
   DataAccess
-  (get-caps [this] (get-caps this nil))
+  (get-cap [this queryCount url-title]
+            (if queryCount (swap! queryCount inc))
+           (if-let [result (sdb/query config '{select * from items
+                                               where (= :url-title url-title)})]
+             (unmarshal-cap result)
+             ;TODO: what if we have to check old-url-title?
+             ))
   (get-caps [this querycount]
             (if querycount (swap! querycount inc))
             (map unmarshal-cap (sdb/query-all config '{select * from items

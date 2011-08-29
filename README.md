@@ -18,8 +18,7 @@ TODO
 ====
 Because a good project is never finished.
 
-* Write a database migration from ExpressionEngine/MySQL into SimpleDb. Exclude
-  that code from the Heroku slug since we won't want to run it there.
+* Write a database migration from ExpressionEngine/MySQL into SimpleDb.
   - Move images from old hosting to S3
 * Maybe have each cap image's background switch to a highlighted green version on hover
 * Make sure Jetty is returning Content-Type headers
@@ -28,7 +27,6 @@ Because a good project is never finished.
   {:type cap :changed-field "price" :old-value "25" :date-changed "2011-02-01"}.
   The same could apply to other items as well.
 * Map all old URLs into the new application.
-* Use [Modernizr](http://www.modernizr.com)
 * [Optimize images](http://code.google.com/speed/page-speed/docs/payload.html#CompressImages)
 * Implement all recommendations given by Chrome's PageSpeed extension.
 

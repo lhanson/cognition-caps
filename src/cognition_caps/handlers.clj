@@ -62,7 +62,7 @@
            :stats stats})))
 
 (defn item [stats url-title]
-  (let [cap (first (data/get-caps simpledb (:db-queries stats)))]
+  (let [cap (data/get-cap simpledb (:db-queries stats) url-title)]
     (base {:main (show-cap cap)
            :title (:nom cap)
            :stats stats})))
