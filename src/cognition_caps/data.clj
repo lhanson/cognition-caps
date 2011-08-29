@@ -4,11 +4,10 @@
 
 (defprotocol DataAccess
   "A protocol abstracting access to product data"
-  (get-cap  [this queryCount url-title] "Provides the cap corresponding to the given url-title")
-  (get-caps [this queryCount] "Provides a sequence of caps currently stored")
-  (put-caps [this caps] "Persists caps")
-  ; TODO: add queryCount
-  (get-sizes [this] "Provides a list of available sizes"))
+  (get-cap   [this queryCount url-title] "Provides the cap corresponding to the given url-title")
+  (get-caps  [this queryCount]           "Provides a sequence of caps currently stored")
+  (put-caps  [this queryCount caps]      "Persists caps")
+  (get-sizes [this queryCount]           "Provides a list of available sizes"))
 
 (defrecord Cap [id nom url-title description image-urls price sizes tags user-id date-added display-order hide])
 (defn make-Cap

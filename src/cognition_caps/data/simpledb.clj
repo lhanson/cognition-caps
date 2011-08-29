@@ -21,22 +21,23 @@
 (defrecord SimpleDBAccess []
   DataAccess
   (get-cap [this queryCount url-title]
-            (if queryCount (swap! queryCount inc))
-           (if-let [result (sdb/query config '{select * from items
-                                               where (= :url-title url-title)})]
-             (unmarshal-cap result)
-             ;TODO: what if we have to check old-url-title?
-             ))
+    (if queryCount (swap! queryCount inc))
+    (if-let [result (sdb/query config `{select * from items where (= :url-title ~url-title)})]
+      (unmarshal-cap (first result))
+      ;TODO: what if we have to check old-url-title?
+      ))
   (get-caps [this querycount]
-            (if querycount (swap! querycount inc))
-            (map unmarshal-cap (sdb/query-all config '{select * from items
-                                                       where (not-null :display-order)
-                                                       order-by [:display-order desc]})))
-  (put-caps [this caps]
-      (println "Persisting" (count caps) "caps to SimpleDB")
-      (sdb/batch-put-attrs config *caps-domain* (map marshal-cap caps)))
-  (get-sizes [this]
-             (sdb/query-all config '{select * from sizes})))
+    (if querycount (swap! querycount inc))
+    (map unmarshal-cap (sdb/query-all config '{select * from items
+                                               where (not-null :display-order)
+                                               order-by [:display-order desc]})))
+  (put-caps [this queryCount caps]
+    (println "Persisting" (count caps) "caps to SimpleDB")
+    (if queryCount (swap! queryCount inc))
+    (sdb/batch-put-attrs config *caps-domain* (map marshal-cap caps)))
+  (get-sizes [this queryCount]
+    (if queryCount (swap! queryCount inc))
+    (sdb/query-all config '{select * from sizes})))
 (def simpledb (SimpleDBAccess.))
 
 (defn populate-defaults! []
@@ -95,7 +96,7 @@
             sorted-keys))))
 
 (defn- change-key [old-key new-key m]
-  (dissoc (assoc m new-key (old-key m) old-key)))
+  (dissoc (assoc m new-key (old-key m)) old-key))
 
 (defn string-tags-to-keywords [m]
   (let [t (:tags m)

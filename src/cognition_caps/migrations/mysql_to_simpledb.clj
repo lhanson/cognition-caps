@@ -11,13 +11,15 @@
   (println "Populating defaults in SimpleDB")
   (simpledb/populate-defaults!)
   (println "Querying data from ExpressionEngine/MySQL")
-  (let [mysql-data (mysql/make-MySQLAccess) ; ExpressionEngine database for old site
+  (let [mysql-count (atom 0)
+        sdb-count (atom 0)
+        mysql-data (mysql/make-MySQLAccess) ; ExpressionEngine database for old site
         simpledb-data simpledb/simpledb
-        sizes (data/get-sizes simpledb-data)
-        caps (map #(add-sizes % sizes) (data/get-caps mysql-data))]
+        sizes (data/get-sizes simpledb-data sdb-count)
+        caps (map #(add-sizes % sizes) (data/get-caps mysql-data mysql-count))]
     (println "Loaded" (count caps) "caps from MySQL and"
-             (count (data/get-caps simpledb-data)) "from SimpleDB")
-    (data/put-caps simpledb-data caps)))
+             (count (data/get-caps simpledb-data sdb-count)) "from SimpleDB")
+    (data/put-caps simpledb-data sdb-count caps)))
 
 (defn- add-sizes [cap sizes]
   "We're not carrying over the size/price relations from ExpressionEngine,

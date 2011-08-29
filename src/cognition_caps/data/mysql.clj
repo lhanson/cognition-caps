@@ -19,10 +19,10 @@
   (get-caps [this queryCount]
             (if queryCount (swap! queryCount inc))
             (map mapcap (get-cap-rows)))
-  (put-caps [this caps]
+  (put-caps [this caps queryCount]
             (throw (UnsupportedOperationException.
                      "Writing to ExpressionEngine is not supported")))
-  (get-sizes [this]
+  (get-sizes [this queryCount]
              (throw (UnsupportedOperationException.
                       "Not yet implemented since we're not using ExpressionEngine sizing"))))
 (defn make-MySQLAccess [] (MySQLAccess.))
