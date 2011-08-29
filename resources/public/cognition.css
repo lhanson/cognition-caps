@@ -62,6 +62,7 @@ a.include { display: none; } /* Hide extraneous microformat markup */
     position: absolute;
     height: inherit;
     width: 100%;
+    text-indent: -9999px;
     background: url(/images/top_animation.gif) -11px 0px no-repeat;
 }
 
@@ -181,6 +182,7 @@ footer form a {
     margin-top: 18px;
     width: 104px;
     height: 22px;
+    text-indent: -9999px;
     background: url(images/facebook.gif) no-repeat;
 }
 #emailEntry {
