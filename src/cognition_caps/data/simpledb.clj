@@ -1,7 +1,7 @@
 ;;; DataAccess implementation against Amazon SimpleDB
 (ns cognition-caps.data.simpledb
   (:use [cognition-caps.data]
-        [clojure.tools.logging])
+       [clojure.tools.logging])
   (:require [cognition-caps.config :as config]
             [cemerick.rummage :as sdb]
             [cemerick.rummage.encoding :as enc]
@@ -12,7 +12,7 @@
 
 (def *caps-domain* "items")
 
-(def config
+(defonce config
   (let [base {:out :console :level :info}]
     (l/set-loggers!
       :root base

@@ -1,5 +1,6 @@
 (ns cognition-caps.handlers
-  (:use cognition-caps.data.simpledb)
+  (:use cognition-caps.data.simpledb
+        clojure.tools.logging)
   (:require [cognition-caps.data :as data]
             [net.cgrand.enlive-html :as html]))
 
@@ -57,6 +58,7 @@
 ;; =============================================================================
 
 (defn index [stats]
+  (debug "Rendering index")
   (let [caps (data/get-caps simpledb (:db-queries stats))]
     (base {:main (show-caps (take 7 caps))
            :stats stats})))
