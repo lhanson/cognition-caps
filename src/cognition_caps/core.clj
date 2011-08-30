@@ -1,6 +1,7 @@
 (ns cognition-caps.core
   (:use compojure.core
         ring.adapter.jetty
+        ring.middleware.reload
         cognition-caps.handlers)
   (:require [cognition-caps.data :as data]
             [clojure.string :as s]
@@ -29,7 +30,8 @@
                                      :db-queries (atom 0)}}))))
 
 (def app (-> (handler/site all-routes)
-             wrap-stats))
+             wrap-stats
+             (wrap-reload '(cognition-caps.core))))
 
 (defn start [port]
   (run-jetty app {:port port}))

@@ -9,6 +9,7 @@
                  [ring/ring-jetty-adapter "0.3.11"]] ; start on Heroku
   :dev-dependencies [[com.mysql/connectorj "5.1.12"] ; migration from Hostmonster/MySQL
                      [lein-ring "0.4.5"]             ; start via local lein ring plugin
+;                     [ring-devel "0.3.11"]
                      [robert/hooke "1.1.2"]]
   :ring {:handler cognition-caps.core/app}           ; handler used to start local app
   :hooks [leiningen.hooks.classpath])                ; add classpath entries for local execution
