@@ -1,5 +1,6 @@
 (ns cognition-caps.core
   (:use compojure.core
+        ring.adapter.jetty
         cognition-caps.handlers)
   (:require [cognition-caps.data :as data]
             [clojure.string :as s]
@@ -29,3 +30,9 @@
 
 (def app (-> (handler/site all-routes)
              wrap-stats))
+
+(defn start [port]
+  (run-jetty app {:port port}))
+
+(defn -main []
+  (start (Integer/parseInt (or (System/getenv "PORT") "3000"))))
