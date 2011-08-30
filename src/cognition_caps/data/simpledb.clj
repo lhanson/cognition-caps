@@ -1,22 +1,27 @@
 ;;; DataAccess implementation against Amazon SimpleDB
 (ns cognition-caps.data.simpledb
-  (:use [cognition-caps.data])
+  (:use [cognition-caps.data]
+        [clojure.tools.logging])
   (:require [cognition-caps.config :as config]
             [cemerick.rummage :as sdb]
-            [cemerick.rummage.encoding :as enc]))
+            [cemerick.rummage.encoding :as enc]
+            [clj-logging-config.log4j :as l]))
 
 (declare change-key marshal-cap merge-large-descriptions unmarshal-cap
          split-large-descriptions string-tags-to-keywords)
 
 (def *caps-domain* "items")
 
-(defonce config
-  (do
-    (.setLevel (java.util.logging.Logger/getLogger "com.amazonaws")
-               java.util.logging.Level/WARNING)
+(def config
+  (let [base {:out :console :level :info}]
+    (l/set-loggers!
+      :root base
+      "com.amazonaws"  (assoc base :level :warn)
+      "cognition-caps" (assoc base :level (:app-log-level config/config)))
+    (info "Loggers initialized, creating sdb client")
     (assoc enc/keyword-strings
-           :client (sdb/create-client (get config/db-config "amazon-access-id")
-                                      (get config/db-config "amazon-access-key")))))
+           :client (sdb/create-client (get config/config "amazon-access-id")
+                                      (get config/config "amazon-access-key")))))
 
 (defrecord SimpleDBAccess []
   DataAccess
@@ -25,9 +30,10 @@
     (if-let [result (sdb/query config `{select * from items where (= :url-title ~url-title)})]
       (unmarshal-cap (first result))
       ;TODO: what if we have to check old-url-title?
-      ))
+      (warn "Could not find a cap with url-title '" url-title "'")))
   (get-caps [this querycount]
     (if querycount (swap! querycount inc))
+    (debug "Got caps with" @querycount "queries")
     (map unmarshal-cap (sdb/query-all config '{select * from items
                                                where (not-null :display-order)
                                                order-by [:display-order desc]})))

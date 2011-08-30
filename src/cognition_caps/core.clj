@@ -31,7 +31,9 @@
 
 (def app (-> (handler/site all-routes)
              wrap-stats
-             (wrap-reload '(cognition-caps.core))))
+             (wrap-reload '(cognition-caps.core
+                            cognition-caps.handlers
+                            cognition-caps.data.simpledb))))
 
 (defn start [port]
   (run-jetty app {:port port}))
