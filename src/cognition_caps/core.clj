@@ -1,7 +1,6 @@
 (ns cognition-caps.core
   (:use compojure.core
         ring.adapter.jetty
-        ring.middleware.reload
         cognition-caps.handlers)
   (:require [cognition-caps.data :as data]
             [cognition-caps.config :as config]
@@ -30,14 +29,8 @@
     (handler (merge request {:stats {:start-ts (System/nanoTime)
                                      :db-queries (atom 0)}}))))
 
-(def app (if (:dev-mode config/config)
-           (-> (handler/site all-routes)
-               wrap-stats
-               (wrap-reload '(cognition-caps.core
-                              cognition-caps.handlers
-                              cognition-caps.data.simpledb)))
-           (-> (handler/site all-routes)
-               wrap-stats)))
+(def app (-> (handler/site all-routes)
+             wrap-stats))
 
 (defn start [port]
   (run-jetty app {:port port}))

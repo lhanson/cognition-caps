@@ -4,7 +4,7 @@
 (defonce config
   (if (.exists (java.io.File. "datasource.properties"))
     ; We're running locally, read properties from a file
-    (into {:app-log-level :debug :dev-mode true}
+    (into {:app-log-level :debug}
           (props/read-properties "datasource.properties"))
     (if (not (.exists (java.io.File. "datasource.properties.example")))
       ; We're running on Heroku, read properties from the environment
