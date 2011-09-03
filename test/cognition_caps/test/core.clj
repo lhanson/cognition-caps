@@ -1,6 +1,10 @@
 (ns cognition-caps.test.core
   (:use cognition-caps.core :reload
+        [cognition-caps.config :only (base-config)]
         clojure.test))
+
+(def *old-cap-url* "/index.php/caps/caps-description/wi-river-cap")
+(def *new-cap-url* "/caps/wi-river")
 
 (defn- request
   "Performs a Ring request on the specified web app"
@@ -8,16 +12,31 @@
                 :or {method :get params {}}}]
     (app {:request-method method :uri resource :params params})))
 
-(defn- assert-status [status response]
+(defn- assert-status [status response msg]
   "Verifies that the expected status code matches that of the given response"
-  (is (= status (:status response))))
+  (if msg
+      (is (= status (:status response)) msg)
+      (is (= status (:status response)))))
+
+(defn- assert-redirect [response status new-url msg]
+  "Verifies that the given request gives the provided status code and redirects to new-url"
+  (if msg (is (and (= status (:status response))
+                   (= new-url (get (:headers response) "Location"))) msg)
+          (is (and (= status (:status response))
+                   (= new-url (get (:headers response) "Location"))))))
 
 (deftest basic-routes
-  (assert-status 200 (request "/"))
-  (assert-status 404 (request "/foo")))
+  (assert-status 200 (request "/") "Root URL returns 200")
+  (assert-status 404 (request "/foo") "Nonexistent URL returns 404"))
+
+(deftest canonicalization
+  (let [url (str (:cap-url-prefix base-config) "some-cap")
+        url-trailing (str url "/")]
+    (assert-redirect (request url-trailing) 301 url
+                     "Trailing slashes redirect to URL without them"))
+    (assert-redirect (request (str *old-cap-url* "/")) 301 *old-cap-url*
+                     "Canonicalization redirect takes place before legacy URL redirect"))
 
 (deftest old-cap-redirect
-  (let [url  "/index.php/caps/caps-description/wi-river-cap"]
-    (assert-status 302 (request url))
-    (is (="/caps/wi-river" (get (:headers (request url)) "Location")))
-    (assert-status 302 (request (str url "/")))))
+  (assert-redirect (request *old-cap-url*) 301 *new-cap-url*
+                   "Old URL scheme redirects to the current one"))

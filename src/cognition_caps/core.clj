@@ -4,24 +4,25 @@
         [cognition-caps.config :only (config)]
         cognition-caps.handlers)
   (:require [cognition-caps.data :as data]
-            ;[cognition-caps.config :as config]
             [clojure.string :as s]
             [compojure.route :as route]
-            [compojure.handler :as handler]
-            [ring.util.response :as response]))
+            [compojure.handler :as handler]))
+
+(defn- redirect [location] {:status 301 :headers {"Location" location}})
 
 ;; Routes that redirect requests to the old site's URL scheme
 (defroutes redirect-routes
-  (GET ["/index.php/caps/caps-description/:old-url-title", :old-url-title #".+?/?"]
+  ; Canonicalize on no trailing slashes
+  (GET [":url/", :url #".+"] [url] (redirect url))
+  ; Redirect URLs from the old site
+  (GET ["/index.php/caps/caps-description/:old-url-title", :old-url-title #".+?"]
     [old-url-title]
-    (response/redirect (str (println "config:" config)(:cap-url-prefix config) (s/replace old-url-title #"-cap$" "")))))
+    (redirect (str (:cap-url-prefix config) (s/replace old-url-title #"-cap/?$" "")))))
 
 (defroutes all-routes
   (GET "/" {stats :stats} (index stats))
-  (GET "/caps/:url-title" [url-title & params :as request] (item (:stats request) url-title))
-
   redirect-routes
-
+  (GET "/caps/:url-title" [url-title & params :as request] (item (:stats request) url-title))
   (route/resources "/")
   (route/not-found "Page not found"))
 
