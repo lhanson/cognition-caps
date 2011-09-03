@@ -28,14 +28,14 @@
 (defn make-MySQLAccess [] (MySQLAccess.))
 
 (defonce db
-  (let [db-host (get config/db-config "mysql-host")
-        db-port (get config/db-config "mysql-port")
-        db-name (get config/db-config "mysql-name")]
+  (let [db-host (get config/config "mysql-host")
+        db-port (get config/config "mysql-port")
+        db-name (get config/config "mysql-name")]
     {:classname "com.mysql.jdbc.Driver"
      :subprotocol "mysql"
      :subname (str "//" db-host ":" db-port "/" db-name)
-     :user (get config/db-config "mysql-user")
-     :password (get config/db-config "mysql-pass")}))
+     :user (get config/config "mysql-user")
+     :password (get config/config "mysql-pass")}))
 
 (defn- get-cap-rows []
   (let [query (str "SELECT t.entry_id AS \"id\", t.title AS \"nom\",

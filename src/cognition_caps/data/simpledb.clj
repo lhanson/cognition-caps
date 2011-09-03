@@ -1,7 +1,7 @@
 ;;; DataAccess implementation against Amazon SimpleDB
 (ns cognition-caps.data.simpledb
   (:use [cognition-caps.data]
-       [clojure.tools.logging])
+        [clojure.tools.logging])
   (:require [cognition-caps.config :as config]
             [cemerick.rummage :as sdb]
             [cemerick.rummage.encoding :as enc]
@@ -17,33 +17,44 @@
     (l/set-loggers!
       :root base
       "com.amazonaws"  (assoc base :level :warn)
+      "org.mortbay"    (assoc base :level (:app-log-level config/config))
       "cognition-caps" (assoc base :level (:app-log-level config/config)))
     (info "Loggers initialized, creating sdb client")
     (assoc enc/keyword-strings
            :client (sdb/create-client (get config/config "amazon-access-id")
                                       (get config/config "amazon-access-key")))))
 
+(defn- select-cap [queryCount field-name field-value]
+  (swap! queryCount inc)
+  (if-let [result (sdb/query config
+                             `{select * from items
+                               where (= ~field-name ~field-value)})]
+    (unmarshal-cap (first result))))
+
 (defrecord SimpleDBAccess []
   DataAccess
   (get-cap [this queryCount url-title]
-    (if queryCount (swap! queryCount inc))
-    (if-let [result (sdb/query config `{select * from items where (= :url-title ~url-title)})]
-      (unmarshal-cap (first result))
-      ;TODO: what if we have to check old-url-title?
-      (warn "Could not find a cap with url-title '" url-title "'")))
-  (get-caps [this querycount]
-    (if querycount (swap! querycount inc))
-    (debug "Got caps with" @querycount "queries")
+    (if-let [cap (select-cap queryCount :url-title url-title)]
+      cap
+      (do
+        (debug (str "No cap found for url-title '" url-title "', querying for a name change"))
+        (select-cap queryCount :old-url-title url-title))))
+
+  (get-caps [this queryCount]
+    (swap! queryCount inc)
     (map unmarshal-cap (sdb/query-all config '{select * from items
                                                where (not-null :display-order)
                                                order-by [:display-order desc]})))
+
   (put-caps [this queryCount caps]
     (println "Persisting" (count caps) "caps to SimpleDB")
     (if queryCount (swap! queryCount inc))
     (sdb/batch-put-attrs config *caps-domain* (map marshal-cap caps)))
+
   (get-sizes [this queryCount]
     (if queryCount (swap! queryCount inc))
     (sdb/query-all config '{select * from sizes})))
+
 (def simpledb (SimpleDBAccess.))
 
 (defn populate-defaults! []

@@ -1,6 +1,7 @@
 (ns cognition-caps.handlers
-  (:use cognition-caps.data.simpledb
-        clojure.tools.logging)
+  (:use [cognition-caps.data.simpledb :only (simpledb)]
+        [cognition-caps.config :only (config)]
+        [clojure.tools.logging :only (debug)])
   (:require [cognition-caps.data :as data]
             [net.cgrand.enlive-html :as html]))
 
@@ -47,6 +48,7 @@
 
 (html/deftemplate base "base.html" [{:keys [title main stats]}]
   [:title] (maybe-content title)
+  ; TODO: remove the main link to / in the header if we're already there
   [:#main] (maybe-substitute main)
   ; The last thing we do is to set the elapsed time
   [:#requestStats] (html/content (str "Response generated in "
@@ -64,10 +66,22 @@
            :stats stats})))
 
 (defn item [stats url-title]
-  (let [cap (data/get-cap simpledb (:db-queries stats) url-title)]
-    (base {:main (show-cap cap)
-           :title (:nom cap)
-           :stats stats})))
+  (debug "Getting item for" url-title)
+  (if-let [cap (data/get-cap simpledb (:db-queries stats) url-title)]
+    (let [current-title (:url-title cap)
+          old-title     (:old-url-title cap)]
+      (if (and old-title (not= current-title url-title))
+        (do
+          (debug (str "Request for url-title '" url-title
+                      "' being redirected to new location '" current-title "'"))
+          ; TODO: prime the get-cap cache with this result so the redirect is fast
+          {:status 301
+           :headers {"Location" (str (:cap-url-prefix config) current-title)}})
+        (do
+          (debug "Loaded cap for url-title" url-title ": " cap)
+          (base {:main (show-cap cap)
+                 :title (:nom cap)
+                 :stats stats}))))))
 
 ;; =============================================================================
 ;; Utility functions

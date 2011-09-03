@@ -20,6 +20,7 @@ Because a good project is never finished.
 
 * Write a database migration from ExpressionEngine/MySQL into SimpleDb.
   - Move images from old hosting to S3
+* Write a canonicalization wrapper/route. no-www, no trailing slash, all lowercase URLs.
 * Maybe have each cap image's background switch to a highlighted green version on hover
 * Make sure Jetty is returning Content-Type headers
 * Add a history tracking entity. When a cap attribute is changed, store a
@@ -27,6 +28,9 @@ Because a good project is never finished.
   {:type cap :changed-field "price" :old-value "25" :date-changed "2011-02-01"}.
   The same could apply to other items as well.
 * Map all old URLs into the new application.
+  - Include a series of old url-titles as the title can change multiple times
+  - If/when an item is renamed, it cannot be renamed to a name that a different
+    item has owned in the past so 301 redirects converge on the unique items
 * [Optimize images](http://code.google.com/speed/page-speed/docs/payload.html#CompressImages)
 * Implement all recommendations given by Chrome's PageSpeed extension.
 
