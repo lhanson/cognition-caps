@@ -1,11 +1,12 @@
 (ns cognition-caps.handlers
   (:use [cognition-caps.data.simpledb :only (simpledb)]
         [cognition-caps.config :only (config)]
+        [clojure.contrib.string :only (replace-str split-lines)]
         [clojure.tools.logging :only (debug)])
   (:require [cognition-caps.data :as data]
             [net.cgrand.enlive-html :as html]))
 
-(declare item-type)
+(declare item-type wrap-paragraphs)
 (defmacro maybe-append
   ([expr] `(if-let [x# ~expr] (html/append x#) identity))
   ([expr & exprs] `(maybe-append (or ~expr ~@exprs))))
@@ -38,7 +39,8 @@
   [:#itemImageWrapper :img] (html/set-attr :src (first (:image-urls cap)))
   [:.fn] (html/content (:nom cap))
   [:.price] (html/content "666")
-  [:.description] (html/content (:description cap)))
+  [:.description] (html/html-content (wrap-paragraphs (:description cap)))
+  [:.description [:p html/last-of-type]] (html/add-class "itemMaterials"))
 
 (html/defsnippet show-cap "mainContent.html" [:#main]
   [cap]
@@ -92,3 +94,8 @@
   (let [t (if (string? tags) (hash-set tags) tags)]
     (cond
       (contains? t :item-type-cap) "caps")))
+
+(defn- wrap-paragraphs [text]
+  "Converts newline-delimited text into <p> blocks"
+  (let [paragraphs (filter #(not (empty? %)) (split-lines text))]
+    (reduce str (map #(str "<p>" % "</p>") paragraphs))))

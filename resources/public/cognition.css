@@ -132,10 +132,7 @@ a.include { display: none; } /* Hide extraneous microformat markup */
     line-height: 24px;
     font-family: Georgia, 'Times New Roman', Times, serif;
 }
-.itemMaterials{
-    color: #555;
-    display: block;
-}
+.itemMaterials{ color: #555; }
 #thumbnails {
     position: absolute;
     top: 510px;
