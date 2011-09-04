@@ -20,7 +20,7 @@ Because a good project is never finished.
 
 * Write a database migration from ExpressionEngine/MySQL into SimpleDb.
   - Move images from old hosting to S3
-* Write a canonicalization wrapper/route. no-www, no trailing slash, all lowercase URLs.
+* Canonicalize on no-www URL subdomain
 * Maybe have each cap image's background switch to a highlighted green version on hover
 * Make sure Jetty is returning Content-Type headers
 * Add a history tracking entity. When a cap attribute is changed, store a

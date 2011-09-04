@@ -1,7 +1,8 @@
 (ns cognition-caps.test.core
   (:use cognition-caps.core :reload
         [cognition-caps.config :only (base-config)]
-        clojure.test))
+        clojure.test
+        [clojure.string :only (upper-case)]))
 
 (def *old-cap-url* "/index.php/caps/caps-description/wi-river-cap")
 (def *new-cap-url* "/caps/wi-river")
@@ -33,9 +34,11 @@
   (let [url (str (:cap-url-prefix base-config) "some-cap")
         url-trailing (str url "/")]
     (assert-redirect (request url-trailing) 301 url
-                     "Trailing slashes redirect to URL without them"))
+                     "Trailing slashes redirect to URL without them")
+    (assert-redirect (request (upper-case url)) 301 url
+                     "Uppercase characters in URLs redirect to lower-case")
     (assert-redirect (request (str *old-cap-url* "/")) 301 *old-cap-url*
-                     "Canonicalization redirect takes place before legacy URL redirect"))
+                     "Canonicalization redirect takes place before legacy URL redirect")))
 
 (deftest old-cap-redirect
   (assert-redirect (request *old-cap-url*) 301 *new-cap-url*

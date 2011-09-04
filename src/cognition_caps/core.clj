@@ -1,6 +1,7 @@
 (ns cognition-caps.core
   (:use compojure.core
         ring.adapter.jetty
+        [clojure.contrib.string :only (replace-re)]
         [cognition-caps.config :only (config)]
         cognition-caps.handlers)
   (:require [cognition-caps.data :as data]
@@ -12,12 +13,16 @@
 
 ;; Routes that redirect requests to the old site's URL scheme
 (defroutes redirect-routes
-  ; Canonicalize on no trailing slashes
-  (GET [":url/", :url #".+"] [url] (redirect url))
+  ; Canonicalize on lowercase and no trailing slashes
+  (GET [":url", :url #".+/|.+?\p{Upper}.*"] [url]
+    (redirect (->> url (replace-re #"/+$" "") (s/lower-case))))
   ; Redirect URLs from the old site
   (GET ["/index.php/caps/caps-description/:old-url-title", :old-url-title #".+?"]
     [old-url-title]
-    (redirect (str (:cap-url-prefix config) (s/replace old-url-title #"-cap/?$" "")))))
+    (redirect (str (:cap-url-prefix config)
+                   (-> old-url-title
+                       (s/replace #"-cap/?$" "")
+                       (s/lower-case))))))
 
 (defroutes all-routes
   (GET "/" {stats :stats} (index stats))
