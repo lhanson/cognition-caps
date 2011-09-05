@@ -35,11 +35,13 @@
 (defrecord SimpleDBAccess []
   DataAccess
   (get-cap [this queryCount url-title]
-    (if-let [cap (select-cap queryCount :url-title url-title)]
-      cap
-      (do
-        (debug (str "No cap found for url-title '" url-title "', querying for a name change"))
-        (select-cap queryCount :old-url-title url-title (.get-prices this queryCount)))))
+    (let [prices (.get-prices this queryCount)
+          cap (select-cap queryCount :url-title url-title prices)]
+      (if cap
+        cap
+        (do
+          (debug (str "No cap found for url-title '" url-title "', querying for a name change"))
+          (select-cap queryCount :old-url-title url-title prices)))))
 
   (get-caps [this queryCount]
     (swap! queryCount inc)

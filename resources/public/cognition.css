@@ -126,6 +126,7 @@ a.include { display: none; } /* Hide extraneous microformat markup */
     color: #b2cd00;
     font-size: 30px;
     font-family: Oswald, arial, serif;
+    margin: 6px 0px 14px 0px;
 }
 .description, .itemMaterials{
     font-size: 14px;
@@ -141,6 +142,7 @@ a.include { display: none; } /* Hide extraneous microformat markup */
 #itemInfoWrapper {
     float: left;
     width: 477px;
+    margin-top: 15px;
 }
 #itemImageWrapper {
     float: left;
