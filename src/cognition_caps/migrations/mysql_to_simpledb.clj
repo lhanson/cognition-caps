@@ -17,8 +17,9 @@
         simpledb-data simpledb/simpledb
         sizes (data/get-sizes simpledb-data sdb-count)
         caps (map #(add-sizes % sizes) (data/get-caps mysql-data mysql-count))]
-    (println "Loaded" (count caps) "caps from MySQL and"
-             (count (data/get-caps simpledb-data sdb-count)) "from SimpleDB")
+    (println "Loaded" (count caps) "caps from MySQL with" mysql-count "queries and"
+             (count (data/get-caps simpledb-data sdb-count)) "from SimpleDB with"
+             sdb-count "queries")
     (data/put-caps simpledb-data sdb-count caps)))
 
 (defn- add-sizes [cap sizes]

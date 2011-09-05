@@ -48,12 +48,16 @@
 
   (put-caps [this queryCount caps]
     (println "Persisting" (count caps) "caps to SimpleDB")
-    (if queryCount (swap! queryCount inc))
+    (swap! queryCount inc)
     (sdb/batch-put-attrs config *caps-domain* (map marshal-cap caps)))
 
   (get-sizes [this queryCount]
-    (if queryCount (swap! queryCount inc))
-    (sdb/query-all config '{select * from sizes})))
+    (swap! queryCount inc)
+    (sdb/query-all config '{select * from sizes}))
+
+  (get-prices [this queryCount]
+    (swap! queryCount inc)
+    (sdb/query-all config '{select * from prices})))
 
 (def simpledb (SimpleDBAccess.))
 
@@ -61,9 +65,9 @@
   "Sets up SimpleDB with our basic set of predefined values"
   (sdb/create-domain config "items")
   (sdb/create-domain config "sizes")
-  (sdb/batch-put-attrs config "sizes" [{::sdb/id "1" :nom "Small-ish"}
-                                       {::sdb/id "2" :nom "One Size Fits Most"}
-                                       {::sdb/id "3" :nom "Large"}]))
+  (sdb/batch-put-attrs config "sizes" (map #(change-key :id ::sdb/id %) default-sizes))
+  (sdb/create-domain config "prices")
+  (sdb/batch-put-attrs config "prices" (map #(change-key :id ::sdb/id %) default-prices)))
 
 (defn- marshal-cap [cap]
   "Preprocesses the given cap before persisting to SimpleDB"
