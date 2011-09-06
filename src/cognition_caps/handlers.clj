@@ -1,7 +1,7 @@
 (ns cognition-caps.handlers
   (:use [cognition-caps.data.simpledb :only (simpledb)]
         [cognition-caps.config :only (config)]
-        [clojure.contrib.string :only (replace-re split-lines)]
+        [clojure.contrib.string :only (lower-case replace-re split-lines)]
         [clojure.tools.logging :only (debug)])
   (:require [cognition-caps.data :as data]
             [net.cgrand.enlive-html :as html]))
@@ -16,6 +16,8 @@
 (defmacro maybe-substitute
   ([expr] `(if-let [x# ~expr] (html/substitute x#) identity))
   ([expr & exprs] `(maybe-substitute (or ~expr ~@exprs))))
+(defmacro change-when [test & body]
+  `(if ~test (do ~@body) identity))
 
 ;; =============================================================================
 ;; Templates
@@ -37,10 +39,17 @@
 (html/defsnippet item-details "mainContent.html" [:#itemDetails]
   [cap]
   [:#itemImageWrapper :img] (html/set-attr :src (first (:image-urls cap)))
+  ; TODO: fn and price are repeated from above, refactor
   [:.fn] (html/content (:nom cap))
   [:.price] (html/content (formatted-price cap))
   [:.description] (html/html-content (wrap-paragraphs (:description cap)))
-  [:.description [:p html/last-of-type]] (html/add-class "itemMaterials"))
+  [:.description [:p html/last-of-type]] (html/add-class "itemMaterials")
+  [:#sizeSelection :option] (html/clone-for [size (:sizes cap)]
+                              (html/do->
+                                (change-when (= (:id size) (str data/default-size))
+                                             (html/set-attr :selected "selected"))
+                                (html/set-attr :value (:id size))
+                                (html/content (lower-case (:nom size))))))
 
 (html/defsnippet show-cap "mainContent.html" [:#main]
   [cap]

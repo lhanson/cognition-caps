@@ -128,12 +128,16 @@ a.include { display: none; } /* Hide extraneous microformat markup */
     font-family: Oswald, arial, serif;
     margin: 6px 0px 14px 0px;
 }
+.description p + p { margin-top: 1em; }
 .description, .itemMaterials{
     font-size: 14px;
     line-height: 24px;
     font-family: Georgia, 'Times New Roman', Times, serif;
 }
-.itemMaterials{ color: #555; }
+.itemMaterials{
+    color: #555;
+    margin-bottom: 1em;
+}
 #thumbnails {
     position: absolute;
     top: 510px;
@@ -141,8 +145,8 @@ a.include { display: none; } /* Hide extraneous microformat markup */
 }
 #itemInfoWrapper {
     float: left;
-    width: 477px;
-    margin-top: 15px;
+    width: 456px;
+    margin: 15px 21px 0px 0px;
 }
 #itemImageWrapper {
     float: left;
@@ -151,11 +155,36 @@ a.include { display: none; } /* Hide extraneous microformat markup */
     margin: 0px 21px 0px 21px;
     background: url(images/bg_main_item.png) 0px 0px no-repeat;
 }
-#facebookWidgets, #itemInfoWrapper { border-bottom: 1px dotted #999; }
+#facebookWidgets, #itemInfoWrapper {
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+    border-bottom: 1px dotted #999;
+}
+#itemDetails form * { margin-right: 15px; }
+#itemDetails form label { text-transform: uppercase; }
+#itemDetails form a {
+    font-size: 11px;
+    padding: 5px;
+    color: black;
+    background-color: white;
+}
+#itemDetails form select, #itemDetails form select option {
+    font-size: 16px;
+    font-family: Oswald, arial, serif;
+    background-color: #999;
+}
+#itemDetails form select {
+    width: 160px;
+    border: 0px;
+}
 #itemDetails form input {
     width: 156px;
     height: 65px;
     border: none;
+    display: block;
+    cursor: pointer;
+    margin-top: 20px;
+    text-indent: -9999px;
     background: url(images/cart_add.png) no-repeat left top;
 }
 

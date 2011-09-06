@@ -99,7 +99,7 @@
         nom (s/replace (:nom capmap) #"(?i)\s*cap\s*$" "")
         date-added (apply date-time (map #(Integer. %) [year month day]))
         images (if (or image1 image2 image3 image4)
-                 (map #(cs/trim %) (filter #(not (blank? %)) (vector image1 image2 image3 image4))))
+                 (map #(cs/trim %) (filter #(not (s/blank? %)) (vector image1 image2 image3 image4))))
         check-price-id (fn [c]
                          (if (:price-id c) c
                              (do

@@ -27,19 +27,20 @@
 ;; =============================================================================
 ;; Default data 
 ;; =============================================================================
-(def default-sizes [{:id "1" :nom "Small-ish"}
-                    {:id "2" :nom "One Size Fits Most"}
-                    {:id "3" :nom "Large"}])
+(def default-size 2)
+(def default-sizes [{:id 1 :nom "Small-ish"}
+                    {:id 2 :nom "One Size Fits Most"}
+                    {:id 3 :nom "Large"}])
 
-(def default-prices [{:id "1" :price "0.50"  :description "Stickers & Buttons"}
-                     {:id "2" :price "22.00" :description "Basic Cap"}
-                     {:id "3" :price "24.00" :description "Cap w/Ribbon"}
-                     {:id "4" :price "25.00" :description "Screenprinted"}
-                     {:id "5" :price "27.00" :description "Wool"}
-                     {:id "6" :price "30.00" :description "Winter Wool w/Earflaps"}
-                     {:id "7" :price "33.00" :description "Gnome Fest"}
-                     {:id "8" :price "35.00" :description "Faux Fur"}
-                     {:id "9" :price "20.00" :description "FixedRiders.com"}])
+(def default-prices [{:id 1 :price "0.50"  :description "Stickers & Buttons"}
+                     {:id 2 :price "22.00" :description "Basic Cap"}
+                     {:id 3 :price "24.00" :description "Cap w/Ribbon"}
+                     {:id 4 :price "25.00" :description "Screenprinted"}
+                     {:id 5 :price "27.00" :description "Wool"}
+                     {:id 6 :price "30.00" :description "Winter Wool w/Earflaps"}
+                     {:id 7 :price "33.00" :description "Gnome Fest"}
+                     {:id 8 :price "35.00" :description "Faux Fur"}
+                     {:id 9 :price "20.00" :description "FixedRiders.com"}])
 
 ;; =============================================================================
 ;; Utility functions

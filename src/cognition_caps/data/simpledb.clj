@@ -1,15 +1,16 @@
 ;;; DataAccess implementation against Amazon SimpleDB
 (ns cognition-caps.data.simpledb
   (:use [cognition-caps.data]
+        [clojure.contrib.string :only (split)]
         [clojure.tools.logging])
   (:require [cognition-caps.config :as config]
             [cemerick.rummage :as sdb]
             [cemerick.rummage.encoding :as enc]
             [clj-logging-config.log4j :as l]))
 
-(declare change-key dereference-price marshal-cap merge-large-descriptions
-         unmarshal-cap unmarshal-price split-large-descriptions
-         string-tags-to-keywords)
+(declare change-key dereference-price dereference-sizes marshal-cap
+         merge-large-descriptions unmarshal-cap unmarshal-ids
+         split-large-descriptions string-tags-to-keywords)
 
 (def *caps-domain* "items")
 
@@ -25,28 +26,30 @@
            :client (sdb/create-client (get config/config "amazon-access-id")
                                       (get config/config "amazon-access-key")))))
 
-(defn- select-cap [queryCount field-name field-value prices]
+(defn- select-cap [queryCount field-name field-value prices sizes]
   (swap! queryCount inc)
   (if-let [result (sdb/query config
                              `{select * from items
                                where (= ~field-name ~field-value)})]
-    (unmarshal-cap (first result) prices)))
+    (unmarshal-cap (first result) prices sizes)))
 
 (defrecord SimpleDBAccess []
   DataAccess
   (get-cap [this queryCount url-title]
     (let [prices (.get-prices this queryCount)
-          cap (select-cap queryCount :url-title url-title prices)]
+          sizes (.get-sizes this queryCount)
+          cap (select-cap queryCount :url-title url-title prices sizes)]
       (if cap
         cap
         (do
           (debug (str "No cap found for url-title '" url-title "', querying for a name change"))
-          (select-cap queryCount :old-url-title url-title prices)))))
+          (select-cap queryCount :old-url-title url-title prices sizes)))))
 
   (get-caps [this queryCount]
     (swap! queryCount inc)
-    (let [prices (.get-prices this queryCount)]
-      (map #(unmarshal-cap % prices)
+    (let [prices (.get-prices this queryCount)
+          sizes (.get-sizes this queryCount)]
+      (map #(unmarshal-cap % prices sizes)
            (sdb/query-all config '{select * from items
                                    where (not-null :display-order)
                                    order-by [:display-order desc]}))))
@@ -58,11 +61,11 @@
 
   (get-sizes [this queryCount]
     (swap! queryCount inc)
-    (sdb/query-all config '{select * from sizes}))
+    (map unmarshal-ids (sdb/query-all config '{select * from sizes})))
 
   (get-prices [this queryCount]
     (swap! queryCount inc)
-    (map unmarshal-price (sdb/query-all config '{select * from prices}))))
+    (map unmarshal-ids (sdb/query-all config '{select * from prices}))))
 
 (def simpledb (SimpleDBAccess.))
 
@@ -78,16 +81,17 @@
   "Preprocesses the given cap before persisting to SimpleDB"
   (split-large-descriptions (change-key :id ::sdb/id cap)))
 
-(defn- unmarshal-cap [cap prices]
+(defn- unmarshal-cap [cap prices sizes]
   "Reconstitutes the given cap after reading from SimpleDB"
   (-> cap
-      (change-key ::sdb/id :id)
+      (unmarshal-ids)
       (merge-large-descriptions)
       (string-tags-to-keywords)
-      (dereference-price prices)))
+      (dereference-price prices)
+      (dereference-sizes sizes)))
 
-(defn- unmarshal-price [price]
-  (change-key price ::sdb/id :id))
+(defn- unmarshal-ids [m]
+  (change-key m ::sdb/id :id))
 
 (defn- long-split [re maxlen s]
   "Splits s on the provided regex returning a lazy sequence of substrings of
@@ -138,3 +142,16 @@
 (defn dereference-price [m prices]
   "Associates the full price map for the given cap's price-id"
   (assoc m :price (some #(if (= (:price-id m) (:id %)) %) prices)))
+
+(defn dereference-sizes [m sizes]
+  "Associates the a parsed size map for the given cap's encoded size-id:quantity string"
+  (let [size-id-qty (map #(split #":" %) (:sizes m))
+        available-sizes (filter #(not (nil? %))
+                                (map #(if (not= 0 (Integer/parseInt (second %)))
+                                          (first %))
+                                     size-id-qty))
+        sorted-sizes (apply sorted-set available-sizes)
+        ; Create a list of size maps applicable to this cap
+        size-map (reduce #(if (get sorted-sizes (:id %2)) (concat %1 (list %2)) %1)
+                         '() sizes)]
+    (assoc m :sizes size-map)))
