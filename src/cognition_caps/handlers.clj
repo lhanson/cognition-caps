@@ -23,12 +23,16 @@
 ;; Templates
 ;; =============================================================================
 
-; Snippet to generate item markup
+(defn cap-common [cap]
+  (html/transformation
+    [:.fn] (html/content (:nom cap))
+    [:.price] (html/content (formatted-price cap))))
+
+; Snippet to generate item markup for each item on the main page
 (html/defsnippet item-model "mainContent.html" [:#items :.item]
   [cap]
+  [:*] (cap-common cap)
   [[:a :.url]] (html/set-attr :href (str "/" (item-type (:tags cap)) "/" (:url-title cap)))
-  [:.fn] (html/content (:nom cap))
-  [:.price] (html/content (formatted-price cap))
   [:img] (html/set-attr :src (first (:image-urls cap))))
 
 (html/defsnippet show-caps "mainContent.html" [:#main]
@@ -36,12 +40,11 @@
   [:#items :ul] (html/content (map item-model caps))
   [:#itemDetails] nil)
 
+; Snippet for generating markup for an individual item page
 (html/defsnippet item-details "mainContent.html" [:#itemDetails]
   [cap]
+  [:*] (cap-common cap)
   [:#itemImageWrapper :img] (html/set-attr :src (first (:image-urls cap)))
-  ; TODO: fn and price are repeated from above, refactor
-  [:.fn] (html/content (:nom cap))
-  [:.price] (html/content (formatted-price cap))
   [:.description] (html/html-content (wrap-paragraphs (:description cap)))
   [:.description [:p html/last-of-type]] (html/add-class "itemMaterials")
   [:#sizeSelection :option] (html/clone-for [size (:sizes cap)]
