@@ -73,9 +73,9 @@
   "Sets up SimpleDB with our basic set of predefined values"
   (sdb/create-domain config "items")
   (sdb/create-domain config "sizes")
-  (sdb/batch-put-attrs config "sizes" (map #(change-key :id ::sdb/id %) default-sizes))
+  (sdb/batch-put-attrs config "sizes" (map #(change-key % :id ::sdb/id) default-sizes))
   (sdb/create-domain config "prices")
-  (sdb/batch-put-attrs config "prices" (map #(change-key :id ::sdb/id %) default-prices)))
+  (sdb/batch-put-attrs config "prices" (map #(change-key % :id ::sdb/id) default-prices)))
 
 (defn- marshal-cap [cap]
   "Preprocesses the given cap before persisting to SimpleDB"

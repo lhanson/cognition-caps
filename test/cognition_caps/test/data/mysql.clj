@@ -8,7 +8,7 @@
 
 (deftest cap-name-mapping
   ; Test that extraneous " Cap" suffixes are removed from cap names
-  (are [nom] (= "Portland" (:nom (mapcap (assoc minimal-capmap :nom nom :url-title "portland"))))
+  (are [nom] (= "Portland" (:nom (mapcap (atom 0) (assoc minimal-capmap :nom nom :url-title "portland"))))
        "Portland Cap"
        "Portland cap"
        "Portland cap   "))
