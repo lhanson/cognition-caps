@@ -79,7 +79,7 @@
 
 (defn- marshal-cap [cap]
   "Preprocesses the given cap before persisting to SimpleDB"
-  (split-large-descriptions (change-key :id ::sdb/id cap)))
+  (split-large-descriptions (change-key cap :id ::sdb/id)))
 
 (defn- unmarshal-cap [cap prices sizes]
   "Reconstitutes the given cap after reading from SimpleDB"
@@ -155,3 +155,4 @@
         size-map (reduce #(if (get sorted-sizes (:id %2)) (concat %1 (list %2)) %1)
                          '() sizes)]
     (assoc m :sizes size-map)))
+

@@ -17,9 +17,9 @@
         simpledb-data simpledb/simpledb
         sizes (data/get-sizes simpledb-data sdb-count)
         caps (map #(add-sizes % sizes) (data/get-caps mysql-data mysql-count))]
-    (println "Loaded" (count caps) "caps from MySQL with" mysql-count "queries and"
+    (println "Loaded" (count caps) "caps from MySQL with" @mysql-count "queries and"
              (count (data/get-caps simpledb-data sdb-count)) "from SimpleDB with"
-             sdb-count "queries")
+             @sdb-count "queries")
     (data/put-caps simpledb-data sdb-count caps)))
 
 (defn- add-sizes [cap sizes]
@@ -27,4 +27,4 @@
    so set up each cap with the default sizing for the new system.
    Note that individual size entries are coded SIZE_ID:QTY, with -1 representing
    'unlimited' inventory."
-  (assoc cap :sizes (apply vector (map #(str (::sdb/id %) ":-1") sizes))))
+  (assoc cap :sizes (apply vector (map #(str (:id %) ":-1") sizes))))
