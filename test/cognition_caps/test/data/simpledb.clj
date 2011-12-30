@@ -34,11 +34,25 @@
       (is (empty? description-keys)
           "Expecting intermediate description attributes to be removed"))))
 
-;;; Test that ordered cap attributes are correctly marshalled and unmarshalled
+; Ten letters to verify lexicographical ordering of single- and multi-digit numbers
+(def ten-letters
+  (seq ["a" "b" "c" "d" "e" "f" "g" "h" "i" "j"]))
+
+(def ten-prefixed-letters
+  (map #(str (format "%02d" %1) "_" %2) (iterate inc 1) ten-letters))
+
+;;; Test that ordered cap attributes are correctly marshalled
 ;;; such that they retain ordering
-(deftest ordered-attributes
-  (let [cap {:sequential_attr (seq ["a" "b" "c" "d"])}
+(deftest order-attributes
+  (let [cap {:sequential_attr ten-letters}
         marshalled-cap (sdb/marshal-cap cap)
         attrs (set (:sequential_attr marshalled-cap))]
-    (are [attr] (attrs attr)
-         "1_a" "2_b" "3_c" "4_d")))
+    (is (every? attrs ten-prefixed-letters))))
+
+;;; Test that ordered cap attributes are correctly unmarshalled
+;;; such that their original ordering is reconstituted
+(deftest reorder-attributes
+  (let [cap {:sequential_attr (seq (shuffle ten-prefixed-letters))}
+        unmarshalled-cap (sdb/unmarshal-cap cap nil nil)
+        attrs (:sequential_attr unmarshalled-cap)]
+    (is (= attrs ten-letters))))

@@ -8,8 +8,9 @@
             [cemerick.rummage.encoding :as enc]
             [clj-logging-config.log4j :as l]))
 
-(declare annotate-ordered-values change-key dereference-price dereference-sizes
-         marshal-cap merge-large-descriptions unmarshal-cap unmarshal-ids
+(declare annotate-ordered-values unannotate-ordered-values change-key
+         dereference-price dereference-sizes marshal-cap
+         merge-large-descriptions unmarshal-cap unmarshal-ids
          split-large-descriptions string-tags-to-keywords)
 
 (def *caps-domain* "items")
@@ -84,7 +85,19 @@
   (into {}
     (map (fn [entry]
         (if (seq? (val entry))
-          [(key entry) (map #(str %1 "_" %2) (iterate inc 1) (val entry))]
+          [(key entry) (map #(str (format "%02d" %1) "_" %2)
+                            (iterate inc 1)
+                            (val entry))]
+          entry))
+      (seq cap))))
+
+(defn- unannotate-ordered-values [cap]
+  "Finds multi-valued attributes which have had an order prefixed and
+  reconstitutes them into an ordered sequence"
+  (into {}
+    (map (fn [entry]
+        (if (seq? (val entry))
+          [(key entry) (map #(subs % (inc (.indexOf % "_"))) (sort (val entry)))]
           entry))
       (seq cap))))
 
@@ -95,14 +108,15 @@
       (split-large-descriptions)
       (annotate-ordered-values)))
 
-(defn- unmarshal-cap [cap prices sizes]
+(defn unmarshal-cap [cap prices sizes]
   "Reconstitutes the given cap after reading from SimpleDB"
   (-> cap
       (unmarshal-ids)
       (merge-large-descriptions)
       (string-tags-to-keywords)
       (dereference-price prices)
-      (dereference-sizes sizes)))
+      (dereference-sizes sizes)
+      (unannotate-ordered-values)))
 
 (defn- unmarshal-ids [m]
   (change-key m ::sdb/id :id))
