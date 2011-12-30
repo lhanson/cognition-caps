@@ -33,6 +33,8 @@ Because a good project is never finished.
     item has owned in the past so 301 redirects converge on the unique items
 * [Optimize images](http://code.google.com/speed/page-speed/docs/payload.html#CompressImages)
 * Implement all recommendations given by Chrome's PageSpeed extension.
+* Extract annotate-ordered-values and merge-large-descriptions from simpledb
+  code to be generic wrappers around rummage.
 
 License
 =======

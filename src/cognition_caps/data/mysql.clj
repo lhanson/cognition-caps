@@ -17,6 +17,9 @@
 
 (defrecord MySQLAccess []
   DataAccess
+  (get-cap [this queryCount url-title]
+    (throw (UnsupportedOperationException.
+             "Looking up a single cap from ExpressionEngine is not supported")))
   (get-caps   [this queryCount]
     (map #(mapcap queryCount %) (get-cap-rows queryCount)))
   (put-caps   [this caps queryCount]

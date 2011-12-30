@@ -8,8 +8,8 @@
             [cemerick.rummage.encoding :as enc]
             [clj-logging-config.log4j :as l]))
 
-(declare change-key dereference-price dereference-sizes marshal-cap
-         merge-large-descriptions unmarshal-cap unmarshal-ids
+(declare annotate-ordered-values change-key dereference-price dereference-sizes
+         marshal-cap merge-large-descriptions unmarshal-cap unmarshal-ids
          split-large-descriptions string-tags-to-keywords)
 
 (def *caps-domain* "items")
@@ -77,9 +77,23 @@
   (sdb/create-domain config "prices")
   (sdb/batch-put-attrs config "prices" (map #(change-key % :id ::sdb/id) default-prices)))
 
-(defn- marshal-cap [cap]
+(defn- annotate-ordered-values [cap]
+  "If any of the values in the given map are sequences, prepends each of the
+  items in the sequence with a value which will allow the ordering to be
+  preserved upon unmarshalling"
+  (into {}
+    (map (fn [entry]
+        (if (seq? (val entry))
+          [(key entry) (map #(str %1 "_" %2) (iterate inc 1) (val entry))]
+          entry))
+      (seq cap))))
+
+(defn marshal-cap [cap]
   "Preprocesses the given cap before persisting to SimpleDB"
-  (split-large-descriptions (change-key cap :id ::sdb/id)))
+  (-> cap
+      (change-key :id ::sdb/id)
+      (split-large-descriptions)
+      (annotate-ordered-values)))
 
 (defn- unmarshal-cap [cap prices sizes]
   "Reconstitutes the given cap after reading from SimpleDB"

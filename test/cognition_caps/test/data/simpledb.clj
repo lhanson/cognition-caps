@@ -33,3 +33,12 @@
                                    (keys merged-cap))]
       (is (empty? description-keys)
           "Expecting intermediate description attributes to be removed"))))
+
+;;; Test that ordered cap attributes are correctly marshalled and unmarshalled
+;;; such that they retain ordering
+(deftest ordered-attributes
+  (let [cap {:sequential_attr (seq ["a" "b" "c" "d"])}
+        marshalled-cap (sdb/marshal-cap cap)
+        attrs (set (:sequential_attr marshalled-cap))]
+    (are [attr] (attrs attr)
+         "1_a" "2_b" "3_c" "4_d")))
