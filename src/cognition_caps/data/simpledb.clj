@@ -84,22 +84,28 @@
   preserved upon unmarshalling"
   (into {}
     (map (fn [entry]
-        (if (= :image-urls (key entry))
-          [(key entry) (map #(str (format "%02d" %1) "_" %2)
-                            (iterate inc 1)
-                            (val entry))]
-          entry))
-      (seq cap))))
+           ; We're just hardcoding which attribute(s) are ordered
+           (if (= :image-urls (key entry))
+             [(key entry) (map #(str (format "%02d" %1) "_" %2)
+                               (iterate inc 1)
+                               (val entry))]
+             entry))
+         (seq cap))))
 
 (defn- unannotate-ordered-values [cap]
   "Finds multi-valued attributes which have had an order prefixed and
   reconstitutes them into an ordered sequence"
   (into {}
     (map (fn [entry]
-        (if (= :image-urls (key entry))
-          [(key entry) (map #(subs % (inc (.indexOf % "_"))) (sort (val entry)))]
-          entry))
-      (seq cap))))
+           (let [attr-name (key entry) attr-value (val entry)]
+             ; We're just hardcoding which attribute(s) are ordered
+             (if (= :image-urls attr-name)
+               [attr-name (map #(subs % (inc (.indexOf % "_")))
+                               (if (coll? attr-value)
+                                 (sort attr-value)
+                                 [attr-value])) ]
+               entry)))
+         (seq cap))))
 
 (defn marshal-cap [cap]
   "Preprocesses the given cap before persisting to SimpleDB"

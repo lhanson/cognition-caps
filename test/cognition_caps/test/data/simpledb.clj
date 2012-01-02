@@ -57,4 +57,11 @@
   (let [cap {:image-urls (seq (shuffle ten-prefixed-letters))}
         unmarshalled-cap (sdb/unmarshal-cap cap nil nil)
         attrs (:image-urls unmarshalled-cap)]
-    (is (= attrs ten-letters))))
+    (is (= attrs ten-letters)))
+  ; Now try one with only one image
+  (let [url "http://some/url/pic.jpg"
+        cap {:image-urls url}
+        unmarshalled-cap (sdb/unmarshal-cap cap nil nil)
+        attr (:image-urls unmarshalled-cap)]
+    (is (= 1 (count attr)))
+    (is (= (first attr) url))))
