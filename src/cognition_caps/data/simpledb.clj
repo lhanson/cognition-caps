@@ -84,7 +84,7 @@
   preserved upon unmarshalling"
   (into {}
     (map (fn [entry]
-        (if (seq? (val entry))
+        (if (= :image-urls (key entry))
           [(key entry) (map #(str (format "%02d" %1) "_" %2)
                             (iterate inc 1)
                             (val entry))]
@@ -96,7 +96,7 @@
   reconstitutes them into an ordered sequence"
   (into {}
     (map (fn [entry]
-        (if (seq? (val entry))
+        (if (= :image-urls (key entry))
           [(key entry) (map #(subs % (inc (.indexOf % "_"))) (sort (val entry)))]
           entry))
       (seq cap))))
@@ -111,12 +111,12 @@
 (defn unmarshal-cap [cap prices sizes]
   "Reconstitutes the given cap after reading from SimpleDB"
   (-> cap
+      (unannotate-ordered-values)
       (unmarshal-ids)
       (merge-large-descriptions)
       (string-tags-to-keywords)
       (dereference-price prices)
-      (dereference-sizes sizes)
-      (unannotate-ordered-values)))
+      (dereference-sizes sizes)))
 
 (defn- unmarshal-ids [m]
   (change-key m ::sdb/id :id))

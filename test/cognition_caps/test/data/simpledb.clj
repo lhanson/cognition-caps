@@ -44,15 +44,17 @@
 ;;; Test that ordered cap attributes are correctly marshalled
 ;;; such that they retain ordering
 (deftest order-attributes
-  (let [cap {:sequential_attr ten-letters}
+  ; NOTE: the attribute names are hardcoded in the implementation
+  (let [cap {:image-urls ten-letters}
         marshalled-cap (sdb/marshal-cap cap)
-        attrs (set (:sequential_attr marshalled-cap))]
+        attrs (set (:image-urls marshalled-cap))]
     (is (every? attrs ten-prefixed-letters))))
 
 ;;; Test that ordered cap attributes are correctly unmarshalled
 ;;; such that their original ordering is reconstituted
 (deftest reorder-attributes
-  (let [cap {:sequential_attr (seq (shuffle ten-prefixed-letters))}
+  ; NOTE: the attribute names are hardcoded in the implementation
+  (let [cap {:image-urls (seq (shuffle ten-prefixed-letters))}
         unmarshalled-cap (sdb/unmarshal-cap cap nil nil)
-        attrs (:sequential_attr unmarshalled-cap)]
+        attrs (:image-urls unmarshalled-cap)]
     (is (= attrs ten-letters))))
