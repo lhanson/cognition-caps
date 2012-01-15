@@ -66,7 +66,11 @@
 
   (get-prices [this queryCount]
     (swap! queryCount inc)
-    (map unmarshal-ids (sdb/query-all config '{select * from prices}))))
+    (map unmarshal-ids (sdb/query-all config '{select * from prices})))
+
+  (update-cap [this queryCount id attr-name attr-value]
+    (swap! queryCount inc)
+    (sdb/put-attrs config *caps-domain* {::sdb/id id (keyword attr-name) attr-value})))
 
 (def simpledb (SimpleDBAccess.))
 

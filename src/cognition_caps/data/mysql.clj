@@ -30,7 +30,10 @@
              "Not yet implemented since we're not using ExpressionEngine sizing")))
   (get-prices [this queryCount]
     (throw (UnsupportedOperationException.
-             "Not yet implemented since we're not using ExpressionEngine pricing"))))
+             "Not yet implemented since we're not using ExpressionEngine pricing")))
+  (update-cap [this queryCount id attr-name attr-value]
+    (throw (UnsupportedOperationException.
+             "Writing to ExpressionEngine is not supported"))))
 (defn make-MySQLAccess [] (MySQLAccess.))
 
 (defonce db

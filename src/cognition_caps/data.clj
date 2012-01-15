@@ -8,7 +8,9 @@
   (get-caps   [this queryCount]           "Provides a sequence of caps currently stored")
   (put-caps   [this queryCount caps]      "Persists caps")
   (get-sizes  [this queryCount]           "Provides a list of available sizes")
-  (get-prices [this queryCount]           "Provides a list of price categories"))
+  (get-prices [this queryCount]           "Provides a list of price categories")
+  (update-cap [this queryCount id
+               attr-name attr-value]      "Updates the given attribute"))
 
 (defrecord Cap [id nom url-title description image-urls price-id sizes tags user-id date-added display-order hide])
 (defn make-Cap
