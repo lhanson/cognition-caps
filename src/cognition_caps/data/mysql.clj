@@ -112,13 +112,25 @@
                                (println (str "WARNING: no price ID for cap " (:id c) ": " (:nom c)
                                              ", defaulting to base cap price"))
                                (assoc c :price-id "2"))))
-        cap (make-Cap (-> capmap (assoc :nom nom)
-                         (assoc :url-title (url-title nom))
-                         (assoc :description (cs/trim (:description capmap)))
-                         (assoc :date-added (to-string date-added))
-                         (assoc :image-urls (map #(str *image-url-prefix* %) images))
-                         (assoc :tags (hash-set :item-type-cap))
-                         (check-price-id)))]
+        map-images (fn [image-urls]
+                     (loop [m {}
+                            idx 0
+                            urls (if (seq? image-urls) image-urls [image-urls])]
+                       (if (empty? urls)
+                          m
+                         (recur (assoc m
+                                       (keyword (str "main-" idx))
+                                       (str "http://http://wearcognition.com/images/uploads/" (first urls)))
+                                (inc idx)
+                                (rest urls)))))
+        cap (make-Cap (-> capmap
+                          (assoc :nom nom)
+                          (assoc :url-title (url-title nom))
+                          (assoc :description (cs/trim (:description capmap)))
+                          (assoc :date-added (to-string date-added))
+                          (assoc :image-urls (map-images images))
+                          (assoc :tags (hash-set :item-type-cap))
+                          (check-price-id)))]
     (if (not= (:url-title capmap) (:url-title cap))
       (do
         (println (str "WARNING: existing URL title '" (:url-title capmap) "' "

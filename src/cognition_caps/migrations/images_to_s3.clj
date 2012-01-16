@@ -1,4 +1,4 @@
-(ns cognition-caps.migrations.expression-engine-to-s3
+(ns cognition-caps.migrations.images-to-s3
   (:require [cognition-caps.data :as data]
             [cognition-caps.data.simpledb :as simpledb]
             [cognition-caps.data.s3 :as s3]

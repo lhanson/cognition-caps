@@ -41,27 +41,3 @@
 (def ten-prefixed-letters
   (map #(str (format "%02d" %1) "_" %2) (iterate inc 1) ten-letters))
 
-;;; Test that ordered cap attributes are correctly marshalled
-;;; such that they retain ordering
-(deftest order-attributes
-  ; NOTE: the attribute names are hardcoded in the implementation
-  (let [cap {:image-urls ten-letters}
-        marshalled-cap (sdb/marshal-cap cap)
-        attrs (set (:image-urls marshalled-cap))]
-    (is (every? attrs ten-prefixed-letters))))
-
-;;; Test that ordered cap attributes are correctly unmarshalled
-;;; such that their original ordering is reconstituted
-(deftest reorder-attributes
-  ; NOTE: the attribute names are hardcoded in the implementation
-  (let [cap {:image-urls (seq (shuffle ten-prefixed-letters))}
-        unmarshalled-cap (sdb/unmarshal-cap cap nil nil)
-        attrs (:image-urls unmarshalled-cap)]
-    (is (= attrs ten-letters)))
-  ; Now try one with only one image
-  (let [url "http://some/url/pic.jpg"
-        cap {:image-urls url}
-        unmarshalled-cap (sdb/unmarshal-cap cap nil nil)
-        attr (:image-urls unmarshalled-cap)]
-    (is (= 1 (count attr)))
-    (is (= (first attr) url))))

@@ -111,22 +111,42 @@
                entry)))
          (seq cap))))
 
+(defn- flatten-image-urls [cap]
+  "Takes the map of image urls and stores them as top-level attributes"
+  (loop [c cap
+         url-map (:image-urls cap)]
+    (if (empty? url-map)
+      (dissoc c :image-urls)
+      (recur (assoc c (keyword (str "image-" (name (key (first url-map))))) (val (first url-map)))
+             (rest url-map)))))
+
+(defn- unflatten-image-urls [cap]
+  "Takes top-level image urls from the map and stores them all under :image-urls"
+  (loop [c cap
+         image-urls {}
+         idx 0]
+    (if-let [current-url (get c (keyword (str "image-main-" idx)))]
+      (recur (dissoc c (keyword (str "image-main-" idx)))
+             (assoc image-urls (keyword (str "main-" idx)) current-url)
+             (inc idx))
+      (assoc c :image-urls image-urls))))
+
 (defn marshal-cap [cap]
   "Preprocesses the given cap before persisting to SimpleDB"
   (-> cap
       (change-key :id ::sdb/id)
       (split-large-descriptions)
-      (annotate-ordered-values)))
+      (flatten-image-urls)))
 
 (defn unmarshal-cap [cap prices sizes]
   "Reconstitutes the given cap after reading from SimpleDB"
   (-> cap
-      (unannotate-ordered-values)
       (unmarshal-ids)
       (merge-large-descriptions)
       (string-tags-to-keywords)
       (dereference-price prices)
-      (dereference-sizes sizes)))
+      (dereference-sizes sizes)
+      (unflatten-image-urls)))
 
 (defn- unmarshal-ids [m]
   (change-key m ::sdb/id :id))

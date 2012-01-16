@@ -54,3 +54,4 @@
       s/lower-case
       (s/replace #"'" "")
       (s/replace #"[\W&&[^\.]]+" "-")))
+
