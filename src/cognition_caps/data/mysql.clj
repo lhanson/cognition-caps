@@ -120,7 +120,7 @@
                           m
                          (recur (assoc m
                                        (keyword (str "main-" idx))
-                                       (str "http://http://wearcognition.com/images/uploads/" (first urls)))
+                                       (str "http://wearcognition.com/images/uploads/" (first urls)))
                                 (inc idx)
                                 (rest urls)))))
         cap (make-Cap (-> capmap

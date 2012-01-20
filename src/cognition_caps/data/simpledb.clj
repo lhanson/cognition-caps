@@ -55,6 +55,11 @@
                                    where (not-null :display-order)
                                    order-by [:display-order desc]}))))
 
+  ;(put-cap [this queryCount cap]
+  ;  (println "Persisting to SimpleDB")
+  ;  (swap! queryCount inc)
+  ;  (sdb/batch-put-attrs config *caps-domain* (marshal-cap cap)))
+
   (put-caps [this queryCount caps]
     (println "Persisting" (count caps) "caps to SimpleDB")
     (swap! queryCount inc)
@@ -197,6 +202,7 @@
       (dissoc :tags)
       (assoc :tags (set (map #(if (= \: (.charAt % 0)) (keyword (.substring % 1)) %)
                              tags))))))
+
 (defn dereference-price [m prices]
   "Associates the full price map for the given cap's price-id"
   (assoc m :price (some #(if (= (:price-id m) (:id %)) %) prices)))
@@ -211,6 +217,6 @@
         sorted-sizes (apply sorted-set available-sizes)
         ; Create a list of size maps applicable to this cap
         size-map (reduce #(if (get sorted-sizes (:id %2)) (concat %1 (list %2)) %1)
-                         '() sizes)]
+                         sizes)]
     (assoc m :sizes size-map)))
 

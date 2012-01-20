@@ -10,7 +10,7 @@
 ;  +=====================================================================+
 ;  |   size   | name suffix*  | use                                      |
 ;  |==========|==========================================================+
-;  |  487x487 | m-n-item.jpg  | main item page (all images)              |
+;  |  487x487 | m-n-main.jpg  | main item page (all images)              |
 ;  |  73x73   | m-n-thumb.jpg | item page thumbnails (all images)        |
 ;  |  210x210 | m-0-front.jpg | front/products page (primary image only) |
 ;  |  102x102 | m-0-cart.jpg  | shopping cart page (primary image only)  |
@@ -27,44 +27,74 @@
 ;  /images/uploads/25f5c7f0aeeeebac2e096bf0a9e6ef26.JPG (800x795)
 ;  /images/uploads/cache/25f5c7f0aeeeebac2e096bf0a9e6ef26-100x100.JPG  product page thumbnail
 
-(defn- copy [uri file]
+(def *old-prefix* "http://wearcognition.com/images/uploads/")
+
+(defn- download! [uri file]
+  (println "Downloading" uri "to" file)
   (with-open [in (io/input-stream uri)
               out (io/output-stream file)]
     (io/copy in out)))
 
-(defn convert-image [image-url image-index]
-  "For a given image-url on the old site, does scaling and processing required
-   for the new site. Uploads the resulting images to S3."
-  (let [filename (subs image-url (inc (. image-url lastIndexOf "/")))
-        file (doto (java.io.File/createTempFile filename ".jpg") (.deleteOnExit))
-        orig-path (.getPath file)
-        process-image! (fn [infile resize-geometry extent-geometry outfile]
-                         (shell/sh "convert" infile "-resize" resize-geometry "-extent" extent-geometry "-gravity" "center" outfile)
-                         (shell/sh "jpegoptim" "--strip-all" outfile))]
+(defn process-image! [orig-file resize-geometry extent-geometry suffix]
+  "Takes an image file and resizes it with ImageMagick according to the given
+   size and extent geometry and uploads it to Amazon S3 using its MD5 hash
+   and the provided suffix. Returns the URL of the uploaded file."
+  (println "Processing image, file" orig-file ", suffix" suffix)
+  (let [orig-path (.getPath orig-file)
+        outfile (doto (java.io.File/createTempFile "processed" ".jpg") (.deleteOnExit))]
     (shell/with-sh-dir (System/getProperty "java.io.tmpdir")
-      (copy image-url file)
-      ; TODO: need to somehow store these in a data structure in the cap itself now
-      (process-image! orig-path "487x487^" "487x487" "item.jpg")
-      (process-image! orig-path "73x73^"   "73x73"   "thumb.jpg")
-      (if (= 0 image-index)
-        (do
-          (process-image! orig-path "210x210^" "210x210" "front.jpg")
-          (process-image! orig-path "102x102^" "102x102" "cart.jpg"))))))
+      (shell/sh "convert" orig-path "-resize" resize-geometry "-extent" extent-geometry "-gravity" "center" (.getPath outfile))
+      (shell/sh "jpegoptim" "--strip-all" (.getPath outfile))
+      (s3/upload-image outfile suffix))))
 
-(defn migrate-images []
+(defn migrate-images!
   "Copies images from old ExpressionEngine site to Amazon S3 and updates links"
-  (println "Migrating images from ExpressionEngine to Amazon S3")
-  (let [simpledb-data simpledb/simpledb
-        sdb-count (atom 0)
-        caps (data/get-caps simpledb-data sdb-count)]
-    (println "Loaded" (count caps) "caps from SimpleDB with" @sdb-count "queries")
-    (loop [caps caps]
-      (when-not (empty? caps)
-        (println "Id" (:id (first caps)))
-        (loop [images (:image-urls (first caps))]
-          (when-not (empty? images)
-            (println "\t" (first images))
-            (recur (rest images))
-            ))
-        (recur (rest caps))
-      ))))
+  ([]
+    (println "Migrating images from ExpressionEngine to Amazon S3")
+    (let [simpledb-data simpledb/simpledb
+          sdb-count (atom 0)
+          ; TODO: debugging with only two
+          caps (take 2 (data/get-caps simpledb-data sdb-count))]
+      (println "Loaded" (count caps) "caps from SimpleDB with" @sdb-count "queries")
+      (loop [caps caps]
+        (when-not (empty? caps)
+          (migrate-images! (first caps))
+          (recur (rest caps))))))
+
+  ([cap]
+    "Takes a cap, transforms the images to the quantity and dimensions we need
+     for the new site, uploads them to S3, and returns the new cap.
+     If the images in the cap aren't hosted on the old site, does nothing."
+    (let [simpledb-data simpledb/simpledb
+          url-map (:image-urls cap)]
+      (println "Doing urls:" url-map)
+      (loop [new-images {}
+             idx 0]
+        (if (nil? (get url-map (keyword (str "main-" idx))))
+          ; (assoc cap :image-urls url-map))
+          (do
+            (println "Returning cap with images" new-images)
+            (assoc cap :image-urls url-map))
+          (let [main-url (get url-map (keyword (str "main-" idx)))
+                noo (println "Main-url" main-url)
+                ;orig-file (-> (doto (java.io.File/createTempFile "orig" ".jpg") (.deleteOnExit))
+               ; orig-file (->> (java.io.File/createTempFile "orig" ".jpg")
+               ;                (download main-url))
+                ]
+            ; If we haven't already converted the image to S3
+            (if (= *old-prefix* (subs main-url 0 (count *old-prefix*)))
+              (let [orig-file (doto (java.io.File/createTempFile "orig" ".jpg") (.deleteOnExit))]
+                (download! main-url orig-file)
+                (println "Downloaded" orig-file ", idx" idx)
+                (if (= idx 0)
+                  (recur (-> new-images
+                             (assoc (keyword (str "main-"  idx)) (process-image! orig-file "487x487^" "487x487" (str "-" idx "-main.jpg")))
+                             (assoc (keyword (str "thumb-" idx)) (process-image! orig-file "73x73^"   "73x73"   (str "-" idx "-thumb.jpg")))
+                             (assoc (keyword (str "front-" idx)) (process-image! orig-file "210x210^" "210x210" (str "-" idx "-front.jpg")))
+                             (assoc (keyword (str "cart-"  idx)) (process-image! orig-file "102x102^" "102x102" (str "-" idx "-cart.jpg"))))
+                         (inc idx))
+                  (recur (-> new-images
+                             (assoc (keyword (str "main-"  idx)) (process-image! orig-file "487x487^" "487x487" (str "-" idx "-main.jpg")))
+                             (assoc (keyword (str "thumb-" idx)) (process-image! orig-file "73x73^"   "73x73"   (str "-" idx "-thumb.jpg"))))
+                         (inc idx))))))))))
+  )
