@@ -1,13 +1,12 @@
 (ns cognition-caps.migrations.mysql-to-simpledb
   (:require [cognition-caps.data :as data]
-            [cognition-caps.data.mysql :as mysql]
-            [cognition-caps.data.simpledb :as simpledb]
+            [cognition-caps.data [mysql :as mysql] [simpledb :as simpledb]]
             [cognition-caps.migrations.images-to-s3 :as images]
             [cemerick.rummage :as sdb]))
 
 (declare add-sizes)
 
-(defn migrate-data []
+(defn migrate-data! []
   (println "Migrating...")
   (println "Populating defaults in SimpleDB")
   (simpledb/populate-defaults!)
@@ -19,8 +18,7 @@
         sizes (data/get-sizes simpledb-data sdb-count)
         caps (->> (data/get-caps mysql-data mysql-count)
                   (map #(add-sizes % sizes))
-                  ;(map images/migrate-images!)
-               )]
+                  (map images/migrate-images!))]
     (println "Loaded" (count caps) "caps from MySQL with" @mysql-count "queries and"
              (count (data/get-caps simpledb-data sdb-count)) "from SimpleDB with"
              @sdb-count "queries")

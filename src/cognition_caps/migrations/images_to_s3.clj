@@ -1,7 +1,6 @@
 (ns cognition-caps.migrations.images-to-s3
   (:require [cognition-caps.data :as data]
-            [cognition-caps.data.simpledb :as simpledb]
-            [cognition-caps.data.s3 :as s3]
+            [cognition-caps.data [simpledb :as simpledb] [s3 :as s3]]
             [clojure.string :as s]
             [clojure.java.io :as io]
             [clojure.contrib.shell-out :as shell]))
@@ -30,7 +29,6 @@
 (def *old-prefix* "http://wearcognition.com/images/uploads/")
 
 (defn- download! [uri file]
-  (println "Downloading" uri "to" file)
   (with-open [in (io/input-stream uri)
               out (io/output-stream file)]
     (io/copy in out)))
@@ -53,8 +51,7 @@
     (println "Migrating images from ExpressionEngine to Amazon S3")
     (let [simpledb-data simpledb/simpledb
           sdb-count (atom 0)
-          ; TODO: debugging with only two
-          caps (take 2 (data/get-caps simpledb-data sdb-count))]
+          caps (data/get-caps simpledb-data sdb-count)]
       (println "Loaded" (count caps) "caps from SimpleDB with" @sdb-count "queries")
       (loop [caps caps]
         (when-not (empty? caps)
@@ -65,27 +62,19 @@
     "Takes a cap, transforms the images to the quantity and dimensions we need
      for the new site, uploads them to S3, and returns the new cap.
      If the images in the cap aren't hosted on the old site, does nothing."
+    (println "Migrating images for cap ID" (:id cap))
     (let [simpledb-data simpledb/simpledb
           url-map (:image-urls cap)]
-      (println "Doing urls:" url-map)
       (loop [new-images {}
              idx 0]
         (if (nil? (get url-map (keyword (str "main-" idx))))
-          ; (assoc cap :image-urls url-map))
-          (do
-            (println "Returning cap with images" new-images)
-            (assoc cap :image-urls url-map))
-          (let [main-url (get url-map (keyword (str "main-" idx)))
-                noo (println "Main-url" main-url)
-                ;orig-file (-> (doto (java.io.File/createTempFile "orig" ".jpg") (.deleteOnExit))
-               ; orig-file (->> (java.io.File/createTempFile "orig" ".jpg")
-               ;                (download main-url))
-                ]
+          (assoc cap :image-urls url-map)
+          (let [main-url (get url-map (keyword (str "main-" idx)))]
             ; If we haven't already converted the image to S3
             (if (= *old-prefix* (subs main-url 0 (count *old-prefix*)))
               (let [orig-file (doto (java.io.File/createTempFile "orig" ".jpg") (.deleteOnExit))]
                 (download! main-url orig-file)
-                (println "Downloaded" orig-file ", idx" idx)
+                (println (str "Downloaded " (.getPath orig-file) ", item image number " idx))
                 (if (= idx 0)
                   (recur (-> new-images
                              (assoc (keyword (str "main-"  idx)) (process-image! orig-file "487x487^" "487x487" (str "-" idx "-main.jpg")))
@@ -96,5 +85,5 @@
                   (recur (-> new-images
                              (assoc (keyword (str "main-"  idx)) (process-image! orig-file "487x487^" "487x487" (str "-" idx "-main.jpg")))
                              (assoc (keyword (str "thumb-" idx)) (process-image! orig-file "73x73^"   "73x73"   (str "-" idx "-thumb.jpg"))))
-                         (inc idx))))))))))
-  )
+                         (inc idx)))))))))))
+

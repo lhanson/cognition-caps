@@ -1,11 +1,11 @@
 (ns cognition-caps.data.s3
-  (:require [cognition-caps.config :as config])
-  (:use     [clojure.tools.logging :only (debug)])
+  (:require [cognition-caps.config :as config]
+            [clojure.contrib.string :as s])
+  (:use [clj-time [core :only (now plus years)] [format :only (formatter unparse)]]
+        [clojure.tools.logging :only (debug)])
   (:import (org.jets3t.service.security.AWSCredentials)
            (org.jets3t.service.impl.rest.httpclient.RestS3Service)
-           (org.jets3t.service.model.S3Object)
-           (java.util.Calendar)
-           (java.text.SimpleDateFormat)))
+           (org.jets3t.service.model.S3Object)))
 
 (def *bucketname* "cognition-caps")
 (def *folder-prefix* "images/")
@@ -19,21 +19,16 @@
         aws       (org.jets3t.service.impl.rest.httpclient.RestS3Service. cred)
         bucket    (.getBucket aws *bucketname*)
         object    (org.jets3t.service.model.S3Object. file)
-        cal       (doto (java.util.Calendar/getInstance (java.util.TimeZone/getTimeZone "GMT")
-                                                        (java.util.Locale/ENGLISH))
-                        (.add java.util.Calendar/YEAR 1))
-        rfc-1123  (new java.text.SimpleDateFormat "EEE, dd MMM yyyyy HH:mm:ss GMT")
-        next-year (.format rfc-1123 (.getTime cal))]
-    ; WORKING HERE: need to format this in 1123 with GMT, something like:
-    ; (s/replace-str (unparse (format/formatter "EEE, dd MMM yyyy HH:mm:ss zzz") (time/now)) "UTC" "GMT)
-    ; since JodaTime only deals in UTC and not GMT
-    (println "Next-year:" next-year)
-    (throw (new IllegalStateException "foo"))
+        ; RFC 2616: HTTP/1.1 servers SHOULD NOT send Expires dates more than
+        ; one year in the future, and requires GMT (which JodaTime doesn't give us)
+        next-year (s/replace-str "UTC" "GMT" ; JodaTime only gives UTC, RFC 1123 requires GMT
+                                 (unparse (formatter "EEE, dd MMM yyyy HH:mm:ss z")
+                                          (plus (now) (years 1))))]
     (doto object
       (.setKey (str *folder-prefix* (.getMd5HashAsHex object) name-suffix))
-      ; RFC 2616: HTTP/1.1 servers SHOULD NOT send Expires dates more than one year in the future
       (.addMetadata "Expires" next-year))
     (debug "Uploading object" (.getKey object))
     (. aws putObject bucket object)
-    (str "s3.amazonaws.com/" *bucketname* "/" (.getKey object))))
+    ; Use this form of URL so that we can use a robots.txt
+    (str *bucketname* ".s3.amazonaws.com/" (.getKey object))))
 

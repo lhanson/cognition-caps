@@ -3,13 +3,11 @@
 ;;; MySQL won't be used on Heroku.
 (ns cognition-caps.data.mysql
   (:use [cognition-caps.data]
-        [clj-time.core :only (date-time)]
-        [clj-time.coerce :only (to-string)]
+        [clj-time [core :only (date-time)] [coerce :only (to-string)]]
         [clojure.contrib.str-utils :only (re-split)])
   (:require [cognition-caps.config :as config]
             [clojure.string :as s]
-            [clojure.contrib.string :as cs]
-            [clojure.contrib.sql :as sql]))
+            [clojure.contrib [string :as cs] [sql :as sql]]))
 
 (declare get-cap-rows get-cap-count get-price-map mapcap)
 (def *caps-weblog-id* 3)
