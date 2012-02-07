@@ -33,7 +33,7 @@
   [cap]
   [:*] (cap-common cap)
   [[:a :.url]] (html/set-attr :href (str "/" (item-type (:tags cap)) "/" (:url-title cap)))
-  [:img] (html/set-attr :src (first (:image-urls cap))))
+  [:img] (html/set-attr :src (:front-0 (:image-urls cap))))
 
 (html/defsnippet show-caps "mainContent.html" [:#main]
   [caps]
@@ -44,7 +44,7 @@
 (html/defsnippet item-details "mainContent.html" [:#itemDetails]
   [cap]
   [:*] (cap-common cap)
-  [:#itemImageWrapper :img] (html/set-attr :src (first (:image-urls cap)))
+  [:#itemImageWrapper :img] (html/set-attr :src (:main-0 (:image-urls cap)))
   [:.description] (html/html-content (wrap-paragraphs (:description cap)))
   [:.description [:p html/last-of-type]] (html/add-class "itemMaterials")
   [:#sizeSelection :option] (html/clone-for [size (:sizes cap)]
@@ -52,7 +52,9 @@
                                 (change-when (= (:id size) (str data/default-size))
                                              (html/set-attr :selected "selected"))
                                 (html/set-attr :value (:id size))
-                                (html/content (lower-case (:nom size))))))
+                                (html/content (lower-case (:nom size)))))
+  ;[:#thumbnails :img] (html/set-attr :src (:thumb-0 (:image-urls cap)))
+  )
 
 (html/defsnippet show-cap "mainContent.html" [:#main]
   [cap]
@@ -75,7 +77,12 @@
 
 (defn index [stats]
   (debug "Rendering index")
-  (let [caps (data/get-caps simpledb (:db-queries stats))]
+  (let [;SCHEME FOR IMAGES IS ALWAYS HTTP:// for now
+        ;add-scheme (fn [image-map scheme]
+        ;             (into {} (map #(vector (first %) (str scheme (second %)))
+        ;                           (seq image-map))))
+        caps (data/get-caps simpledb (:db-queries stats))]
+    (debug "Got images" (:image-urls (first caps)))
     (base {:main (show-caps (take 7 caps))
            :stats stats})))
 

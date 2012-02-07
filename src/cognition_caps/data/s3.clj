@@ -13,7 +13,6 @@
 (defn upload-image [file name-suffix]
   "Uploads the given file to S3. The key used is the MD5 with name-suffix appended.
    Returns the URL of the uploaded image (minus scheme prefix)"
-  (debug "Uploading" file "to" name-suffix)
   (let [cred (org.jets3t.service.security.AWSCredentials. (get config/config "amazon-access-id")
                                                           (get config/config "amazon-access-key"))
         aws       (org.jets3t.service.impl.rest.httpclient.RestS3Service. cred)
@@ -30,5 +29,5 @@
     (debug "Uploading object" (.getKey object))
     (. aws putObject bucket object)
     ; Use this form of URL so that we can use a robots.txt
-    (str *bucketname* ".s3.amazonaws.com/" (.getKey object))))
+    (str "http://" *bucketname* ".s3.amazonaws.com/" (.getKey object))))
 

@@ -55,11 +55,6 @@
                                    where (not-null :display-order)
                                    order-by [:display-order desc]}))))
 
-  ;(put-cap [this queryCount cap]
-  ;  (println "Persisting to SimpleDB")
-  ;  (swap! queryCount inc)
-  ;  (sdb/batch-put-attrs config *caps-domain* (marshal-cap cap)))
-
   (put-caps [this queryCount caps]
     (println "Persisting" (count caps) "caps to SimpleDB")
     (swap! queryCount inc)
@@ -116,32 +111,39 @@
                entry)))
          (seq cap))))
 
+(def *flat-image-prefix* "_img_")
+
 (defn- flatten-image-urls [cap]
   "Takes the map of image urls and stores them as top-level attributes"
   (loop [c cap
          url-map (:image-urls cap)]
     (if (empty? url-map)
       (dissoc c :image-urls)
-      (recur (assoc c (keyword (str "image-" (name (key (first url-map))))) (val (first url-map)))
+      (recur (assoc c (keyword (str *flat-image-prefix* (name (key (first url-map))))) (val (first url-map)))
              (rest url-map)))))
 
 (defn- unflatten-image-urls [cap]
   "Takes top-level image urls from the map and stores them all under :image-urls"
-  (loop [c cap
-         image-urls {}
-         idx 0]
-    (if-let [current-url (get c (keyword (str "image-main-" idx)))]
-      (recur (dissoc c (keyword (str "image-main-" idx)))
-             (assoc image-urls (keyword (str "main-" idx)) current-url)
-             (inc idx))
-      (assoc c :image-urls image-urls))))
+  (loop [flat-cap cap new-cap {} image-urls {}]
+    (let [entry (first flat-cap)]
+      (if (= entry nil) ; last entry of flattened cap
+        (assoc new-cap :image-urls image-urls)
+        (if (.startsWith (name (key entry)) *flat-image-prefix*)
+          (recur (rest flat-cap)
+                 new-cap
+                 (assoc image-urls
+                        (keyword (subs (name (key entry)) (count *flat-image-prefix*)))
+                        (val entry)))
+          (recur (rest flat-cap)
+                 (merge new-cap entry)
+                 image-urls))))))
 
 (defn marshal-cap [cap]
   "Preprocesses the given cap before persisting to SimpleDB"
   (-> cap
-      (change-key :id ::sdb/id)
-      (split-large-descriptions)
-      (flatten-image-urls)))
+    (change-key :id ::sdb/id)
+    (split-large-descriptions)
+    (flatten-image-urls)))
 
 (defn unmarshal-cap [cap prices sizes]
   "Reconstitutes the given cap after reading from SimpleDB"
@@ -216,7 +218,8 @@
                                      size-id-qty))
         sorted-sizes (apply sorted-set available-sizes)
         ; Create a list of size maps applicable to this cap
-        size-map (reduce #(if (get sorted-sizes (:id %2)) (concat %1 (list %2)) %1)
+        size-map (reduce #(if (get sorted-sizes (:id %2)) (cons %2 %1) %1)
+                         '()
                          sizes)]
     (assoc m :sizes size-map)))
 

@@ -17,14 +17,14 @@
 ;   *m: md5 checksum of the image
 ;    n: image number (0=primary, 1=second, 2=third image, etc)
 ;
-; On the old site we have:
-;  /images/uploads/34a2d74f832c5e652099b4a58723ec32.JPG  (753 x 800),  lightbox image
-;  /images/uploads/cache/34a2d74f832c5e652099b4a58723ec32-400x425.JPG  product page main image
-;  /images/uploads/cache/34a2d74f832c5e652099b4a58723ec32-80x60.JPG    front page thumbnail
-;  /images/uploads/cache/34a2d74f832c5e652099b4a58723ec32-100x109.JPG  caps page thumbnail
-; Subsequent images (side, top...)
-;  /images/uploads/25f5c7f0aeeeebac2e096bf0a9e6ef26.JPG (800x795)
-;  /images/uploads/cache/25f5c7f0aeeeebac2e096bf0a9e6ef26-100x100.JPG  product page thumbnail
+;  On the old site we have:
+;   /images/uploads/34a2d74f832c5e652099b4a58723ec32.JPG  (753 x 800),  lightbox image
+;   /images/uploads/cache/34a2d74f832c5e652099b4a58723ec32-400x425.JPG  product page main image
+;   /images/uploads/cache/34a2d74f832c5e652099b4a58723ec32-80x60.JPG    front page thumbnail
+;   /images/uploads/cache/34a2d74f832c5e652099b4a58723ec32-100x109.JPG  caps page thumbnail
+;  Subsequent images (side, top...)
+;   /images/uploads/25f5c7f0aeeeebac2e096bf0a9e6ef26.JPG (800x795)
+;   /images/uploads/cache/25f5c7f0aeeeebac2e096bf0a9e6ef26-100x100.JPG  product page thumbnail
 
 (def *old-prefix* "http://wearcognition.com/images/uploads/")
 
@@ -68,7 +68,7 @@
       (loop [new-images {}
              idx 0]
         (if (nil? (get url-map (keyword (str "main-" idx))))
-          (assoc cap :image-urls url-map)
+          (assoc cap :image-urls new-images)
           (let [main-url (get url-map (keyword (str "main-" idx)))]
             ; If we haven't already converted the image to S3
             (if (= *old-prefix* (subs main-url 0 (count *old-prefix*)))
