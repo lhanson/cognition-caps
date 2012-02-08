@@ -127,7 +127,7 @@
   (loop [flat-cap cap new-cap {} image-urls {}]
     (let [entry (first flat-cap)]
       (if (= entry nil) ; last entry of flattened cap
-        (assoc new-cap :image-urls image-urls)
+        (assoc new-cap :image-urls (into (sorted-map) image-urls))
         (if (.startsWith (name (key entry)) *flat-image-prefix*)
           (recur (rest flat-cap)
                  new-cap

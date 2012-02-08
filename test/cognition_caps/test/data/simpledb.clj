@@ -34,10 +34,14 @@
       (is (empty? description-keys)
           "Expecting intermediate description attributes to be removed"))))
 
-; Ten letters to verify lexicographical ordering of single- and multi-digit numbers
-(def ten-letters
-  (seq ["a" "b" "c" "d" "e" "f" "g" "h" "i" "j"]))
-
-(def ten-prefixed-letters
-  (map #(str (format "%02d" %1) "_" %2) (iterate inc 1) ten-letters))
+;;; Verifies that image URLs are unmarshalled into a sorted map
+(deftest sort-image-url-keys
+  (let [unmarshalled (array-map (keyword (str sdb/*flat-image-prefix* "thumb-2")) "thumb-2.jpg"
+                                (keyword (str sdb/*flat-image-prefix* "thumb-1")) "thumb-1.jpg"
+                                (keyword (str sdb/*flat-image-prefix* "thumb-0")) "thumb-0.jpg"
+                                (keyword (str sdb/*flat-image-prefix* "thumb-3")) "thumb-3.jpg")
+        cap  (sdb/unmarshal-cap unmarshalled nil nil)]
+    (is (= (seq (:image-urls cap))
+           (seq (array-map :thumb-0 "thumb-0.jpg" :thumb-1 "thumb-1.jpg"
+                           :thumb-2 "thumb-2.jpg" :thumb-3 "thumb-3.jpg"))))))
 

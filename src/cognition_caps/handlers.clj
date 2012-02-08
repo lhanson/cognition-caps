@@ -53,8 +53,9 @@
                                              (html/set-attr :selected "selected"))
                                 (html/set-attr :value (:id size))
                                 (html/content (lower-case (:nom size)))))
-  ;[:#thumbnails :img] (html/set-attr :src (:thumb-0 (:image-urls cap)))
-  )
+  [:#thumbnails :img] (html/clone-for [img (filter #(.startsWith (name (key %)) "thumb-")
+                                                   (:image-urls cap))]
+                                      (html/set-attr :src (val img))))
 
 (html/defsnippet show-cap "mainContent.html" [:#main]
   [cap]

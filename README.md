@@ -22,6 +22,7 @@ Because a good project is never finished.
   - Move images from old hosting to S3
 * Serve CSS and JS from S3 from either a gzipped or non-gzipped bucket depending
   on application-detected content negotiation
+* Use Sass for CSS
 * Canonicalize on no-www URL subdomain
 * Maybe have each cap image's background switch to a highlighted green version on hover
 * Make sure Jetty is returning Content-Type headers
