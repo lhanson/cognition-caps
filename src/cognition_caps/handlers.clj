@@ -35,14 +35,12 @@
   [[:a :.url]] (html/set-attr :href (str "/" (item-type (:tags cap)) "/" (:url-title cap)))
   [:img] (html/set-attr :src (:front-0 (:image-urls cap))))
 
-(html/defsnippet show-caps "mainContent.html" [:#main]
+(html/defsnippet show-caps "mainContent.html" [:#main :> :*]
   [caps]
-  [:#items :ul] (html/content (map item-model caps))
-  [:#itemDetails] nil
-  [:#faq] nil)
+  [:#items :ul] (html/content (map item-model caps)))
 
 ; Snippet for generating markup for an individual item page
-(html/defsnippet item-details "mainContent.html" [:#itemDetails]
+(html/defsnippet show-cap "item.html" [:#itemDetails]
   [cap]
   [:*] (cap-common cap)
   [:#itemImageWrapper :img] (html/set-attr :src (:main-0 (:image-urls cap)))
@@ -57,24 +55,11 @@
   [:#thumbnails :img] (html/clone-for [img (filter #(.startsWith (name (key %)) "thumb-")
                                                    (:image-urls cap))]
                                       (html/set-attr :src (val img))))
-
-(html/defsnippet show-cap "mainContent.html" [:#main]
-  [cap]
-  [:#featureWrapper] nil
-  [:#items] nil
-  [:#itemDetails] (maybe-substitute (item-details cap))
-  [:#faq] nil)
-
-(html/defsnippet show-faq "mainContent.html" [:#main]
-  []
-  [:#featureWrapper] nil
-  [:#items] nil
-  [:#itemDetails] nil)
-
+;
 (html/deftemplate base "base.html" [{:keys [title main stats]}]
   [:title] (maybe-content title)
   ; TODO: remove the main link to / in the header if we're already there
-  [:#main] (maybe-substitute main)
+  [:#main] (maybe-append main)
   ; The last thing we do is to set the elapsed time
   [:#requestStats] (html/content (str "Response generated in "
                                       (/ (- (System/nanoTime) (:start-ts stats)) 1000000.0)
@@ -115,7 +100,7 @@
 
 (defn faq [stats]
   (debug "Rendering faq")
-  (base {:main (show-faq)
+  (base {:main (html/html-resource "faq.html")
          :stats stats}))
 
 ;; =============================================================================
