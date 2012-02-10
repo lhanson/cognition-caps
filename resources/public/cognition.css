@@ -192,6 +192,10 @@ a.include { display: none; } /* Hide extraneous microformat markup */
     background: url(images/cart_add.png) no-repeat left top;
 }
 
+#faq {
+    text-align: left;
+}
+
 footer {
     height: 169px;
     font-size: 16px;

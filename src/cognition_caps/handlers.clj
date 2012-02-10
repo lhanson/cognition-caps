@@ -38,7 +38,8 @@
 (html/defsnippet show-caps "mainContent.html" [:#main]
   [caps]
   [:#items :ul] (html/content (map item-model caps))
-  [:#itemDetails] nil)
+  [:#itemDetails] nil
+  [:#faq] nil)
 
 ; Snippet for generating markup for an individual item page
 (html/defsnippet item-details "mainContent.html" [:#itemDetails]
@@ -61,7 +62,14 @@
   [cap]
   [:#featureWrapper] nil
   [:#items] nil
-  [:#itemDetails] (maybe-substitute (item-details cap)))
+  [:#itemDetails] (maybe-substitute (item-details cap))
+  [:#faq] nil)
+
+(html/defsnippet show-faq "mainContent.html" [:#main]
+  []
+  [:#featureWrapper] nil
+  [:#items] nil
+  [:#itemDetails] nil)
 
 (html/deftemplate base "base.html" [{:keys [title main stats]}]
   [:title] (maybe-content title)
@@ -104,6 +112,11 @@
           (base {:main (show-cap cap)
                  :title (:nom cap)
                  :stats stats}))))))
+
+(defn faq [stats]
+  (debug "Rendering faq")
+  (base {:main (show-faq)
+         :stats stats}))
 
 ;; =============================================================================
 ;; Utility functions
