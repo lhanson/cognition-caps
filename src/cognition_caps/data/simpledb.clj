@@ -212,14 +212,14 @@
 (defn dereference-sizes [m sizes]
   "Associates the a parsed size map for the given cap's encoded size-id:quantity string"
   (let [size-id-qty (map #(split #":" %) (:sizes m))
-        available-sizes (filter #(not (nil? %))
-                                (map #(if (not= 0 (Integer/parseInt (second %)))
-                                          (first %))
-                                     size-id-qty))
-        sorted-sizes (apply sorted-set available-sizes)
+        available-sizes (set (filter #(not (nil? %))
+                                     (map #(if (not= 0 (Integer/parseInt (second %)))
+                                             (first %))
+                                          size-id-qty)))
         ; Create a list of size maps applicable to this cap
-        size-map (reduce #(if (get sorted-sizes (:id %2)) (cons %2 %1) %1)
+        size-map (reduce #(if (get available-sizes (:id %2)) (cons %2 %1) %1)
                          '()
                          sizes)]
-    (assoc m :sizes size-map)))
+    ; Need to go from a Cons to a list to get the proper order, for some reason
+    (assoc m :sizes (into '() size-map))))
 
