@@ -7,6 +7,9 @@
             [net.cgrand.enlive-html :as html]))
 
 (declare item-type formatted-price wrap-paragraphs)
+
+(def *title-base* "Cognition Caps")
+
 (defmacro maybe-append
   ([expr] `(if-let [x# ~expr] (html/append x#) identity))
   ([expr & exprs] `(maybe-append (or ~expr ~@exprs))))
@@ -57,9 +60,9 @@
                                       (html/set-attr :src (val img))))
 ;
 (html/deftemplate base "base.html" [{:keys [title main stats]}]
-  [:title] (maybe-content title)
-  ; TODO: remove the main link to / in the header if we're already there
+  [:title] (if title (html/content title) (html/content *title-base*))
   [:#main] (maybe-append main)
+  [:#main :> :a] (change-when (or (nil? title) (= title *title-base*)) html/unwrap)
   ; The last thing we do is to set the elapsed time
   [:#requestStats] (html/content (str "Response generated in "
                                       (/ (- (System/nanoTime) (:start-ts stats)) 1000000.0)
@@ -95,12 +98,13 @@
         (do
           (debug "Loaded cap for url-title" url-title ": " cap)
           (base {:main (show-cap cap)
-                 :title (:nom cap)
+                 :title (str (:nom cap) " - " *title-base*)
                  :stats stats}))))))
 
 (defn faq [stats]
   (debug "Rendering faq")
   (base {:main (html/html-resource "faq.html")
+         :title (str "FAQ - " *title-base*)
          :stats stats}))
 
 ;; =============================================================================
