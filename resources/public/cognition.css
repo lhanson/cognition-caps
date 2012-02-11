@@ -152,7 +152,11 @@ a.include { display: none; } /* Hide extraneous microformat markup */
     margin: 21px 0px 0px 42px;
 }
 #thumbnails img {
-    margin-right: 15px;
+    margin: 2px 15px 2px 2px;
+}
+#thumbnails img.selected {
+    margin: 0px 13px 0px 0px;
+    border: 2px dotted #B2CD00;
 }
 
 #itemInfoWrapper {
