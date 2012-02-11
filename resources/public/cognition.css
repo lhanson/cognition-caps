@@ -104,7 +104,7 @@ a.include { display: none; } /* Hide extraneous microformat markup */
     margin: 14px;
     text-align: right;
 }
-.item a {
+.item a, #images a {
     color: black;
     border: none;
 }
