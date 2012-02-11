@@ -2,9 +2,8 @@
   (:use compojure.core
         ring.adapter.jetty
         [clojure.contrib.string :only (replace-re)]
-        [cognition-caps.config :only (config)]
-        cognition-caps.handlers)
-  (:require [cognition-caps.data :as data]
+        [cognition-caps.config :only (config)])
+  (:require [cognition-caps [data :as data] [handlers :as handlers]]
             [clojure.string :as s]
             [compojure.route :as route]
             [compojure.handler :as handler]))
@@ -25,10 +24,11 @@
                        (s/lower-case))))))
 
 (defroutes all-routes
-  (GET "/" {stats :stats} (index stats))
+  (GET "/" {stats :stats} (handlers/index stats))
   redirect-routes
-  (GET "/caps/:url-title" [url-title & params :as request] (item (:stats request) url-title))
-  (GET "/faq" {stats :stats} (faq stats))
+  (GET "/caps/:url-title" [url-title & params :as request]
+       (handlers/item (:stats request) url-title))
+  (GET "/faq" {stats :stats} (handlers/faq stats))
   (route/resources "/")
   (route/not-found "Page not found"))
 

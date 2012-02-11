@@ -51,7 +51,7 @@ a.include { display: none; } /* Hide extraneous microformat markup */
 }
 #cartStatus img { margin-right: 10px; }
 #cartStatus #cartItemCount, #cartStatus #cartTotalPrice { margin-top: 19px; }
-#cartStatus #cart, #cartStatus #cartTotalPrice, #faqNav { border-right: none; }
+#cartStatus #cart, #cartStatus #cartTotalPrice, #contactNav { border-right: none; }
 #cartStatus #cart {
     width: 68px;
     color: #b2cd00;
