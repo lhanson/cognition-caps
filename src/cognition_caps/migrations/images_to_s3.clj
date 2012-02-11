@@ -3,7 +3,8 @@
             [cognition-caps.data [simpledb :as simpledb] [s3 :as s3]]
             [clojure.string :as s]
             [clojure.java.io :as io]
-            [clojure.contrib.shell-out :as shell]))
+            [clojure.contrib.shell-out :as shell])
+  (:import [org.apache.commons.codec.digest.DigestUtils]))
 
 ;  Item images required:
 ;  +=====================================================================+
@@ -33,17 +34,32 @@
               out (io/output-stream file)]
     (io/copy in out)))
 
-(defn process-image! [orig-file resize-geometry extent-geometry suffix]
+; TODO: these next two functions differ only in the call to upload. Refactor.
+(defn process-main-image! [orig-file resize-geometry extent-geometry item-id suffix]
   "Takes an image file and resizes it with ImageMagick according to the given
-   size and extent geometry and uploads it to Amazon S3 using its MD5 hash
-   and the provided suffix. Returns the URL of the uploaded file."
-  (println "Processing image, file" orig-file ", suffix" suffix)
+   size and extent geometry and uploads it to Amazon S3, with the filename
+   comprised of its MD5 and the provided suffix.
+   Returns the URL of the uploaded file."
   (let [orig-path (.getPath orig-file)
         outfile (doto (java.io.File/createTempFile "processed" ".jpg") (.deleteOnExit))]
     (shell/with-sh-dir (System/getProperty "java.io.tmpdir")
       (shell/sh "convert" orig-path "-resize" resize-geometry "-extent" extent-geometry "-gravity" "center" (.getPath outfile))
       (shell/sh "jpegoptim" "--strip-all" (.getPath outfile))
-      (s3/upload-image outfile suffix))))
+      (s3/upload-image outfile
+                       item-id
+                       (str (org.apache.commons.codec.digest.DigestUtils/md5Hex (java.io.FileInputStream. outfile))
+                            suffix)))))
+
+(defn process-image! [orig-file resize-geometry extent-geometry item-id filename]
+  "Takes an image file and resizes it with ImageMagick according to the given
+   size and extent geometry and uploads it to Amazon S3 using the given
+   filename. Returns the URL of the uploaded file."
+  (let [orig-path (.getPath orig-file)
+        outfile (doto (java.io.File/createTempFile "processed" ".jpg") (.deleteOnExit))]
+    (shell/with-sh-dir (System/getProperty "java.io.tmpdir")
+      (shell/sh "convert" orig-path "-resize" resize-geometry "-extent" extent-geometry "-gravity" "center" (.getPath outfile))
+      (shell/sh "jpegoptim" "--strip-all" (.getPath outfile))
+      (s3/upload-image outfile item-id filename))))
 
 (defn migrate-images!
   "Copies images from old ExpressionEngine site to Amazon S3 and updates links"
@@ -75,15 +91,19 @@
               (let [orig-file (doto (java.io.File/createTempFile "orig" ".jpg") (.deleteOnExit))]
                 (download! main-url orig-file)
                 (println (str "Downloaded " (.getPath orig-file) ", item image number " idx))
-                (if (= idx 0)
-                  (recur (-> new-images
-                             (assoc (keyword (str "main-"  idx)) (process-image! orig-file "487x487^" "487x487" (str "-" idx "-main.jpg")))
-                             (assoc (keyword (str "thumb-" idx)) (process-image! orig-file "73x73^"   "73x73"   (str "-" idx "-thumb.jpg")))
-                             (assoc (keyword (str "front-" idx)) (process-image! orig-file "210x210^" "210x210" (str "-" idx "-front.jpg")))
-                             (assoc (keyword (str "cart-"  idx)) (process-image! orig-file "102x102^" "102x102" (str "-" idx "-cart.jpg"))))
-                         (inc idx))
-                  (recur (-> new-images
-                             (assoc (keyword (str "main-"  idx)) (process-image! orig-file "487x487^" "487x487" (str "-" idx "-main.jpg")))
-                             (assoc (keyword (str "thumb-" idx)) (process-image! orig-file "73x73^"   "73x73"   (str "-" idx "-thumb.jpg"))))
-                         (inc idx)))))))))))
+                (let [main-img-url (process-main-image! orig-file "487x487^" "487x487" (:id cap) (str "-" idx "-main.jpg"))
+                      main-md5     (second (re-find (re-pattern (str "([^/]*?)-" idx "-main.jpg"))
+                                                    main-img-url))
+                      thumb-url    (process-image! orig-file "73x73^" "73x73" (:id cap) (str main-md5 "-" idx "-thumb.jpg"))]
+                  (if (= idx 0)
+                    (recur (-> new-images
+                               (assoc (keyword (str "main-"  idx)) main-img-url)
+                               (assoc (keyword (str "thumb-" idx)) thumb-url)
+                               (assoc (keyword (str "front-" idx)) (process-image! orig-file "210x210^" "210x210" (:id cap) (str main-md5 "-" idx "-front.jpg")))
+                               (assoc (keyword (str "cart-"  idx)) (process-image! orig-file "102x102^" "102x102" (:id cap) (str main-md5 "-" idx "-cart.jpg"))))
+                           (inc idx))
+                    (recur (-> new-images
+                               (assoc (keyword (str "main-"  idx)) main-img-url)
+                               (assoc (keyword (str "thumb-" idx)) thumb-url))
+                           (inc idx))))))))))))
 

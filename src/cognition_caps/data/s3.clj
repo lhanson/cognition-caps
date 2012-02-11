@@ -10,8 +10,8 @@
 (def *bucketname* "cognition-caps")
 (def *folder-prefix* "images/")
 
-(defn upload-image [file name-suffix]
-  "Uploads the given file to S3. The key used is the MD5 with name-suffix appended.
+(defn upload-image [file item-id upload-filename]
+  "Uploads the given file to S3. The key used is the filename given.
    Returns the URL of the uploaded image (minus scheme prefix)"
   (let [cred (org.jets3t.service.security.AWSCredentials. (get config/config "amazon-access-id")
                                                           (get config/config "amazon-access-key"))
@@ -24,8 +24,9 @@
                                  (unparse (formatter "EEE, dd MMM yyyy HH:mm:ss z")
                                           (plus (now) (years 1))))]
     (doto object
-      (.setKey (str *folder-prefix* (.getMd5HashAsHex object) name-suffix))
-      (.addMetadata "Expires" next-year))
+      (.setKey (str *folder-prefix* upload-filename))
+      (.addMetadata "Expires" next-year)
+      (.addMetadata "item-id" (.toString item-id)))
     (debug "Uploading object" (.getKey object))
     (. aws putObject bucket object)
     ; Use this form of URL so that we can use a robots.txt
