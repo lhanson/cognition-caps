@@ -19,7 +19,6 @@ TODO
 Because a good project is never finished.
 
 * Write a database migration from ExpressionEngine/MySQL into SimpleDb.
-  - Move images from old hosting to S3
 * Serve CSS and JS from S3 from either a gzipped or non-gzipped bucket depending
   on application-detected content negotiation
 * Use Sass for CSS

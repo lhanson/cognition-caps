@@ -14,6 +14,14 @@ nav li {
     padding-right: 12px;
     border-right: 2px solid #b2cd00;
 }
+nav li a { color: white; }
+
+a {
+    color: black;
+    text-decoration: none;
+    border-bottom: 1px dashed black;
+}
+a:hover { border-bottom: 1px solid black;}
 
 a.include { display: none; } /* Hide extraneous microformat markup */
 
@@ -43,7 +51,7 @@ a.include { display: none; } /* Hide extraneous microformat markup */
 }
 #cartStatus img { margin-right: 10px; }
 #cartStatus #cartItemCount, #cartStatus #cartTotalPrice { margin-top: 19px; }
-#cartStatus #cart, #cartStatus #cartTotalPrice, #faq { border-right: none; }
+#cartStatus #cart, #cartStatus #cartTotalPrice, #faqNav { border-right: none; }
 #cartStatus #cart {
     width: 68px;
     color: #b2cd00;
@@ -97,8 +105,8 @@ a.include { display: none; } /* Hide extraneous microformat markup */
     text-align: right;
 }
 .item a {
-    text-decoration: none;
     color: black;
+    border: none;
 }
 .item img {
     margin-right: 19px;
@@ -129,7 +137,7 @@ a.include { display: none; } /* Hide extraneous microformat markup */
     margin: 6px 0px 14px 0px;
 }
 .description p + p { margin-top: 1em; }
-.description, .itemMaterials{
+.description, .itemMaterials {
     font-size: 14px;
     line-height: 24px;
     font-family: Georgia, 'Times New Roman', Times, serif;
@@ -171,6 +179,8 @@ a.include { display: none; } /* Hide extraneous microformat markup */
     padding: 5px;
     color: black;
     background-color: white;
+    text-transform: uppercase;
+    border: none;
 }
 #itemDetails form select, #itemDetails form select option {
     font-size: 16px;
@@ -194,6 +204,35 @@ a.include { display: none; } /* Hide extraneous microformat markup */
 
 #faq {
     text-align: left;
+    line-height: 24px;
+    margin: 0px 55px 0px 55px;
+}
+#faq dt {
+    font-family: Oswald, arial, serif;
+    font-size: 15px;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+}
+#faq dt:before {
+    content: "Q";
+    color: #b2cd00;
+    background-color: black;
+    padding: 2px 7px 2px 7px;
+    margin-right: 15px;
+}
+#faq dd {
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    font-size: 13px;
+    margin-bottom: 25px;
+}
+#faq dd:before {
+    content: "A";
+    color: black;
+    font-weight: bold;
+    background-color: #b2cd00;
+    padding: 2px 7px 2px 7px;
+    margin-right: 15px;
 }
 
 footer {
@@ -219,8 +258,10 @@ footer form a {
     width: 104px;
     height: 22px;
     text-indent: -9999px;
+    border: none;
     background: url(images/facebook.gif) no-repeat;
 }
+footer form a:hover { border: none; }
 #emailEntry {
     padding: 3px;
     font-size: 12px;
@@ -238,3 +279,4 @@ footer form a {
     font-size: 11px;
     margin-top: 15px;
 }
+
