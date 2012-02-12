@@ -7,9 +7,28 @@ $(document).ready(function() {
         nope: 'js/polyfill/jquery.html5form-1.5-min.js',
         complete: function() {
             if ($.fn.html5form) {
-                alert("Loaded polyfill for HTML5 form validation");
+                alert('Loaded polyfill for HTML5 form validation, performing on ' + $('#emailForm'));
                 $('#emailForm').html5form();
             }
+        }
+    });
+
+    /* Email address submission */
+    $('#emailForm').submit(function() {
+        alert('Submitting form!');
+        $.ajax({
+            type: "POST",
+            url: "bin/process.php",
+            data: dataString,
+            success: function() {
+                alert('Success!');
+                /*$('#contact_form').html("<div id='message'></div>");
+                $('#message').html("<h2>Contact Form Submitted!</h2>")
+                    .append("<p>We will be in touch soon.</p>")
+                    .hide()
+                    .fadeIn(1500, function() {
+                $('#message').append("<img id='checkmark' src='images/check.png' />");*/
+            });
         }
     });
 
