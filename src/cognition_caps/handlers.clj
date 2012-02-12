@@ -73,7 +73,6 @@
 ;; =============================================================================
 
 (defn index [stats]
-  (debug "Rendering index")
   (let [;SCHEME FOR IMAGES IS ALWAYS HTTP:// for now
         ;add-scheme (fn [image-map scheme]
         ;             (into {} (map #(vector (first %) (str scheme (second %)))
@@ -84,7 +83,6 @@
            :stats stats})))
 
 (defn item [stats url-title]
-  (debug "Getting item for" url-title)
   (if-let [cap (data/get-cap simpledb (:db-queries stats) url-title)]
     (let [current-title (:url-title cap)
           old-title     (:old-url-title cap)]
@@ -101,8 +99,12 @@
                  :title (str (:nom cap) " - " *title-base*)
                  :stats stats}))))))
 
+(defn sizing [stats]
+  (base {:main (html/html-resource "sizing.html")
+         :title (str "Sizing - " *title-base*)
+         :stats stats}))
+
 (defn faq [stats]
-  (debug "Rendering faq")
   (base {:main (html/html-resource "faq.html")
          :title (str "FAQ - " *title-base*)
          :stats stats}))

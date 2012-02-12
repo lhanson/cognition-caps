@@ -28,6 +28,7 @@
   redirect-routes
   (GET "/caps/:url-title" [url-title & params :as request]
        (handlers/item (:stats request) url-title))
+  (GET "/sizing" {stats :stats} (handlers/sizing stats))
   (GET "/faq" {stats :stats} (handlers/faq stats))
   (route/resources "/")
   (route/not-found "Page not found"))

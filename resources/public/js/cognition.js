@@ -1,6 +1,6 @@
 $(document).ready(function() {
     /* Regressive enhancement to support HTML5 input elements */
-    Modernizr.load({
+    /*Modernizr.load({
         test: Modernizr.input.placeholder &&
               Modernizr.input.required &&
               Modernizr.inputtypes.email,
@@ -16,27 +16,7 @@ $(document).ready(function() {
                     });
             }
         }
-    });
-
-    /* Email address submission */
-    $('#emailForm').submit(function() {
-        alert('Submitting form!');
-        /*$.ajax({
-            type: "POST",
-            url: "bin/process.php",
-            data: dataString,
-            success: function() {
-                alert('Success!');
-                $('#contact_form').html("<div id='message'></div>");
-                $('#message').html("<h2>Contact Form Submitted!</h2>")
-                    .append("<p>We will be in touch soon.</p>")
-                    .hide()
-                    .fadeIn(1500, function() {
-                $('#message').append("<img id='checkmark' src='images/check.png' />");
-            }
-        });*/
-        return false;
-    });
+    });*/
 
     /* Thumbnail toggling for item pages */
     var $thumbnails = $('#thumbnails img');
@@ -59,13 +39,20 @@ $(document).ready(function() {
 
     /* Overlay for sizing chart */
     $('#sizingLink').click(function(e) {
-        $.get('/sizing', function(data) {
-            $('body').append(
-                $('<div class="overlay" />')
-                    .append($(data).find('#sizing'))
-                    .height($(document).height())
-            );
-        });
+        var $overlay = $('#overlay');
+        if ($overlay.length) {
+            $overlay.show();
+        }
+        else {
+            $overlay = $('<div id="overlay" />').height($(document).height());
+            var $overlayClose =
+                $('<a id="overlayClose" title="Close"></a>')
+                    .click(function() { $overlay.hide(); });
+            $.get('/sizing', function(data) {
+                var $content = $(data).find('#sizing').append($overlayClose);
+                $('body').append($overlay.append($content));
+            });
+        }
         e.preventDefault();
     });
 });
