@@ -8,7 +8,12 @@ $(document).ready(function() {
         complete: function() {
             if ($.fn.html5form) {
                 alert('Loaded polyfill for HTML5 form validation, performing on ' + $('#emailForm'));
-                $('#emailForm').html5form();
+                $('#emailForm')
+                    .after($('<div id="formValidation" />'))
+                    .html5form({
+                        messages: 'en',
+                        responseDiv: '#formValidation'
+                    });
             }
         }
     });
@@ -16,20 +21,21 @@ $(document).ready(function() {
     /* Email address submission */
     $('#emailForm').submit(function() {
         alert('Submitting form!');
-        $.ajax({
+        /*$.ajax({
             type: "POST",
             url: "bin/process.php",
             data: dataString,
             success: function() {
                 alert('Success!');
-                /*$('#contact_form').html("<div id='message'></div>");
+                $('#contact_form').html("<div id='message'></div>");
                 $('#message').html("<h2>Contact Form Submitted!</h2>")
                     .append("<p>We will be in touch soon.</p>")
                     .hide()
                     .fadeIn(1500, function() {
-                $('#message').append("<img id='checkmark' src='images/check.png' />");*/
-            });
-        }
+                $('#message').append("<img id='checkmark' src='images/check.png' />");
+            }
+        });*/
+        return false;
     });
 
     /* Thumbnail toggling for item pages */
