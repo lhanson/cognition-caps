@@ -8,7 +8,7 @@ $(document).ready(function() {
         complete: function() {
             if ($.fn.html5form) {
                 alert("Loaded polyfill for HTML5 form validation");
-                //TODO: is this necessary to activate? $('#emailForm').html5form();
+                $('#emailForm').html5form();
             }
         }
     });
