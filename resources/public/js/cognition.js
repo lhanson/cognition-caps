@@ -23,7 +23,7 @@ $(document).ready(function() {
     if ($thumbnails.length) {
         var $mainImage = $('#itemImageWrapper img');
         $thumbnails
-            .css('cursor', 'hand').css('cursor', 'pointer')
+            .css({ cursor: 'hand', cursor: 'pointer' })
             .each(function(i, e) {
                 var $img = $(e);
                 if (i === 0) {
@@ -45,12 +45,21 @@ $(document).ready(function() {
         }
         else {
             $overlay = $('<div id="overlay" />').height($(document).height());
+            console.log("Modernizr, rgba: " + Modernizr.rgba);
+            if (Modernizr.rgba) {
+                $overlay.css('background', 'rgba(0,0,0,0.7)');
+            }
+            else {
+                alert('no opacity');
+                $overlay.css('background-image', 'url("images/overlay_bg.png")');
+            }
+            $('body').append($overlay);
             var $overlayClose =
                 $('<a id="overlayClose" title="Close"></a>')
                     .click(function() { $overlay.hide(); });
             $.get('/sizing', function(data) {
                 var $content = $(data).find('#sizing').append($overlayClose);
-                $('body').append($overlay.append($content));
+                $overlay.append($content);
             });
         }
         e.preventDefault();

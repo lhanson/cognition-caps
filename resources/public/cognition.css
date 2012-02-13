@@ -259,12 +259,6 @@ a.include { display: none; } /* Hide extraneous microformat markup */
     top: 0px;
     height: 100%;
     width: 100%;
-    /* When used with JS and can polyfill:
-    //background-color: black;
-    //opacity: 0.5;
-    // Fallback for IE:
-    */
-    background-image: url('images/overlay_bg.png');
 }
 #overlay div {
     position: relative;
