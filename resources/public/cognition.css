@@ -259,6 +259,7 @@ a.include { display: none; } /* Hide extraneous microformat markup */
     top: 0px;
     height: 100%;
     width: 100%;
+    background: rgba(0, 0, 0, 0.7);
 }
 #overlay div {
     position: relative;

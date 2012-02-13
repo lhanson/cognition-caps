@@ -45,13 +45,8 @@ $(document).ready(function() {
         }
         else {
             $overlay = $('<div id="overlay" />').height($(document).height());
-            console.log("Modernizr, rgba: " + Modernizr.rgba);
-            if (Modernizr.rgba) {
-                $overlay.css('background', 'rgba(0,0,0,0.7)');
-            }
-            else {
-                alert('no opacity');
-                $overlay.css('background-image', 'url("images/overlay_bg.png")');
+            if (!Modernizr.rgba) {
+                $overlay.css('background-image', 'url("/images/overlay_bg.png")');
             }
             $('body').append($overlay);
             var $overlayClose =
