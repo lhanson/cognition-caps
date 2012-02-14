@@ -32,7 +32,10 @@ a.include { display: none; } /* Hide extraneous microformat markup */
     letter-spacing: 1px;
     background: black url(images/bg_top_bar.gif) repeat left top;
 }
-#topNav li { margin-top: 17px; }
+#topNav li {
+    color: white;
+    margin-top: 17px;
+}
 
 #siteNav {
     float: left;
