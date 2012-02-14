@@ -35,7 +35,7 @@
 
 (defn- is-new? [cap]
   (after? (time-coerce/from-long (* (java.lang.Long. (:date-added cap)) 1000))
-          (minus (now) (months 10))))
+          (minus (now) (months 1))))
 
 ; Snippet to generate item markup for each item on the main page
 (html/defsnippet item-model "mainContent.html" [:#items :.item]
