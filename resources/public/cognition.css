@@ -49,7 +49,6 @@ a.include { display: none; } /* Hide extraneous microformat markup */
     margin-right: 8px;
     padding-right: 8px;
 }
-#cartStatus img { margin-right: 10px; }
 #cartStatus #cartItemCount, #cartStatus #cartTotalPrice { margin-top: 19px; }
 #cartStatus #cart, #cartStatus #cartTotalPrice, #contactNav { border-right: none; }
 #cartStatus #cart {
