@@ -99,6 +99,7 @@ a.include { display: none; } /* Hide extraneous microformat markup */
 #items { text-align: left; }
 .item {
     display: inline-block;
+    position: relative;
     background: url(images/bg_item.png) no-repeat;
     width: 229px;
     margin: 14px;
@@ -111,6 +112,11 @@ a.include { display: none; } /* Hide extraneous microformat markup */
 .item img {
     margin-right: 19px;
     margin-bottom: 19px;
+}
+.item .itemBadge {
+    position: absolute;
+    top: 144px;
+    left: 7px;
 }
 .fn {
     font-family: Georgia, 'Times New Roman', Times, serif;

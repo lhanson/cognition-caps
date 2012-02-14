@@ -2,8 +2,10 @@
   (:use [cognition-caps.data.simpledb :only (simpledb)]
         [cognition-caps.config :only (config)]
         [clojure.contrib.string :only (lower-case replace-re split-lines)]
-        [clojure.tools.logging :only (debug)])
+        [clojure.tools.logging :only (debug)]
+        [clj-time.core :only (after? minus months now)])
   (:require [cognition-caps.data :as data]
+            [clj-time.coerce :as time-coerce]
             [net.cgrand.enlive-html :as html]))
 
 (declare item-type formatted-price wrap-paragraphs)
@@ -31,12 +33,23 @@
     [:.fn] (html/content (:nom cap))
     [:.price] (html/content (formatted-price cap))))
 
+(defn- is-new? [cap]
+  (after? (time-coerce/from-long (* (java.lang.Long. (:date-added cap)) 1000))
+          (minus (now) (months 10))))
+
 ; Snippet to generate item markup for each item on the main page
 (html/defsnippet item-model "mainContent.html" [:#items :.item]
   [cap]
   [:*] (cap-common cap)
   [[:a :.url]] (html/set-attr :href (str "/" (item-type (:tags cap)) "/" (:url-title cap)))
-  [:img] (html/set-attr :src (:front-0 (:image-urls cap))))
+  [:img] (html/set-attr :src (:front-0 (:image-urls cap)))
+  [:.item] (change-when (is-new? cap)
+                        (html/append {:tag :img
+                                      :attrs {:class "itemBadge"
+                                              :src "images/badge_new.png"
+                                              :alt "New item"
+                                              :width "59px"
+                                              :height "59px"}})))
 
 (html/defsnippet show-caps "mainContent.html" [:#main :> :*]
   [caps]
