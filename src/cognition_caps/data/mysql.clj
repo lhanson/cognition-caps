@@ -3,7 +3,6 @@
 ;;; MySQL won't be used on Heroku.
 (ns cognition-caps.data.mysql
   (:use [cognition-caps.data]
-        [clj-time [core :only (date-time)] [coerce :only (to-string)]]
         [clojure.contrib.str-utils :only (re-split)])
   (:require [cognition-caps.config :as config]
             [clojure.string :as s]
@@ -59,7 +58,7 @@
 (defn- get-cap-rows [queryCount]
   (let [query (str "SELECT t.entry_id AS \"id\", t.title AS \"nom\",
                            t.url_title AS \"url-title\", d.field_id_4 AS \"description\",
-                           t.year, t.month, t.day, d.field_id_5 AS \"sizes\",
+                           t.entry_date AS \"entry-date\", d.field_id_5 AS \"sizes\",
                            d.field_id_8 AS \"image1\", d.field_id_18 AS \"image2\",
                            d.field_id_19 AS \"image3\", d.field_id_20 AS \"image4\",
                            d.field_id_30 AS \"display-order\",
@@ -99,9 +98,8 @@
 
 (defn mapcap [queryCount capmap]
   "Does a little massaging of the data from the SQL database and creates a Cap"
-  (let [{:keys [year month day image1 image2 image3 image4]} capmap
+  (let [{:keys [entry-date image1 image2 image3 image4]} capmap
         nom (s/replace (:nom capmap) #"(?i)\s*cap\s*$" "")
-        date-added (apply date-time (map #(Integer. %) [year month day]))
         images (if (or image1 image2 image3 image4)
                  (map #(cs/trim %) (filter #(not (s/blank? %)) (vector image1 image2 image3 image4))))
         check-price-id (fn [c]
@@ -125,7 +123,7 @@
                           (assoc :nom nom)
                           (assoc :url-title (url-title nom))
                           (assoc :description (cs/trim (:description capmap)))
-                          (assoc :date-added (to-string date-added))
+                          (assoc :date-added entry-date)
                           (assoc :image-urls (map-images images))
                           (assoc :tags (hash-set :item-type-cap))
                           (check-price-id)))]
