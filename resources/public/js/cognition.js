@@ -23,7 +23,7 @@ $(document).ready(function() {
     if ($thumbnails.length) {
         var $mainImage = $('#itemImageWrapper img');
         $thumbnails
-            .css('cursor', 'pointer' })
+            .css('cursor', 'pointer')
             .each(function(i, e) {
                 var $img = $(e);
                 if (i === 0) {

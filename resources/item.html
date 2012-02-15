@@ -14,13 +14,21 @@
             <div class="description"><p class="itemMaterials"></p></div>
             <!-- TODO: facebook share and like are available via a javascript widget. -->
             <div id="facebookWidgets">facebook [share | like]</div>
-            <form>
+            <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="paypal">
+                <input type="hidden" name="business" value="orders@wearcognition.com" />
+                <input type="hidden" name="cmd" value="_cart" />
+                <input type="hidden" name="add" value="1" />
+                <input type="hidden" name="item_name" value="" />
+                <input type="hidden" name="item_number" value="" />
+                <input type="hidden" name="amount" value="" />
+                <input type="hidden" name="currency_code" value="USD" />
+                <input type="hidden" name="on0" value="Size">
                 <label for="sizeSelection">Select Size</label>
-                <select id="sizeSelection" name="size">
+                <select id="sizeSelection" name="os0">
                     <option value=""></option>
                 </select>
                 <a id="sizingLink" href="/sizing" target="_blank">Size Chart</a>
-                <input type="submit" value="Submit" />
+                <input type="submit" value="Add to cart" />
             </form>
         </section>
     </article>

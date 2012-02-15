@@ -66,12 +66,18 @@
                               (html/do->
                                 (change-when (= (:id size) (str data/default-size))
                                              (html/set-attr :selected "selected"))
-                                (html/set-attr :value (:id size))
+                                (html/set-attr :value (lower-case (:nom size)))
                                 (html/content (lower-case (:nom size)))))
   [:#thumbnails :img] (html/clone-for [img (filter #(.startsWith (name (key %)) "thumb-")
                                                    (:image-urls cap))]
-                                      (html/set-attr :src (val img))))
-;
+                                      (html/set-attr :src (val img)))
+  [:#itemInfoWrapper [:input (html/attr= :name "item_name")]]
+  (html/set-attr :value (:nom cap))
+  [:#itemInfoWrapper [:input (html/attr= :name "item_number")]]
+  (html/set-attr :value (:id cap))
+  [:#itemInfoWrapper [:input (html/attr= :name "amount")]]
+  (html/set-attr :value (get-in cap [:price :price])))
+
 (html/deftemplate base "base.html" [{:keys [title main stats]}]
   [:title] (if title (html/content title) (html/content *title-base*))
   [:#main] (maybe-append main)
