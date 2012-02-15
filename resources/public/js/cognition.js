@@ -1,23 +1,4 @@
 $(document).ready(function() {
-    /* Regressive enhancement to support HTML5 input elements */
-    /*Modernizr.load({
-        test: Modernizr.input.placeholder &&
-              Modernizr.input.required &&
-              Modernizr.inputtypes.email,
-        nope: 'js/polyfill/jquery.html5form-1.5-min.js',
-        complete: function() {
-            if ($.fn.html5form) {
-                alert('Loaded polyfill for HTML5 form validation, performing on ' + $('#emailForm'));
-                $('#emailForm')
-                    .after($('<div id="formValidation" />'))
-                    .html5form({
-                        messages: 'en',
-                        responseDiv: '#formValidation'
-                    });
-            }
-        }
-    });*/
-
     /* Thumbnail toggling for item pages */
     var $thumbnails = $('#thumbnails img');
     if ($thumbnails.length) {
