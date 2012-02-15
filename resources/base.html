@@ -18,11 +18,12 @@
                 <li><a href="/faq">FAQ</a></li>
                 <li id="contactNav"><a href="mailto:info@wearcognition.com">Contact</a></li>
             </ul>
-            <ul id="cartStatus">
-                <li id="cart">Cart</li>
-                <li id="cartItemCount">0 items</li>
-                <li id="cartTotalPrice">$0.00</li>
-            </ul>
+            <form id="cart" action="https://www.paypal.com/cgi-bin/webscr" method="post" target="paypal">
+                <input type="hidden" name="business" value="orders@wearcognition.com" />
+                <input type="hidden" name="cmd" value="_cart" />
+                <input type="hidden" name="display" value="1" />
+                <input type="submit" name="submit" value="Cart" />
+            </form>
         </nav>
 
         <div id="main">

@@ -76,9 +76,6 @@
   [:title] (if title (html/content title) (html/content *title-base*))
   [:#main] (maybe-append main)
   [:#main :> :a] (change-when (or (nil? title) (= title *title-base*)) html/unwrap)
-  ; Enlive's HTML parser (TagSoup) "fixes" inline elements (a) wrapping block
-  ; elements, so we insert it here. https://github.com/cgrand/enlive/issues/24
-  [:#cartStatus] (html/wrap :a {:href "/cart"})
   ; The last thing we do is to set the elapsed time
   [:#requestStats] (html/content (str "Response generated in "
                                       (/ (- (System/nanoTime) (:start-ts stats)) 1000000.0)

@@ -15,6 +15,7 @@ nav li {
     border-right: 2px solid #b2cd00;
 }
 nav li a { color: white; }
+#contactNav { border: none; }
 
 a {
     color: black;
@@ -42,24 +43,24 @@ a.include { display: none; } /* Hide extraneous microformat markup */
     margin-left: 75px;
 }
 
-#cartStatus {
+#cart {
     float: right;
-    margin-right: 75px;
+    margin: 13px 75px 0px 0px;
 }
-#cartStatus li {
-    font-size: 14px;
-    border-right: 1px solid #666666;
-    margin-right: 8px;
-    padding-right: 8px;
-}
-#cartStatus #cartItemCount, #cartStatus #cartTotalPrice { margin-top: 19px; }
-#cartStatus #cart, #cartStatus #cartTotalPrice, #contactNav { border-right: none; }
-#cartStatus #cart {
-    width: 68px;
+#cart input {
+    border: 0px;
+    background: transparent;
     color: #b2cd00;
     font-size: 18px;
+    font-family: Oswald, arial, serif;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
     text-align: right;
     background: url(/images/cart.gif) left no-repeat;
+    margin: 0px;
+    padding: 0px;
+    width: 68px;
 }
 
 #main {
