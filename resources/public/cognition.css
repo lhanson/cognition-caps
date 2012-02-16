@@ -180,7 +180,7 @@ a.include { display: none; } /* Hide extraneous microformat markup */
     margin: 0px 21px 0px 21px;
     background: url(images/bg_main_item.png) 0px 0px no-repeat;
 }
-#facebookWidgets, #itemInfoWrapper {
+#itemInfoWrapper, #itemInfoWrapper .fb-like {
     padding-bottom: 20px;
     margin-bottom: 20px;
     border-bottom: 1px dotted #999;
@@ -296,7 +296,7 @@ footer {
     background: url(images/bg_footer.gif) repeat left top;
 }
 #footerDrawing { margin: -105px 0px 25px 0px; }
-footer form {
+#footerContent {
     width: 982px;
     height: 73px;
     margin: 0px auto;
@@ -304,9 +304,7 @@ footer form {
                 url(images/footer_logo.gif) left 12px no-repeat,
                 url(images/footer_bottomlines.gif) bottom no-repeat;
 }
-footer form * { vertical-align: middle; margin-top: 15px; }
-footer form label, #emailSubmit { text-transform: uppercase; }
-footer form a {
+#facebookLink {
     float: right;
     margin-top: 18px;
     width: 104px;
@@ -315,18 +313,10 @@ footer form a {
     border: none;
     background: url(images/facebook.gif) no-repeat;
 }
-footer form a:hover { border: none; }
-#emailEntry {
-    padding: 3px;
-    font-size: 12px;
-    font-family: Georgia, 'Times New Roman', Times, serif;
-}
-#emailSubmit {
-    color: white;
-    background-color: black;
-    padding: 3px;
-    font-size: 16px;
-    font-family: Oswald, arial, serif;
+footer .fb-like {
+    float: right;
+    width: 74px;
+    margin: 20px 0px 0px 22px;
 }
 
 #requestStats {
