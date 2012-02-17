@@ -76,7 +76,9 @@
   [:#itemInfoWrapper [:input (html/attr= :name "item_number")]]
   (html/set-attr :value (:id cap))
   [:#itemInfoWrapper [:input (html/attr= :name "amount")]]
-  (html/set-attr :value (get-in cap [:price :price])))
+  (html/set-attr :value (get-in cap [:price :price]))
+  [:#itemInfoWrapper :.g-plusone] (html/set-attr :data-href
+                                                 (str "http://wearcognition.com/caps/" (:url-title cap))))
 
 (html/deftemplate base "base.html" [{:keys [title main stats]}]
   [:title] (if title (html/content title) (html/content *title-base*))

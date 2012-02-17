@@ -12,7 +12,13 @@
             <h1 class="fn"></h1>
             <p class="itemPrice">$<span class="price"></span></p>
             <div class="description"><p class="itemMaterials"></p></div>
-            <div class="fb-like" data-send="true" data-layout="button_count" data-width="200" data-show-faces="false" data-font="arial"></div>
+            <div class="socialMedia">
+                <div class="fb-like" data-send="true" data-layout="button_count" data-show-faces="false" data-font="arial"></div>
+                <!-- Google eats the classes for g-plusone divs, so we reserve our own -->
+                <div class="plusone">
+                    <div class="g-plusone" data-size="medium" data-href=""></div>
+                </div>
+            </div>
             <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="paypal">
                 <input type="hidden" name="business" value="orders@wearcognition.com" />
                 <input type="hidden" name="cmd" value="_cart" />

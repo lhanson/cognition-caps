@@ -180,10 +180,17 @@ a.include { display: none; } /* Hide extraneous microformat markup */
     margin: 0px 21px 0px 21px;
     background: url(images/bg_main_item.png) 0px 0px no-repeat;
 }
-#itemInfoWrapper, #itemInfoWrapper .fb-like {
+#itemInfoWrapper, #itemInfoWrapper .socialMedia {
     padding-bottom: 20px;
     margin-bottom: 20px;
     border-bottom: 1px dotted #999;
+}
+#itemInfoWrapper .fb-like, #itemInfoWrapper .plusone { vertical-align: top; }
+#itemInfoWrapper .fb-like {
+    width: 110px;
+}
+#itemInfoWrapper .plusone {
+    display: inline-block;
 }
 #itemDetails form * { margin-right: 15px; }
 #itemDetails form label { text-transform: uppercase; }
@@ -307,16 +314,21 @@ footer {
 #facebookLink {
     float: right;
     margin-top: 18px;
-    width: 104px;
+    width: 22px;
     height: 22px;
     text-indent: -9999px;
     border: none;
-    background: url(images/facebook.gif) no-repeat;
+    background: url(images/facebook.png) no-repeat;
+}
+footer .fb-like, footer .plusone {
+    float: right;
+    margin: 20px 0px 0px 10px;
 }
 footer .fb-like {
-    float: right;
     width: 74px;
-    margin: 20px 0px 0px 22px;
+}
+footer .plusone {
+    width: 48px;
 }
 
 #requestStats {

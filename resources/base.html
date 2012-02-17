@@ -44,10 +44,15 @@
         <footer>
             <img id="footerDrawing" src="/images/footer_drawings.png" alt="" width="460" height="128" />
             <div id="footerContent">
+                <!-- Google eats the classes for g-plusone divs, so we reserve our own -->
+                <div class="plusone">
+                    <div class="g-plusone" data-size="medium" data-href="http://wearcognition.com"></div>
+                </div>
                 <div class="fb-like"
                      data-href="http://www.facebook.com/pages/Cognition-Caps/165962633453031"
-                     data-send="false" data-layout="button_count" data-width=60"
+                     data-send="false" data-layout="button_count"
                      data-show-faces="false" data-font="arial"></div>
+                <div id="fb-root"></div>
                 <a id="facebookLink" target="_blank"
                    href="http://www.facebook.com/pages/Cognition-Caps/165962633453031">Facebook</a>
             </div>
@@ -56,7 +61,6 @@
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
         <script>!window.jQuery && document.write('<script src="/js/jquery-1.7.1.min.js"><\/script>')</script>
         <script src="/js/cognition.js"></script>
-        <div id="fb-root"></div>
         <script>(function(d, s, id) {
             var js, fjs = d.getElementsByTagName(s)[0];
             if (d.getElementById(id)) return;
@@ -64,6 +68,13 @@
             js.src = "//connect.facebook.net/en_US/all.js#xfbml=1";
             fjs.parentNode.insertBefore(js, fjs);
             }(document, 'script', 'facebook-jssdk'));
+        </script>
+        <script type="text/javascript">
+          (function() {
+            var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+            po.src = 'https://apis.google.com/js/plusone.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+          })();
         </script>
     </body>
 </html>
