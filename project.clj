@@ -3,7 +3,7 @@
   :dependencies [[org.clojure/clojure "1.2.1"]
                  [org.clojure/clojure-contrib "1.2.0"]
                  [clj-time "0.3.0"]
-                 [compojure "0.6.5"]
+                 [compojure "1.0.1"]
                  [enlive "1.0.0"]
                  [com.cemerick/rummage "0.0.2"]
                  [net.java.dev.jets3t/jets3t "0.8.1"]
