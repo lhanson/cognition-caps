@@ -55,6 +55,27 @@
                                    where (not-null :display-order)
                                    order-by [:display-order desc]}))))
 
+  (get-caps-limit [this queryCount limit]
+    (swap! queryCount inc)
+    (let [prices (.get-prices this queryCount)
+          sizes (.get-sizes this queryCount)]
+      (map #(unmarshal-cap % prices sizes)
+           (sdb/query config `{select * from items
+                               where (not-null :display-order)
+                               limit ~limit
+                               order-by [:display-order desc]}))))
+
+  (get-caps-range [this queryCount display-order-high display-order-low]
+    (swap! queryCount inc)
+    (println "They are" (type display-order-high) "and" (type display-order-low))
+    (println "Getting between" display-order-high "and" display-order-low)
+    (let [prices (.get-prices this queryCount)
+          sizes (.get-sizes this queryCount)]
+      (map #(unmarshal-cap % prices sizes)
+           (sdb/query config `{select * from items
+                               where (and (<= :display-order ~display-order-high) (>= :display-order ~display-order-low))
+                               order-by [:display-order desc]}))))
+
   (put-caps [this queryCount caps]
     (println "Persisting" (count caps) "caps to SimpleDB")
     (swap! queryCount inc)

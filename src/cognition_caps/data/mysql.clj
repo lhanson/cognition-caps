@@ -19,6 +19,12 @@
              "Looking up a single cap from ExpressionEngine is not supported")))
   (get-caps   [this queryCount]
     (map #(mapcap queryCount %) (get-cap-rows queryCount)))
+  (get-caps-limit [this queryCount limit]
+    (throw (UnsupportedOperationException.
+             "Paginated queries to ExpressionEngine are not supported")))
+  (get-caps-range [this queryCount display-order-high display-order-low]
+    (throw (UnsupportedOperationException.
+             "Paginated queries to ExpressionEngine are not supported")))
   (put-caps   [this caps queryCount]
     (throw (UnsupportedOperationException.
              "Writing to ExpressionEngine is not supported")))

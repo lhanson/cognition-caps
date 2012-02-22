@@ -4,13 +4,16 @@
 
 (defprotocol DataAccess
   "A protocol abstracting access to product data"
-  (get-cap    [this queryCount url-title] "Provides the cap corresponding to the given url-title")
-  (get-caps   [this queryCount]           "Provides a sequence of caps currently stored")
-  (put-caps   [this queryCount caps]      "Persists caps")
-  (get-sizes  [this queryCount]           "Provides a list of available sizes")
-  (get-prices [this queryCount]           "Provides a list of price categories")
+  (get-cap    [this queryCount url-title]   "Provides the cap corresponding to the given url-title")
+  (get-caps   [this queryCount]             "Provides a sequence of caps currently stored")
+  (get-caps-limit   [this queryCount limit] "Provides a list of the first 'limit' caps currently stored")
+  (get-caps-range   [this queryCount high-display-order low-display-order]
+                                            "Provides a sequence of caps within the given display-order range, inclusive")
+  (put-caps   [this queryCount caps]        "Persists caps")
+  (get-sizes  [this queryCount]             "Provides a list of available sizes")
+  (get-prices [this queryCount]             "Provides a list of price categories")
   (update-cap [this queryCount id
-               attr-name attr-value]      "Updates the given attribute"))
+               attr-name attr-value]        "Updates the given attribute"))
 
 (defrecord Cap [id nom url-title description image-urls price-id sizes tags user-id date-added display-order hide])
 (defn make-Cap

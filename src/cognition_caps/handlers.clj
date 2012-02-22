@@ -11,6 +11,7 @@
 (declare item-type formatted-price wrap-paragraphs)
 
 (def *title-base* "Cognition Caps")
+(def *items-per-page* 4) ;TODO: live version start with 32
 
 (defmacro maybe-append
   ([expr] `(if-let [x# ~expr] (html/append x#) identity))
@@ -43,13 +44,15 @@
   [:*] (cap-common cap)
   [[:a :.url]] (html/set-attr :href (str "/" (item-type (:tags cap)) "/" (:url-title cap)))
   [:img] (html/set-attr :src (:front-0 (:image-urls cap)))
-  [:.item] (change-when (is-new? cap)
-                        (html/append {:tag :img
-                                      :attrs {:class "itemBadge"
-                                              :src "images/badge_new.png"
-                                              :alt "New item"
-                                              :width "59px"
-                                              :height "59px"}})))
+  [:.item] (html/do->
+             ;(html/set-attr :data-display-order (:display-order cap))
+             (change-when (is-new? cap)
+                          (html/append {:tag :img
+                                        :attrs {:class "itemBadge"
+                                                :src "images/badge_new.png"
+                                                :alt "New item"
+                                                :width "59px"
+                                                :height "59px"}}))))
 
 (html/defsnippet show-caps "mainContent.html" [:#main :> :*]
   [caps]
@@ -93,14 +96,13 @@
 ;; Pages
 ;; =============================================================================
 
-(defn index [stats]
-  (let [;SCHEME FOR IMAGES IS ALWAYS HTTP:// for now
-        ;add-scheme (fn [image-map scheme]
-        ;             (into {} (map #(vector (first %) (str scheme (second %)))
-        ;                           (seq image-map))))
-        caps (data/get-caps simpledb (:db-queries stats))]
-    (debug "Got images" (:image-urls (first caps)))
-    (base {:main (show-caps (take 7 caps))
+(defn index [stats {:keys [limit start end]}]
+  (let [caps (if limit
+               (data/get-caps-limit simpledb (:db-queries stats) (Integer/parseInt limit))
+               (if (and start end)
+                 (data/get-caps-range simpledb (:db-queries stats) start end)
+                 (data/get-caps-limit simpledb (:db-queries stats) *items-per-page*)))]
+    (base {:main (show-caps caps)
            :stats stats})))
 
 (defn item [stats url-title]

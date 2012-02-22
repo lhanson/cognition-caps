@@ -5,7 +5,7 @@
                  [clj-time "0.3.0"]
                  [compojure "1.0.1"]
                  [enlive "1.0.0"]
-                 [com.cemerick/rummage "0.0.2"]
+                 [com.cemerick/rummage "0.0.3"]
                  [net.java.dev.jets3t/jets3t "0.8.1"]
                  [commons-codec "1.6"]
                  [clj-logging-config "1.6"]

@@ -24,7 +24,7 @@
                        (s/lower-case))))))
 
 (defroutes all-routes
-  (GET "/" {stats :stats} (handlers/index stats))
+  (GET "/" [& query-params :as request] (handlers/index (:stats request) query-params))
   redirect-routes
   (GET "/caps/:url-title" [url-title & params :as request]
        (handlers/item (:stats request) url-title))
