@@ -39,7 +39,8 @@
     (handler (merge request {:stats {:start-ts (System/nanoTime)
                                      :db-queries (atom 0)}}))))
 
-(def app (-> (handler/site all-routes)
+(def app (-> all-routes
+             handler/site
              wrap-stats))
 
 (defn start [port]
