@@ -16,7 +16,7 @@
         mysql-data    (mysql/make-MySQLAccess) ; ExpressionEngine database for old site
         simpledb-data simpledb/simpledb
         sizes         (data/get-sizes simpledb-data sdb-count)
-        caps          (->> (take 2 (data/get-caps mysql-data mysql-count))
+        caps          (->> (take 8 (data/get-caps mysql-data mysql-count))
                         (map #(add-sizes % sizes))
                         (map images/migrate-images!))]
     (println "Loaded" (count caps) "caps from MySQL with" @mysql-count "queries and"

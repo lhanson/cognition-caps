@@ -5,10 +5,9 @@
 (defprotocol DataAccess
   "A protocol abstracting access to product data"
   (get-cap    [this queryCount url-title]   "Provides the cap corresponding to the given url-title")
-  (get-caps   [this queryCount]             "Provides a sequence of caps currently stored")
-  (get-caps-limit   [this queryCount limit] "Provides a list of the first 'limit' caps currently stored")
-  (get-caps-range   [this queryCount high-display-order low-display-order]
-                                            "Provides a sequence of caps within the given display-order range, inclusive")
+  (get-caps   [this queryCount]             "Provides a sequence of all caps currently stored")
+  (get-caps-range [this queryCount begin limit]
+                  "Provides a sequence of 'limit' caps beginning with the given display-order")
   (put-caps   [this queryCount caps]        "Persists caps")
   (get-sizes  [this queryCount]             "Provides a list of available sizes")
   (get-prices [this queryCount]             "Provides a list of price categories")

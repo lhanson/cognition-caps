@@ -1,9 +1,9 @@
 ;;; DataAccess implementation against Amazon SimpleDB
 (ns cognition-caps.data.simpledb
   (:use [cognition-caps.data]
-        [clojure.contrib.string :only (split)]
         [clojure.tools.logging])
   (:require [cognition-caps.config :as config]
+            [clojure.contrib.string :as str]
             [cemerick.rummage :as sdb]
             [cemerick.rummage.encoding :as enc]
             [clj-logging-config.log4j :as l]))
@@ -53,28 +53,22 @@
       (map #(unmarshal-cap % prices sizes)
            (sdb/query-all config '{select * from items
                                    where (not-null :display-order)
-                                   order-by [:display-order desc]}))))
+                                   order-by [:display-order asc]}))))
 
-  (get-caps-limit [this queryCount limit]
+  (get-caps-range [this queryCount begin limit]
     (swap! queryCount inc)
-    (let [prices (.get-prices this queryCount)
-          sizes (.get-sizes this queryCount)]
-      (map #(unmarshal-cap % prices sizes)
-           (sdb/query config `{select * from items
-                               where (not-null :display-order)
-                               limit ~limit
-                               order-by [:display-order desc]}))))
-
-  (get-caps-range [this queryCount display-order-high display-order-low]
-    (swap! queryCount inc)
-    (println "They are" (type display-order-high) "and" (type display-order-low))
-    (println "Getting between" display-order-high "and" display-order-low)
-    (let [prices (.get-prices this queryCount)
-          sizes (.get-sizes this queryCount)]
-      (map #(unmarshal-cap % prices sizes)
-           (sdb/query config `{select * from items
-                               where (and (<= :display-order ~display-order-high) (>= :display-order ~display-order-low))
-                               order-by [:display-order desc]}))))
+    (let [prices       (.get-prices this queryCount)
+          sizes        (.get-sizes this queryCount)
+          begin-padded (str (str/repeat (- (get config/config :display-order-len)
+                                           (count begin))
+                                        "0")
+                            begin)
+          query        `{select * from items
+                         where (and (>= :display-order ~begin-padded)
+                                    (= :hide "false"))
+                         limit ~limit
+                         order-by [:display-order asc]}]
+      (map #(unmarshal-cap % prices sizes) (sdb/query config query))))
 
   (put-caps [this queryCount caps]
     (println "Persisting" (count caps) "caps to SimpleDB")
@@ -232,7 +226,7 @@
 
 (defn dereference-sizes [m sizes]
   "Associates the a parsed size map for the given cap's encoded size-id:quantity string"
-  (let [size-id-qty (map #(split #":" %) (:sizes m))
+  (let [size-id-qty (map #(str/split #":" %) (:sizes m))
         available-sizes (set (filter #(not (nil? %))
                                      (map #(if (not= 0 (Integer/parseInt (second %)))
                                              (first %))

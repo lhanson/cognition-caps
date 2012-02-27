@@ -56,7 +56,8 @@
 
 (html/defsnippet show-caps "mainContent.html" [:#main :> :*]
   [caps]
-  [:#items :ul] (html/content (map item-model caps)))
+  [:#items :ul] (html/content (map item-model caps))
+  [:#pagination] identity)
 
 ; Snippet for generating markup for an individual item page
 (html/defsnippet show-cap "item.html" [:#itemDetails]
@@ -96,12 +97,11 @@
 ;; Pages
 ;; =============================================================================
 
-(defn index [stats {:keys [limit start end]}]
-  (let [caps (if limit
-               (data/get-caps-limit simpledb (:db-queries stats) (Integer/parseInt limit))
-               (if (and start end)
-                 (data/get-caps-range simpledb (:db-queries stats) start end)
-                 (data/get-caps-limit simpledb (:db-queries stats) *items-per-page*)))]
+(defn index [stats {:keys [begin limit] :or {begin "0" limit (str *items-per-page*)}}]
+  (let [caps (data/get-caps-range simpledb
+                                  (:db-queries stats)
+                                  begin
+                                  (Integer/parseInt limit))]
     (base {:main (show-caps caps)
            :stats stats})))
 

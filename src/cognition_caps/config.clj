@@ -5,7 +5,10 @@
   (let [dev-mode (.exists (java.io.File. "datasource.properties"))]
     {:cap-url-prefix "/caps/"
      :dev-mode dev-mode
-     :app-log-level (if dev-mode :debug :info)}))
+     :app-log-level (if dev-mode :debug :info)
+     ; The length of the string used to represent display order in the database
+     ; so that we can properly pad query values.
+     :display-order-len 4}))
 
 (defonce config
   (if (:dev-mode base-config)

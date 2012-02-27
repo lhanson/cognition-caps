@@ -18,11 +18,8 @@
     (throw (UnsupportedOperationException.
              "Looking up a single cap from ExpressionEngine is not supported")))
   (get-caps   [this queryCount]
-    (map #(mapcap queryCount %) (get-cap-rows queryCount)))
-  (get-caps-limit [this queryCount limit]
-    (throw (UnsupportedOperationException.
-             "Paginated queries to ExpressionEngine are not supported")))
-  (get-caps-range [this queryCount display-order-high display-order-low]
+    (map #(mapcap queryCount %1 %2) (get-cap-rows queryCount) (iterate inc 0)))
+  (get-caps-range [this queryCount begin limit]
     (throw (UnsupportedOperationException.
              "Paginated queries to ExpressionEngine are not supported")))
   (put-caps   [this caps queryCount]
@@ -102,7 +99,7 @@
         (if queryCount (swap! queryCount inc))
         (doall (reduce #(assoc %1 (:rel_id %2) (:price %2)) {} rs))))))
 
-(defn mapcap [queryCount capmap]
+(defn mapcap [queryCount capmap display-order]
   "Does a little massaging of the data from the SQL database and creates a Cap"
   (let [{:keys [entry-date image1 image2 image3 image4]} capmap
         nom (s/replace (:nom capmap) #"(?i)\s*cap\s*$" "")
@@ -125,6 +122,10 @@
                                        (str "http://wearcognition.com/images/uploads/" (first urls)))
                                 (inc idx)
                                 (rest urls)))))
+        display-order-padded (str (cs/repeat (- (get config/config :display-order-len)
+                                                (count (String/valueOf display-order)))
+                                             "0")
+                                  display-order)
         cap (make-Cap (-> capmap
                           (assoc :nom nom)
                           (assoc :url-title (url-title nom))
@@ -132,6 +133,8 @@
                           (assoc :date-added entry-date)
                           (assoc :image-urls (map-images images))
                           (assoc :tags (hash-set :item-type-cap))
+                          (assoc :display-order display-order-padded)
+                          (assoc :hide (= "closed" (:status capmap)))
                           (check-price-id)))]
     (if (not= (:url-title capmap) (:url-title cap))
       (do
