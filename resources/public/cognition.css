@@ -69,11 +69,12 @@ a.include { display: none; } /* Hide extraneous microformat markup */
     margin: 0 auto;
 }
 #main header { height: 250px; }
-#main header hgroup{
+#main header hgroup {
     position: absolute;
     height: inherit;
     width: 100%;
     text-indent: -9999px;
+    white-space: nowrap;
     background: url(/images/top_animation.gif) -11px 0px no-repeat;
 }
 
@@ -97,6 +98,25 @@ a.include { display: none; } /* Hide extraneous microformat markup */
     color: #b2cd00;
     font-size: 21px;
     font-family: Ultra, arial, serif;
+}
+
+#pagination a {
+    text-indent: -9999px;
+    white-space: nowrap;
+    overflow: hidden;
+    outline: none;
+    border-bottom: none;
+    display: inline-block;
+}
+#pagination a.previous, #pagination a.next {
+    width: 9px;
+    height: 12px;
+}
+#pagination a.previous {
+    background: url(images/arrow_left.png)
+}
+#pagination a.next {
+    background: url(images/arrow_right.png)
 }
 
 #items { text-align: left; }
@@ -219,6 +239,7 @@ a.include { display: none; } /* Hide extraneous microformat markup */
     cursor: pointer;
     margin-top: 20px;
     text-indent: -9999px;
+    white-space: nowrap;
     background: url(images/cart_add.png) no-repeat left top;
 }
 
@@ -317,6 +338,7 @@ footer {
     width: 22px;
     height: 22px;
     text-indent: -9999px;
+    white-space: nowrap;
     border: none;
     background: url(images/facebook.png) no-repeat;
 }

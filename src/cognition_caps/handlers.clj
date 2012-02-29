@@ -55,9 +55,10 @@
                                                 :height "59px"}}))))
 
 (html/defsnippet show-caps "mainContent.html" [:#main :> :*]
-  [caps]
+  [caps at-first-page at-last-page]
   [:#items :ul] (html/content (map item-model caps))
-  [:#pagination] identity)
+  [:#pagination :.previous] (change-when at-first-page nil)
+  [:#pagination :.next] (change-when at-last-page nil))
 
 ; Snippet for generating markup for an individual item page
 (html/defsnippet show-cap "item.html" [:#itemDetails]
@@ -98,11 +99,16 @@
 ;; =============================================================================
 
 (defn index [stats {:keys [begin limit] :or {begin "0" limit (str *items-per-page*)}}]
+  "Renders the main item listing. Note that pagination assumes 0-based, consecutive
+   display ordering of visible items."
   (let [caps (data/get-caps-range simpledb
                                   (:db-queries stats)
                                   begin
-                                  (Integer/parseInt limit))]
-    (base {:main (show-caps caps)
+                                  (Integer/parseInt limit))
+        at-first-page (= begin "0")
+        at-last-page  (> (+ (Integer/valueOf begin) (Integer/valueOf limit))
+                         (Integer/valueOf (:display-order (last caps))))]
+    (base {:main (show-caps caps at-first-page at-last-page)
            :stats stats})))
 
 (defn item [stats url-title]

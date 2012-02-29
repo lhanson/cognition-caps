@@ -8,7 +8,7 @@
             [clojure.string :as s]
             [clojure.contrib [string :as cs] [sql :as sql]]))
 
-(declare get-cap-rows get-cap-count get-price-map mapcap)
+(declare get-cap-rows get-cap-count get-price-map mapcap map-display-orders)
 (def *caps-weblog-id* 3)
 (def *image-url-prefix* "http://wearcognition.com/images/uploads/")
 
@@ -18,10 +18,14 @@
     (throw (UnsupportedOperationException.
              "Looking up a single cap from ExpressionEngine is not supported")))
   (get-caps   [this queryCount]
-    (map #(mapcap queryCount %1 %2) (get-cap-rows queryCount) (iterate inc 0)))
+    (map-display-orders queryCount
+                        (map #(mapcap queryCount %) (get-cap-rows queryCount))))
   (get-caps-range [this queryCount begin limit]
     (throw (UnsupportedOperationException.
              "Paginated queries to ExpressionEngine are not supported")))
+  (get-visible-item-count [this queryCount]
+    (throw (UnsupportedOperationException.
+             "Not implemented for ExpressionEngine")))
   (put-caps   [this caps queryCount]
     (throw (UnsupportedOperationException.
              "Writing to ExpressionEngine is not supported")))
@@ -99,7 +103,7 @@
         (if queryCount (swap! queryCount inc))
         (doall (reduce #(assoc %1 (:rel_id %2) (:price %2)) {} rs))))))
 
-(defn mapcap [queryCount capmap display-order]
+(defn mapcap [queryCount capmap]
   "Does a little massaging of the data from the SQL database and creates a Cap"
   (let [{:keys [entry-date image1 image2 image3 image4]} capmap
         nom (s/replace (:nom capmap) #"(?i)\s*cap\s*$" "")
@@ -122,10 +126,6 @@
                                        (str "http://wearcognition.com/images/uploads/" (first urls)))
                                 (inc idx)
                                 (rest urls)))))
-        display-order-padded (str (cs/repeat (- (get config/config :display-order-len)
-                                                (count (String/valueOf display-order)))
-                                             "0")
-                                  display-order)
         cap (make-Cap (-> capmap
                           (assoc :nom nom)
                           (assoc :url-title (url-title nom))
@@ -133,7 +133,6 @@
                           (assoc :date-added entry-date)
                           (assoc :image-urls (map-images images))
                           (assoc :tags (hash-set :item-type-cap))
-                          (assoc :display-order display-order-padded)
                           (assoc :hide (= "closed" (:status capmap)))
                           (check-price-id)))]
     (if (not= (:url-title capmap) (:url-title cap))
@@ -143,3 +142,22 @@
         ; Store the old URL title so we can redirect requests to the new one
         (assoc cap :old-url-title (:url-title capmap)))
       cap)))
+
+(defn map-display-orders [queryCount proto-caps]
+  "Set 0-based, consecutive display-order values for visible caps and none for hidden ones"
+  (loop [display-order 0
+         caps []
+         proto-caps proto-caps]
+    (let [display-order-padded (str (cs/repeat (- (get config/config :display-order-len)
+                                                  (count (String/valueOf display-order)))
+                                               "0")
+                                    display-order)
+          cap (first proto-caps)]
+      (if (empty? proto-caps)
+        caps
+        (if (:hide cap)
+              (recur display-order (conj caps (dissoc cap :display-order)) (rest proto-caps))
+            (recur (inc display-order)
+                 (conj caps (assoc cap :display-order display-order-padded))
+                 (rest proto-caps)))))))
+

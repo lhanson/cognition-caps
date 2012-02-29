@@ -70,6 +70,11 @@
                          order-by [:display-order asc]}]
       (map #(unmarshal-cap % prices sizes) (sdb/query config query))))
 
+  (get-visible-item-count [this queryCount]
+    (swap! queryCount inc)
+    (sdb/query config '{select count from items
+                        where (:hide false)}))
+
   (put-caps [this queryCount caps]
     (println "Persisting" (count caps) "caps to SimpleDB")
     (swap! queryCount inc)

@@ -8,6 +8,7 @@
   (get-caps   [this queryCount]             "Provides a sequence of all caps currently stored")
   (get-caps-range [this queryCount begin limit]
                   "Provides a sequence of 'limit' caps beginning with the given display-order")
+  (get-visible-item-count [this queryCount] "Provides a count of available items for viewing")
   (put-caps   [this queryCount caps]        "Persists caps")
   (get-sizes  [this queryCount]             "Provides a list of available sizes")
   (get-prices [this queryCount]             "Provides a list of price categories")
