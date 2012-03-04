@@ -73,7 +73,7 @@
   (get-visible-item-count [this queryCount]
     (swap! queryCount inc)
     (sdb/query config '{select count from items
-                        where (:hide false)}))
+                        where (= :hide false)}))
 
   (put-caps [this queryCount caps]
     (println "Persisting" (count caps) "caps to SimpleDB")

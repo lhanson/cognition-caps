@@ -105,9 +105,10 @@
                                   (:db-queries stats)
                                   begin
                                   (Integer/parseInt limit))
+        visible-item-count (data/get-visible-item-count simpledb (:db-queries stats))
         at-first-page (= begin "0")
-        at-last-page  (> (+ (Integer/valueOf begin) (Integer/valueOf limit))
-                         (Integer/valueOf (:display-order (last caps))))]
+        at-last-page  (>= (+ (Integer/valueOf begin) (Integer/valueOf limit))
+                         visible-item-count)]
     (base {:main (show-caps caps at-first-page at-last-page)
            :stats stats})))
 
