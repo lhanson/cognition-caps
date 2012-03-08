@@ -6,37 +6,38 @@ body {
     background: white url(images/bg.jpg) repeat center top;
 }
 
-nav { text-transform: uppercase; }
-nav li {
-    float: left;
-    font-size: 18px;
-    margin-right: 12px;
-    padding-right: 12px;
-    border-right: 2px solid #b2cd00;
-}
-nav li a { color: white; }
-#contactNav { border: none; }
-
 a {
     color: black;
     text-decoration: none;
     border-bottom: 1px dashed black;
 }
+
 a:hover { border-bottom: 1px solid black;}
 
 a.include { display: none; } /* Hide extraneous microformat markup */
+
+nav a { border: none }
+nav a:hover { border-bottom: none;}
 
 #topNav {
     color: white;
     width: 100%;
     height: 53px;
     letter-spacing: 1px;
+    text-transform: uppercase;
     background: black url(images/bg_top_bar.gif) repeat left top;
 }
 #topNav li {
+    float: left;
     color: white;
+    font-size: 18px;
     margin-top: 17px;
+    margin-right: 12px;
+    padding-right: 12px;
+    border-right: 2px solid #b2cd00;
 }
+#topNav li a { color: white; }
+#topNav #contactNav { border: none; }
 
 #siteNav {
     float: left;
@@ -100,22 +101,23 @@ a.include { display: none; } /* Hide extraneous microformat markup */
     font-family: Ultra, arial, serif;
 }
 
-#pagination a {
+#pagination li { display: inline; }
+#pagination a { display: inline-block; }
+#pagination li.previous a, #pagination li.next a {
     text-indent: -9999px;
     white-space: nowrap;
     overflow: hidden;
     outline: none;
     border-bottom: none;
-    display: inline-block;
 }
-#pagination a.previous, #pagination a.next {
+#pagination li.previous a, #pagination li.next a {
     width: 9px;
     height: 12px;
 }
-#pagination a.previous {
+#pagination li.previous a {
     background: url(images/arrow_left.png)
 }
-#pagination a.next {
+#pagination li.next a {
     background: url(images/arrow_right.png)
 }
 

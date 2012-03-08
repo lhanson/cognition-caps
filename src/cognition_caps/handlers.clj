@@ -5,6 +5,7 @@
         [clojure.tools.logging :only (debug)]
         [clj-time.core :only (after? minus months now)])
   (:require [cognition-caps.data :as data]
+            [clojure.contrib.math :as math]
             [clj-time.coerce :as time-coerce]
             [net.cgrand.enlive-html :as html]))
 
@@ -54,11 +55,29 @@
                                                 :width "59px"
                                                 :height "59px"}}))))
 
+(defn- offset [pagenum items-per-page]
+  (* (dec pagenum) items-per-page))
+
 (html/defsnippet show-caps "mainContent.html" [:#main :> :*]
-  [caps at-first-page at-last-page]
+  [caps current-page page-count items-per-page]
   [:#items :ul] (html/content (map item-model caps))
-  [:#pagination :.previous] (change-when at-first-page nil)
-  [:#pagination :.next] (change-when at-last-page nil))
+  [:#pagination :.previous :a]
+    (html/set-attr :href (str "/?begin=" (offset (dec current-page) items-per-page)
+                              "&limit=" items-per-page))
+  [:#pagination :.previous] #(when (> current-page 1) %)
+  [:#pagination :.pageNum]
+    (html/clone-for [pagenum (range 1 (inc page-count))]
+      html/this-node (html/remove-attr :class)
+      [:a] (html/do->
+             (html/content (str pagenum))
+             (if (= current-page pagenum)
+               html/unwrap
+               (html/set-attr :href (str "/?begin=" (offset pagenum items-per-page)
+                                         "&limit=" items-per-page)))))
+  [:#pagination :.next :a]
+    (html/set-attr :href (str "/?begin=" (offset (inc current-page) items-per-page)
+                              "&limit=" items-per-page))
+  [:#pagination :.next] #(when (< current-page page-count) %))
 
 ; Snippet for generating markup for an individual item page
 (html/defsnippet show-cap "item.html" [:#itemDetails]
@@ -98,18 +117,15 @@
 ;; Pages
 ;; =============================================================================
 
-(defn index [stats {:keys [begin limit] :or {begin "0" limit (str *items-per-page*)}}]
+(defn index [stats {:keys [begin limit] :or {begin "0"}}]
   "Renders the main item listing. Note that pagination assumes 0-based, consecutive
    display ordering of visible items."
-  (let [caps (data/get-caps-range simpledb
-                                  (:db-queries stats)
-                                  begin
-                                  (Integer/parseInt limit))
+  (let [items-per-page (if limit (Integer/parseInt limit) *items-per-page*)
+        caps (data/get-caps-range simpledb (:db-queries stats) begin items-per-page)
         visible-item-count (data/get-visible-item-count simpledb (:db-queries stats))
-        at-first-page (= begin "0")
-        at-last-page  (>= (+ (Integer/valueOf begin) (Integer/valueOf limit))
-                         visible-item-count)]
-    (base {:main (show-caps caps at-first-page at-last-page)
+        page-count         (math/ceil (/ visible-item-count items-per-page))
+        current-page       (inc (math/floor (/ (Integer/parseInt begin) items-per-page)))]
+    (base {:main (show-caps caps current-page page-count items-per-page)
            :stats stats})))
 
 (defn item [stats url-title]
