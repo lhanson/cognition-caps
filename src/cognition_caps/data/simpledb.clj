@@ -9,11 +9,11 @@
             [clj-logging-config.log4j :as l]))
 
 (declare annotate-ordered-values unannotate-ordered-values change-key
-         dereference-price dereference-sizes marshal-cap
-         merge-large-descriptions unmarshal-cap unmarshal-ids
+         dereference-price dereference-sizes marshal-item
+         merge-large-descriptions unmarshal-item unmarshal-ids
          split-large-descriptions string-tags-to-keywords)
 
-(def *caps-domain* "items")
+(def *items-domain* "items")
 
 (defonce config
   (let [base {:out :console :level :info}]
@@ -27,35 +27,35 @@
            :client (sdb/create-client (get config/config "amazon-access-id")
                                       (get config/config "amazon-access-key")))))
 
-(defn- select-cap [queryCount field-name field-value prices sizes]
+(defn- select-item [queryCount field-name field-value prices sizes]
   (swap! queryCount inc)
   (if-let [result (sdb/query config
                              `{select * from items
                                where (= ~field-name ~field-value)})]
-    (unmarshal-cap (first result) prices sizes)))
+    (unmarshal-item (first result) prices sizes)))
 
 (defrecord SimpleDBAccess []
   DataAccess
-  (get-cap [this queryCount url-title]
+  (get-item [this queryCount url-title]
     (let [prices (.get-prices this queryCount)
           sizes (.get-sizes this queryCount)
-          cap (select-cap queryCount :url-title url-title prices sizes)]
-      (if cap
-        cap
+          item (select-item queryCount :url-title url-title prices sizes)]
+      (if item
+        item
         (do
-          (debug (str "No cap found for url-title '" url-title "', querying for a name change"))
-          (select-cap queryCount :old-url-title url-title prices sizes)))))
+          (debug (str "No item found for url-title '" url-title "', querying for a name change"))
+          (select-item queryCount :old-url-title url-title prices sizes)))))
 
-  (get-caps [this queryCount]
+  (get-items [this queryCount]
     (swap! queryCount inc)
     (let [prices (.get-prices this queryCount)
           sizes (.get-sizes this queryCount)]
-      (map #(unmarshal-cap % prices sizes)
+      (map #(unmarshal-item % prices sizes)
            (sdb/query-all config '{select * from items
                                    where (not-null :display-order)
                                    order-by [:display-order asc]}))))
 
-  (get-caps-range [this queryCount begin limit]
+  (get-items-range [this queryCount begin limit]
     (swap! queryCount inc)
     (let [prices       (.get-prices this queryCount)
           sizes        (.get-sizes this queryCount)
@@ -68,17 +68,17 @@
                                     (= :hide "false"))
                          limit ~limit
                          order-by [:display-order asc]}]
-      (map #(unmarshal-cap % prices sizes) (sdb/query config query))))
+      (map #(unmarshal-item % prices sizes) (sdb/query config query))))
 
   (get-visible-item-count [this queryCount]
     (swap! queryCount inc)
     (sdb/query config '{select count from items
                         where (= :hide false)}))
 
-  (put-caps [this queryCount caps]
-    (println "Persisting" (count caps) "caps to SimpleDB")
+  (put-items [this queryCount items]
+    (println "Persisting" (count items) "items to SimpleDB")
     (swap! queryCount inc)
-    (sdb/batch-put-attrs config *caps-domain* (map marshal-cap caps)))
+    (sdb/batch-put-attrs config *items-domain* (map marshal-item items)))
 
   (get-sizes [this queryCount]
     (swap! queryCount inc)
@@ -88,9 +88,9 @@
     (swap! queryCount inc)
     (map unmarshal-ids (sdb/query-all config '{select * from prices})))
 
-  (update-cap [this queryCount id attr-name attr-value]
+  (update-item [this queryCount id attr-name attr-value]
     (swap! queryCount inc)
-    (sdb/put-attrs config *caps-domain* {::sdb/id id (keyword attr-name) attr-value})))
+    (sdb/put-attrs config *items-domain* {::sdb/id id (keyword attr-name) attr-value})))
 
 (def simpledb (SimpleDBAccess.))
 
@@ -102,7 +102,7 @@
   (sdb/create-domain config "prices")
   (sdb/batch-put-attrs config "prices" (map #(change-key % :id ::sdb/id) default-prices)))
 
-(defn- annotate-ordered-values [cap]
+(defn- annotate-ordered-values [item]
   "If any of the values in the given map are sequences, prepends each of the
   items in the sequence with a value which will allow the ordering to be
   preserved upon unmarshalling"
@@ -114,9 +114,9 @@
                                (iterate inc 1)
                                (val entry))]
              entry))
-         (seq cap))))
+         (seq item))))
 
-(defn- unannotate-ordered-values [cap]
+(defn- unannotate-ordered-values [item]
   "Finds multi-valued attributes which have had an order prefixed and
   reconstitutes them into an ordered sequence"
   (into {}
@@ -129,45 +129,45 @@
                                  (sort attr-value)
                                  [attr-value])) ]
                entry)))
-         (seq cap))))
+         (seq item))))
 
 (def *flat-image-prefix* "_img_")
 
-(defn- flatten-image-urls [cap]
+(defn- flatten-image-urls [item]
   "Takes the map of image urls and stores them as top-level attributes"
-  (loop [c cap
-         url-map (:image-urls cap)]
+  (loop [c item
+         url-map (:image-urls item)]
     (if (empty? url-map)
       (dissoc c :image-urls)
       (recur (assoc c (keyword (str *flat-image-prefix* (name (key (first url-map))))) (val (first url-map)))
              (rest url-map)))))
 
-(defn- unflatten-image-urls [cap]
+(defn- unflatten-image-urls [item]
   "Takes top-level image urls from the map and stores them all under :image-urls"
-  (loop [flat-cap cap new-cap {} image-urls {}]
-    (let [entry (first flat-cap)]
-      (if (= entry nil) ; last entry of flattened cap
-        (assoc new-cap :image-urls (into (sorted-map) image-urls))
+  (loop [flat-item item new-item {} image-urls {}]
+    (let [entry (first flat-item)]
+      (if (= entry nil) ; last entry of flattened item
+        (assoc new-item :image-urls (into (sorted-map) image-urls))
         (if (.startsWith (name (key entry)) *flat-image-prefix*)
-          (recur (rest flat-cap)
-                 new-cap
+          (recur (rest flat-item)
+                 new-item
                  (assoc image-urls
                         (keyword (subs (name (key entry)) (count *flat-image-prefix*)))
                         (val entry)))
-          (recur (rest flat-cap)
-                 (merge new-cap entry)
+          (recur (rest flat-item)
+                 (merge new-item entry)
                  image-urls))))))
 
-(defn marshal-cap [cap]
-  "Preprocesses the given cap before persisting to SimpleDB"
-  (-> cap
+(defn marshal-item [item]
+  "Preprocesses the given item before persisting to SimpleDB"
+  (-> item
     (change-key :id ::sdb/id)
     (split-large-descriptions)
     (flatten-image-urls)))
 
-(defn unmarshal-cap [cap prices sizes]
-  "Reconstitutes the given cap after reading from SimpleDB"
-  (-> cap
+(defn unmarshal-item [item prices sizes]
+  "Reconstitutes the given item after reading from SimpleDB"
+  (-> item
       (unmarshal-ids)
       (merge-large-descriptions)
       (string-tags-to-keywords)
@@ -226,17 +226,17 @@
                              tags))))))
 
 (defn dereference-price [m prices]
-  "Associates the full price map for the given cap's price-id"
+  "Associates the full price map for the given item's price-id"
   (assoc m :price (some #(if (= (:price-id m) (:id %)) %) prices)))
 
 (defn dereference-sizes [m sizes]
-  "Associates the a parsed size map for the given cap's encoded size-id:quantity string"
+  "Associates the a parsed size map for the given item's encoded size-id:quantity string"
   (let [size-id-qty (map #(str/split #":" %) (:sizes m))
         available-sizes (set (filter #(not (nil? %))
                                      (map #(if (not= 0 (Integer/parseInt (second %)))
                                              (first %))
                                           size-id-qty)))
-        ; Create a list of size maps applicable to this cap
+        ; Create a list of size maps applicable to this item
         size-map (reduce #(if (get available-sizes (:id %2)) (cons %2 %1) %1)
                          '()
                          sizes)]

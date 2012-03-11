@@ -3,14 +3,14 @@
         [cognition-caps.data])
   (:require [cognition-caps.data.simpledb :as sdb]))
 
-;;; Tests that caps with descriptions longer than SimpleDB's 1024 byte limit
+;;; Tests that items with descriptions longer than SimpleDB's 1024 byte limit
 ;;; are spit into multiple attributes
 (deftest split-large-descriptions
   (let [max-size 1024
-        short-cap (make-Cap {:description "short description"})
+        short-cap (make-Item {:description "short description"})
         long-description (str (apply str (repeat (- max-size 2) "."))
                               " wordSpansBreak" (apply str (repeat 100 ".")))
-        long-cap (make-Cap {:description long-description})
+        long-cap (make-Item {:description long-description})
         long-cap-transformed (sdb/split-large-descriptions long-cap)]
     (is (= short-cap (sdb/split-large-descriptions short-cap))
         (str "Descriptions <= " max-size " bytes should not be split up"))
@@ -22,15 +22,15 @@
       (is (> (count description-keys) 1)
           "Expecting multiple description_ keys"))))
 
-;;; Tests that caps with long descriptions split up into multiple attributes
+;;; Tests that items with long descriptions split up into multiple attributes
 ;;; are correctly reassembled
 (deftest merge-large-descriptions
-  (let [cap {:description_1 "1 " :description_2 "2345 " :description_3 "6789 "}
-        merged-cap (sdb/merge-large-descriptions cap)]
-    (is (= "1 2345 6789 " (:description merged-cap))
+  (let [item {:description_1 "1 " :description_2 "2345 " :description_3 "6789 "}
+        merged-item (sdb/merge-large-descriptions item)]
+    (is (= "1 2345 6789 " (:description merged-item))
         "Expected multiple integer-suffixed descriptions to be merged into one")
     (let [description-keys (filter #(re-matches #"description_\d+" (name %))
-                                   (keys merged-cap))]
+                                   (keys merged-item))]
       (is (empty? description-keys)
           "Expecting intermediate description attributes to be removed"))))
 
@@ -40,7 +40,7 @@
                                 (keyword (str sdb/*flat-image-prefix* "thumb-1")) "thumb-1.jpg"
                                 (keyword (str sdb/*flat-image-prefix* "thumb-0")) "thumb-0.jpg"
                                 (keyword (str sdb/*flat-image-prefix* "thumb-3")) "thumb-3.jpg")
-        cap  (sdb/unmarshal-cap unmarshalled nil nil)]
+        cap  (sdb/unmarshal-item unmarshalled nil nil)]
     (is (= (seq (:image-urls cap))
            (seq (array-map :thumb-0 "thumb-0.jpg" :thumb-1 "thumb-1.jpg"
                            :thumb-2 "thumb-2.jpg" :thumb-3 "thumb-3.jpg"))))))

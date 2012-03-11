@@ -4,6 +4,7 @@
 (defonce base-config
   (let [dev-mode (.exists (java.io.File. "datasource.properties"))]
     {:cap-url-prefix "/caps/"
+     :merch-url-prefix "/merch/"
      :dev-mode dev-mode
      :app-log-level (if dev-mode :debug :info)
      ; The length of the string used to represent display order in the database

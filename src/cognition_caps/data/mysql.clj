@@ -8,25 +8,26 @@
             [clojure.string :as s]
             [clojure.contrib [string :as cs] [sql :as sql]]))
 
-(declare get-cap-rows get-cap-count get-price-map mapcap map-display-orders)
+(declare get-item-rows get-item-count get-price-map mapitem map-display-orders)
 (def *caps-weblog-id* 3)
+(def *merch-weblog-id* 4)
 (def *image-url-prefix* "http://wearcognition.com/images/uploads/")
 
 (defrecord MySQLAccess []
   DataAccess
-  (get-cap [this queryCount url-title]
+  (get-item [this queryCount url-title]
     (throw (UnsupportedOperationException.
-             "Looking up a single cap from ExpressionEngine is not supported")))
-  (get-caps   [this queryCount]
+             "Looking up a single item from ExpressionEngine is not supported")))
+  (get-items   [this queryCount]
     (map-display-orders queryCount
-                        (map #(mapcap queryCount %) (get-cap-rows queryCount))))
-  (get-caps-range [this queryCount begin limit]
+                        (map #(mapitem queryCount %) (get-item-rows queryCount))))
+  (get-items-range [this queryCount begin limit]
     (throw (UnsupportedOperationException.
              "Paginated queries to ExpressionEngine are not supported")))
   (get-visible-item-count [this queryCount]
     (throw (UnsupportedOperationException.
              "Not implemented for ExpressionEngine")))
-  (put-caps   [this caps queryCount]
+  (put-items   [this items queryCount]
     (throw (UnsupportedOperationException.
              "Writing to ExpressionEngine is not supported")))
   (get-sizes  [this queryCount]
@@ -35,7 +36,7 @@
   (get-prices [this queryCount]
     (throw (UnsupportedOperationException.
              "Not yet implemented since we're not using ExpressionEngine pricing")))
-  (update-cap [this queryCount id attr-name attr-value]
+  (update-item [this queryCount id attr-name attr-value]
     (throw (UnsupportedOperationException.
              "Writing to ExpressionEngine is not supported"))))
 (defn make-MySQLAccess [] (MySQLAccess.))
@@ -62,17 +63,18 @@
   (let [price-record (some #(if (= price (:price %)) %) default-prices)]
     (:id price-record)))
 
-(defn- get-cap-rows [queryCount]
+(defn- get-item-rows [queryCount]
   (let [query (str "SELECT t.entry_id AS \"id\", t.title AS \"nom\",
                            t.url_title AS \"url-title\", d.field_id_4 AS \"description\",
                            t.entry_date AS \"entry-date\", d.field_id_5 AS \"sizes\",
                            d.field_id_8 AS \"image1\", d.field_id_18 AS \"image2\",
                            d.field_id_19 AS \"image3\", d.field_id_20 AS \"image4\",
                            d.field_id_30 AS \"display-order\",
-                           t.author_id AS \"user-id\", t.status
+                           t.author_id AS \"user-id\", t.status, t.weblog_id
                     FROM exp_weblog_titles t
                     JOIN exp_weblog_data d ON t.entry_id = d.entry_id
-                    WHERE t.weblog_id =  '" *caps-weblog-id* "'
+                    WHERE t.weblog_id = '" *caps-weblog-id* "' OR
+                       OR t.weblog_id = '" *merch-weblog-id* "
                     ORDER BY `display-order` DESC")]
     (sql/with-connection db
       (sql/with-query-results rs [query]
@@ -87,8 +89,8 @@
     (assert (= 1 (count rs)))
     (val (ffirst rs))))
 
-(defn- get-cap-count []
-  "Returns the total number of caps"
+(defn- get-item-count []
+  "Returns the total number of items"
   (sql/with-connection db
     (let [hats-weblog-id (select-single-result "select weblog_id from exp_weblogs where blog_name='hats'")]
       (select-single-result (str "select count(*) from exp_weblog_data where weblog_id='" hats-weblog-id "'")))))
@@ -103,16 +105,16 @@
         (if queryCount (swap! queryCount inc))
         (doall (reduce #(assoc %1 (:rel_id %2) (:price %2)) {} rs))))))
 
-(defn mapcap [queryCount capmap]
-  "Does a little massaging of the data from the SQL database and creates a Cap"
-  (let [{:keys [entry-date image1 image2 image3 image4]} capmap
-        nom (s/replace (:nom capmap) #"(?i)\s*cap\s*$" "")
+(defn mapitem [queryCount itemmap]
+  "Does a little massaging of the data from the SQL database and creates an Item"
+  (let [{:keys [entry-date image1 image2 image3 image4]} itemmap
+        nom (s/replace (:nom itemmap) #"(?i)\s*cap\s*$" "")
         images (if (or image1 image2 image3 image4)
                  (map #(cs/trim %) (filter #(not (s/blank? %)) (vector image1 image2 image3 image4))))
         check-price-id (fn [c]
                          (if (:price-id c) c
                              (do
-                               (println (str "WARNING: no price ID for cap " (:id c) ": " (:nom c)
+                               (println (str "WARNING: no price ID for item " (:id c) ": " (:nom c)
                                              ", defaulting to base cap price"))
                                (assoc c :price-id "2"))))
         map-images (fn [image-urls]
@@ -126,38 +128,40 @@
                                        (str "http://wearcognition.com/images/uploads/" (first urls)))
                                 (inc idx)
                                 (rest urls)))))
-        cap (make-Cap (-> capmap
+        item (make-Item (-> itemmap
                           (assoc :nom nom)
                           (assoc :url-title (url-title nom))
-                          (assoc :description (cs/trim (:description capmap)))
+                          (assoc :description (cs/trim (:description itemmap)))
                           (assoc :date-added entry-date)
                           (assoc :image-urls (map-images images))
-                          (assoc :tags (hash-set :item-type-cap))
-                          (assoc :hide (= "closed" (:status capmap)))
+                          (assoc :tags (if (= *caps-weblog-id* (:weblog-id itemmap))
+                                              (hash-set :item-type-cap)
+                                              (hash-set :item-type-merch)))
+                          (assoc :hide (= "closed" (:status itemmap)))
                           (check-price-id)))]
-    (if (not= (:url-title capmap) (:url-title cap))
+    (if (not= (:url-title itemmap) (:url-title item))
       (do
-        (println (str "WARNING: existing URL title '" (:url-title capmap) "' "
-                      "will now be '" (:url-title cap) "'"))
+        (println (str "WARNING: existing URL title '" (:url-title itemmap) "' "
+                      "will now be '" (:url-title item) "'"))
         ; Store the old URL title so we can redirect requests to the new one
-        (assoc cap :old-url-title (:url-title capmap)))
-      cap)))
+        (assoc item :old-url-title (:url-title itemmap)))
+      item)))
 
-(defn map-display-orders [queryCount proto-caps]
-  "Set 0-based, consecutive display-order values for visible caps and none for hidden ones"
+(defn map-display-orders [queryCount proto-items]
+  "Set 0-based, consecutive display-order values for visible items and none for hidden ones"
   (loop [display-order 0
-         caps []
-         proto-caps proto-caps]
+         items []
+         proto-items proto-items]
     (let [display-order-padded (str (cs/repeat (- (get config/config :display-order-len)
                                                   (count (String/valueOf display-order)))
                                                "0")
                                     display-order)
-          cap (first proto-caps)]
-      (if (empty? proto-caps)
-        caps
-        (if (:hide cap)
-              (recur display-order (conj caps (dissoc cap :display-order)) (rest proto-caps))
+          item (first proto-items)]
+      (if (empty? proto-items)
+        items
+        (if (:hide item)
+              (recur display-order (conj items (dissoc item :display-order)) (rest proto-items))
             (recur (inc display-order)
-                 (conj caps (assoc cap :display-order display-order-padded))
-                 (rest proto-caps)))))))
+                 (conj items (assoc item :display-order display-order-padded))
+                 (rest proto-items)))))))
 

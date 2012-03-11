@@ -4,23 +4,23 @@
 
 (defprotocol DataAccess
   "A protocol abstracting access to product data"
-  (get-cap    [this queryCount url-title]   "Provides the cap corresponding to the given url-title")
-  (get-caps   [this queryCount]             "Provides a sequence of all caps currently stored")
-  (get-caps-range [this queryCount begin limit]
-                  "Provides a sequence of 'limit' caps beginning with the given display-order")
+  (get-item   [this queryCount url-title]   "Provides the item corresponding to the given url-title")
+  (get-items  [this queryCount]             "Provides a sequence of all items currently stored")
+  (get-items-range [this queryCount begin limit]
+                  "Provides a sequence of 'limit' visible items beginning with the given display-order")
   (get-visible-item-count [this queryCount] "Provides a count of available items for viewing")
-  (put-caps   [this queryCount caps]        "Persists caps")
+  (put-items  [this queryCount items]       "Persists items")
   (get-sizes  [this queryCount]             "Provides a list of available sizes")
   (get-prices [this queryCount]             "Provides a list of price categories")
-  (update-cap [this queryCount id
+  (update-item [this queryCount id
                attr-name attr-value]        "Updates the given attribute"))
 
-(defrecord Cap [id nom url-title description image-urls price-id sizes tags user-id date-added display-order hide])
-(defn make-Cap
-  "Creates a Cap from the given map, setting defaults when not present"
+(defrecord Item [id nom url-title description image-urls price-id sizes tags user-id date-added display-order hide])
+(defn make-Item
+  "Creates an Item from the given map, setting defaults when not present"
   [{:keys [id nom url-title description image-urls price-id sizes tags user-id date-added display-order hide]
      :or {url-title id date-added (now) display-order 0 hide false}}]
-    (Cap. id nom url-title description image-urls price-id sizes tags user-id date-added display-order hide))
+    (Item. id nom url-title description image-urls price-id sizes tags user-id date-added display-order hide))
 
 (defrecord Size [id nom])
 
@@ -51,7 +51,7 @@
 ;; Utility functions
 ;; =============================================================================
 (defn url-title [nom]
-  "Returns the url-title for the given cap name"
+  "Returns the url-title for the given item name"
   (-> nom
       s/trim
       s/lower-case

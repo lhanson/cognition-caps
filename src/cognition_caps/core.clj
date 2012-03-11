@@ -26,8 +26,9 @@
 (defroutes all-routes
   (GET "/" [& query-params :as request] (handlers/index (:stats request) query-params))
   redirect-routes
-  (GET "/caps/:url-title" [url-title & params :as request]
-       (handlers/item (:stats request) url-title))
+  (GET "/:item-type/:url-title" [item-type url-title & params :as request]
+       (cond (= "caps" item-type)  (handlers/cap (:stats request) url-title)
+             (= "merch" item-type) (handlers/merch (:stats request) url-title)))
   (GET "/sizing" {stats :stats} (handlers/sizing stats))
   (GET "/faq" {stats :stats} (handlers/faq stats))
   (route/resources "/")

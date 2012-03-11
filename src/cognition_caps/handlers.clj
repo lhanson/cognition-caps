@@ -30,24 +30,24 @@
 ;; Templates
 ;; =============================================================================
 
-(defn cap-common [cap]
+(defn item-common [item]
   (html/transformation
-    [:.fn] (html/content (:nom cap))
-    [:.price] (html/content (formatted-price cap))))
+    [:.fn] (html/content (:nom item))
+    [:.price] (html/content (formatted-price item))))
 
-(defn- is-new? [cap]
-  (after? (time-coerce/from-long (* (java.lang.Long. (:date-added cap)) 1000))
+(defn- is-new? [item]
+  (after? (time-coerce/from-long (* (java.lang.Long. (:date-added item)) 1000))
           (minus (now) (months 1))))
 
 ; Snippet to generate item markup for each item on the main page
 (html/defsnippet item-model "mainContent.html" [:#items :.item]
-  [cap]
-  [:*] (cap-common cap)
-  [[:a :.url]] (html/set-attr :href (str "/" (item-type (:tags cap)) "/" (:url-title cap)))
-  [:img] (html/set-attr :src (:front-0 (:image-urls cap)))
+  [item]
+  [:*] (item-common item)
+  [[:a :.url]] (html/set-attr :href (str "/" (item-type (:tags item)) "/" (:url-title item)))
+  [:img] (html/set-attr :src (:front-0 (:image-urls item)))
   [:.item] (html/do->
-             ;(html/set-attr :data-display-order (:display-order cap))
-             (change-when (is-new? cap)
+             ;(html/set-attr :data-display-order (:display-order item))
+             (change-when (is-new? item)
                           (html/append {:tag :img
                                         :attrs {:class "itemBadge"
                                                 :src "images/badge_new.png"
@@ -58,9 +58,9 @@
 (defn- offset [pagenum items-per-page]
   (* (dec pagenum) items-per-page))
 
-(html/defsnippet show-caps "mainContent.html" [:#main :> :*]
-  [caps current-page page-count items-per-page]
-  [:#items :ul] (html/content (map item-model caps))
+(html/defsnippet show-items "mainContent.html" [:#main :> :*]
+  [items current-page page-count items-per-page]
+  [:#items :ul] (html/content (map item-model items))
   [:#pagination :.previous :a]
     (html/set-attr :href (str "/?begin=" (offset (dec current-page) items-per-page)
                               "&limit=" items-per-page))
@@ -80,29 +80,33 @@
   [:#pagination :.next] #(when (< current-page page-count) %))
 
 ; Snippet for generating markup for an individual item page
-(html/defsnippet show-cap "item.html" [:#itemDetails]
-  [cap]
-  [:*] (cap-common cap)
-  [:#itemImageWrapper :img] (html/set-attr :src (:main-0 (:image-urls cap)))
-  [:.description] (html/html-content (wrap-paragraphs (:description cap)))
+(html/defsnippet show-item "item.html" [:#itemDetails]
+  [item]
+  [:*] (item-common item)
+  [:#itemImageWrapper :img] (html/set-attr :src (:main-0 (:image-urls item)))
+  [:.description] (html/html-content (wrap-paragraphs (:description item)))
   [:.description [:p html/last-of-type]] (html/add-class "itemMaterials")
-  [:#sizeSelection :option] (html/clone-for [size (:sizes cap)]
+  [:#sizeSelection :option] (html/clone-for [size (:sizes item)]
                               (html/do->
                                 (change-when (= (:id size) (str data/default-size))
                                              (html/set-attr :selected "selected"))
                                 (html/set-attr :value (lower-case (:nom size)))
                                 (html/content (lower-case (:nom size)))))
   [:#thumbnails :img] (html/clone-for [img (filter #(.startsWith (name (key %)) "thumb-")
-                                                   (:image-urls cap))]
+                                                   (:image-urls item))]
                                       (html/set-attr :src (val img)))
   [:#itemInfoWrapper [:input (html/attr= :name "item_name")]]
-  (html/set-attr :value (:nom cap))
+  (html/set-attr :value (:nom item))
   [:#itemInfoWrapper [:input (html/attr= :name "item_number")]]
-  (html/set-attr :value (:id cap))
+  (html/set-attr :value (:id item))
   [:#itemInfoWrapper [:input (html/attr= :name "amount")]]
-  (html/set-attr :value (get-in cap [:price :price]))
+  (html/set-attr :value (get-in item [:price :price]))
   [:#itemInfoWrapper :.g-plusone] (html/set-attr :data-href
-                                                 (str "http://wearcognition.com/caps/" (:url-title cap))))
+                                                 (str "http://wearcognition.com/"
+                                                      (if (:item-type-cap (:tags item))
+                                                        "caps/"
+                                                        "merch/")
+                                                      (:url-title item))))
 
 (html/deftemplate base "base.html" [{:keys [title main stats]}]
   [:title] (if title (html/content title) (html/content *title-base*))
@@ -121,29 +125,44 @@
   "Renders the main item listing. Note that pagination assumes 0-based, consecutive
    display ordering of visible items."
   (let [items-per-page (if limit (Integer/parseInt limit) *items-per-page*)
-        caps (data/get-caps-range simpledb (:db-queries stats) begin items-per-page)
+        items (data/get-items-range simpledb (:db-queries stats) begin items-per-page)
         visible-item-count (data/get-visible-item-count simpledb (:db-queries stats))
         page-count         (math/ceil (/ visible-item-count items-per-page))
         current-page       (inc (math/floor (/ (Integer/parseInt begin) items-per-page)))]
-    (base {:main (show-caps caps current-page page-count items-per-page)
+    (base {:main (show-items items current-page page-count items-per-page)
            :stats stats})))
 
-(defn item [stats url-title]
-  (if-let [cap (data/get-cap simpledb (:db-queries stats) url-title)]
-    (let [current-title (:url-title cap)
-          old-title     (:old-url-title cap)]
-      (if (and old-title (not= current-title url-title))
-        (do
-          (debug (str "Request for url-title '" url-title
-                      "' being redirected to new location '" current-title "'"))
-          ; TODO: prime the get-cap cache with this result so the redirect is fast
-          {:status 301
-           :headers {"Location" (str (:cap-url-prefix config) current-title)}})
-        (do
-          (debug "Loaded cap for url-title" url-title ": " cap)
-          (base {:main (show-cap cap)
-                 :title (str (:nom cap) " - " *title-base*)
-                 :stats stats}))))))
+(defn- handle-item [stats item url-title]
+  (let [current-title (:url-title item)
+        old-title     (:old-url-title item)]
+    (if (and old-title (not= current-title url-title))
+      (do
+        (debug (str "Request for url-title '" url-title
+                    "' being redirected to new location '" current-title "'"))
+        ; TODO: prime the get-item cache with this result so the redirect is fast
+        {:status 301
+         :headers {"Location" (str (if (:item-type-cap (:tags item))
+                                     (:cap-url-prefix config)
+                                     (:merch-url-prefix config))
+                                   current-title)}})
+      (do
+        (debug "Loaded item for url-title" url-title ": " item)
+        (base {:main (show-item item)
+               :title (str (:nom item) " - " *title-base*)
+               :stats stats})))))
+
+(defn- item-by-url-title [stats url-title]
+  (data/get-item simpledb (:db-queries stats) url-title))
+
+(defn cap [stats url-title]
+  (if-let [cap (item-by-url-title stats url-title)]
+    (if (:item-type-cap (:tags cap))
+      (handle-item stats cap url-title))))
+
+(defn merch [stats url-title]
+  (if-let [merch (item-by-url-title stats url-title)]
+    (if (:item-type-merch (:tags merch))
+      (handle-item stats merch url-title))))
 
 (defn sizing [stats]
   (base {:main (html/html-resource "sizing.html")
@@ -170,5 +189,5 @@
   (let [paragraphs (filter #(not (empty? %)) (split-lines text))]
     (reduce str (map #(str "<p>" % "</p>") paragraphs))))
 
-(defn- formatted-price [cap]
-  (replace-re #"\..*" "" (get-in cap [:price :price])))
+(defn- formatted-price [item]
+  (replace-re #"\..*" "" (get-in item [:price :price])))
