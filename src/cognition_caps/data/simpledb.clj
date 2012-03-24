@@ -4,6 +4,7 @@
         [clojure.tools.logging])
   (:require [cognition-caps.config :as config]
             [clojure.contrib.string :as str]
+            [clojure.stacktrace :as st]
             [cemerick.rummage :as sdb]
             [cemerick.rummage.encoding :as enc]
             [clj-logging-config.log4j :as l]))
@@ -11,7 +12,7 @@
 (declare annotate-ordered-values unannotate-ordered-values change-key
          dereference-price dereference-sizes marshal-item
          merge-large-descriptions unmarshal-item unmarshal-ids
-         split-large-descriptions string-tags-to-keywords)
+         split-large-descriptions)
 
 (def *items-domain* "items")
 
@@ -23,7 +24,7 @@
       "org.mortbay"    (assoc base :level (:app-log-level config/config))
       "cognition-caps" (assoc base :level (:app-log-level config/config)))
     (info "Loggers initialized, creating sdb client")
-    (assoc enc/keyword-strings
+    (assoc (enc/all-prefixed-config)
            :client (sdb/create-client (get config/config "amazon-access-id")
                                       (get config/config "amazon-access-key")))))
 
@@ -32,7 +33,12 @@
   (if-let [result (sdb/query config
                              `{select * from items
                                where (= ~field-name ~field-value)})]
-    (unmarshal-item (first result) prices sizes)))
+    (let [item (unmarshal-item (first result) prices sizes)]
+      (println "Unmarshalled:" item)
+      (println "\n\nPRICES:" (:prices item))
+      item
+    )))
+;    (unmarshal-item (first result) prices sizes)))
 
 (defrecord SimpleDBAccess []
   DataAccess
@@ -78,7 +84,9 @@
   (put-items [this queryCount items]
     (println "Persisting" (count items) "items to SimpleDB")
     (swap! queryCount inc)
-    (sdb/batch-put-attrs config *items-domain* (map marshal-item items)))
+    (try
+      (sdb/batch-put-attrs config *items-domain* (map marshal-item items))
+      (catch Exception e (println (st/print-stack-trace e)))))
 
   (get-sizes [this queryCount]
     (swap! queryCount inc)
@@ -86,7 +94,7 @@
 
   (get-prices [this queryCount]
     (swap! queryCount inc)
-    (map unmarshal-ids (sdb/query-all config '{select * from prices})))
+      (map unmarshal-ids (sdb/query-all config '{select * from prices})))
 
   (update-item [this queryCount id attr-name attr-value]
     (swap! queryCount inc)
@@ -158,10 +166,20 @@
                  (merge new-item entry)
                  image-urls))))))
 
+(defn- remove-empty-values [item]
+  "Removes entries for which the value is nil"
+  (loop [k (keys item) i item]
+    (if (empty? k)
+      i
+      (if (get i (first k))
+        (recur (rest k) i)
+        (recur (rest k) (dissoc i (first k)))))))
+
 (defn marshal-item [item]
   "Preprocesses the given item before persisting to SimpleDB"
   (-> item
     (change-key :id ::sdb/id)
+    (remove-empty-values)
     (split-large-descriptions)
     (flatten-image-urls)))
 
@@ -170,12 +188,12 @@
   (-> item
       (unmarshal-ids)
       (merge-large-descriptions)
-      (string-tags-to-keywords)
       (dereference-price prices)
       (dereference-sizes sizes)
       (unflatten-image-urls)))
 
 (defn- unmarshal-ids [m]
+  (println "ids")
   (change-key m ::sdb/id :id))
 
 (defn- long-split [re maxlen s]
@@ -206,6 +224,7 @@
 (defn merge-large-descriptions [m]
   "If the given map has multiple integer-suffixed :description attributes, they
    are merged into one :description"
+  (println "Merging")
   (let [descr-keys (filter #(re-matches #"description_\d+" (name %)) (keys m))
         sorted-keys (sort-by #(Integer. (.substring (name %) (inc (.indexOf (name %) "_")))) descr-keys)]
     (if (empty? sorted-keys)
@@ -217,20 +236,23 @@
 (defn- change-key [m old-key new-key]
   (dissoc (assoc m new-key (old-key m)) old-key))
 
-(defn string-tags-to-keywords [m]
-  (let [t (:tags m)
-        tags (if (string? t) (hash-set t) t)]
-    (-> m
-      (dissoc :tags)
-      (assoc :tags (set (map #(if (= \: (.charAt % 0)) (keyword (.substring % 1)) %)
-                             tags))))))
-
 (defn dereference-price [m prices]
-  "Associates the full price map for the given item's price-id"
-  (assoc m :price (some #(if (= (:price-id m) (:id %)) %) prices)))
+  "Associates the full price map(s) for the given item's price-ids"
+;                   (some #(if (= (:price-ids m) (:id %)) %) prices))
+  ;(assoc m :prices (some #(if (= (:price-id m) (:id %)) %) prices)))
+  (println "Dereferencing price")
+  (assoc m :prices (filter (fn [price]
+                             (some (fn [m-price-id]
+                                     (do ;(println "Comparing" (:id price) "with" m-price-id)
+                                     (if (= (:id price) m-price-id)
+                                       price)))
+                                   (:price-ids m)))
+                           prices)))
 
 (defn dereference-sizes [m sizes]
   "Associates the a parsed size map for the given item's encoded size-id:quantity string"
+  (println "Dereferencing sizes")
+;(println "------ currently prices are:" (:prices m))
   (let [size-id-qty (map #(str/split #":" %) (:sizes m))
         available-sizes (set (filter #(not (nil? %))
                                      (map #(if (not= 0 (Integer/parseInt (second %)))

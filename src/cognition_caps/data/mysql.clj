@@ -8,7 +8,7 @@
             [clojure.string :as s]
             [clojure.contrib [string :as cs] [sql :as sql]]))
 
-(declare get-item-rows get-item-count get-price-map mapitem map-display-orders)
+(declare get-cap-rows get-merch-rows get-item-count get-price-map mapitem map-display-orders)
 (def *caps-weblog-id* 3)
 (def *merch-weblog-id* 4)
 (def *image-url-prefix* "http://wearcognition.com/images/uploads/")
@@ -20,7 +20,10 @@
              "Looking up a single item from ExpressionEngine is not supported")))
   (get-items   [this queryCount]
     (map-display-orders queryCount
-                        (map #(mapitem queryCount %) (get-item-rows queryCount))))
+                        (map #(mapitem queryCount %)
+                             (concat ;(get-cap-rows queryCount)
+                                     (get-merch-rows queryCount)
+                                     ))))
   (get-items-range [this queryCount begin limit]
     (throw (UnsupportedOperationException.
              "Paginated queries to ExpressionEngine are not supported")))
@@ -54,6 +57,7 @@
 (defn- parse-size-string [size-str]
   "Parses a string possibly containing multiple size IDs and returns a Long
    version of the first one"
+  (println "Parsing size string:" size-str)
   (let [id (first (filter #(not (empty? %))
                           (re-split #"\W+" size-str)))]
     (if id (Long/parseLong id))))
@@ -63,7 +67,7 @@
   (let [price-record (some #(if (= price (:price %)) %) default-prices)]
     (:id price-record)))
 
-(defn- get-item-rows [queryCount]
+(defn- get-cap-rows [queryCount]
   (let [query (str "SELECT t.entry_id AS \"id\", t.title AS \"nom\",
                            t.url_title AS \"url-title\", d.field_id_4 AS \"description\",
                            t.entry_date AS \"entry-date\", d.field_id_5 AS \"sizes\",
@@ -73,14 +77,33 @@
                            t.author_id AS \"user-id\", t.status, t.weblog_id
                     FROM exp_weblog_titles t
                     JOIN exp_weblog_data d ON t.entry_id = d.entry_id
-                    WHERE t.weblog_id = '" *caps-weblog-id* "' OR
-                       OR t.weblog_id = '" *merch-weblog-id* "
+                    WHERE t.weblog_id = '" *caps-weblog-id* "'
                     ORDER BY `display-order` DESC")]
     (sql/with-connection db
       (sql/with-query-results rs [query]
         (let [ee-price-map (get-price-map queryCount)]
-          (doall (map #(assoc % :price-id (get-price-id
-                                            (get ee-price-map (parse-size-string (:sizes %)))))
+          (doall (map #(assoc % :price-ids (get-price-id
+                                             (get ee-price-map (parse-size-string (:sizes %)))))
+                      (vec rs))))))))
+
+(defn- get-merch-rows [queryCount]
+  ; exp_weblog_data.field_id_26 rel_id, each have four ids which probably reference the relationship field?
+  ; TODO extract out the query from these functions and just pass them in
+  (let [query (str "SELECT t.entry_id AS \"id\", t.title AS \"nom\",
+                           t.url_title AS \"url-title\", d.field_id_25 AS \"description\",
+                           t.entry_date AS \"entry-date\",
+                           d.field_id_21 AS \"image1\",
+                           d.field_id_31 AS \"display-order\",
+                           t.author_id AS \"user-id\", t.status, t.weblog_id
+                    FROM exp_weblog_titles t
+                    JOIN exp_weblog_data d ON t.entry_id = d.entry_id
+                    WHERE t.weblog_id = '" *merch-weblog-id* "'
+                    ORDER BY `display-order` DESC")]
+    (sql/with-connection db
+      (sql/with-query-results rs [query]
+        (let [ee-price-map (get-price-map queryCount)]
+          ; Don't bother mapping prices since we'll just assign to the defaults in the new database
+          (doall (map #(assoc % :price-ids (doall (range 9 13)))
                       (vec rs))))))))
 
 (defn- select-single-result [query]
@@ -107,16 +130,22 @@
 
 (defn mapitem [queryCount itemmap]
   "Does a little massaging of the data from the SQL database and creates an Item"
+  ;(println "\nMapping item:" itemmap)
+  (println "Mapping item" itemmap)
   (let [{:keys [entry-date image1 image2 image3 image4]} itemmap
         nom (s/replace (:nom itemmap) #"(?i)\s*cap\s*$" "")
         images (if (or image1 image2 image3 image4)
                  (map #(cs/trim %) (filter #(not (s/blank? %)) (vector image1 image2 image3 image4))))
-        check-price-id (fn [c]
-                         (if (:price-id c) c
+        check-price-ids (fn [c]
+                         (if (:price-ids c) c
                              (do
                                (println (str "WARNING: no price ID for item " (:id c) ": " (:nom c)
-                                             ", defaulting to base cap price"))
-                               (assoc c :price-id "2"))))
+                                             ", defaulting to base price"))
+                               ; TODO: does the cap map even have the tag present?
+                               ; might need to add that in
+                               (if (:item-type-cap (:tags c))
+                                 (assoc c :price-ids "2")
+                                 (assoc c :price-ids (map str (range 9 13)))))))
         map-images (fn [image-urls]
                      (loop [m {}
                             idx 0
@@ -138,7 +167,8 @@
                                               (hash-set :item-type-cap)
                                               (hash-set :item-type-merch)))
                           (assoc :hide (= "closed" (:status itemmap)))
-                          (check-price-id)))]
+                          (check-price-ids)))]
+    (println "MADE ITEM:" item)
     (if (not= (:url-title itemmap) (:url-title item))
       (do
         (println (str "WARNING: existing URL title '" (:url-title itemmap) "' "

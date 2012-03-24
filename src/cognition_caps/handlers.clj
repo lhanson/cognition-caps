@@ -86,12 +86,14 @@
   [:#itemImageWrapper :img] (html/set-attr :src (:main-0 (:image-urls item)))
   [:.description] (html/html-content (wrap-paragraphs (:description item)))
   [:.description [:p html/last-of-type]] (html/add-class "itemMaterials")
-  [:#sizeSelection :option] (html/clone-for [size (:sizes item)]
-                              (html/do->
-                                (change-when (= (:id size) (str data/default-size))
-                                             (html/set-attr :selected "selected"))
-                                (html/set-attr :value (lower-case (:nom size)))
-                                (html/content (lower-case (:nom size)))))
+  [:#sizeSelection :option]
+  (if-let [sizes (:sizes item)]
+    (html/clone-for [size sizes]
+                    (html/do->
+                      (change-when (= (:id size) (str data/default-size))
+                                   (html/set-attr :selected "selected"))
+                      (html/set-attr :value (lower-case (:nom size)))
+                      (html/content (lower-case (:nom size))))))
   [:#thumbnails :img] (html/clone-for [img (filter #(.startsWith (name (key %)) "thumb-")
                                                    (:image-urls item))]
                                       (html/set-attr :src (val img)))
@@ -101,12 +103,13 @@
   (html/set-attr :value (:id item))
   [:#itemInfoWrapper [:input (html/attr= :name "amount")]]
   (html/set-attr :value (get-in item [:price :price]))
-  [:#itemInfoWrapper :.g-plusone] (html/set-attr :data-href
-                                                 (str "http://wearcognition.com/"
-                                                      (if (:item-type-cap (:tags item))
-                                                        "caps/"
-                                                        "merch/")
-                                                      (:url-title item))))
+  [:#itemInfoWrapper :.g-plusone]
+  (html/set-attr :data-href
+                 (str "http://wearcognition.com/"
+       (if (:item-type-cap (:tags item))
+         "caps/"
+         "merch/")
+       (:url-title item))))
 
 (html/deftemplate base "base.html" [{:keys [title main stats]}]
   [:title] (if title (html/content title) (html/content *title-base*))
@@ -129,6 +132,7 @@
         visible-item-count (data/get-visible-item-count simpledb (:db-queries stats))
         page-count         (math/ceil (/ visible-item-count items-per-page))
         current-page       (inc (math/floor (/ (Integer/parseInt begin) items-per-page)))]
+    (println "Doing" (count items) "between" begin "and" items-per-page)
     (base {:main (show-items items current-page page-count items-per-page)
            :stats stats})))
 
@@ -147,9 +151,17 @@
                                    current-title)}})
       (do
         (debug "Loaded item for url-title" url-title ": " item)
-        (base {:main (show-item item)
-               :title (str (:nom item) " - " *title-base*)
-               :stats stats})))))
+        (println "PRICE:" (:price item))
+        (println "PRICES:" (:prices (:price item)))
+        (println "# PRICES:" (count (:prices (:price item))))
+        (println "TYPEEEE" (type (first (:prices (:price item)))))
+        ;(println "TYPEEEE" (type (first (:price item))))
+        ;(println "FFFF" (first (:price item)))
+        (println "Formatted price: " (formatted-price item))
+        ;(base {:main (show-item item)
+        ;       :title (str (:nom item) " - " *title-base*)
+        ;       :stats stats})
+        ))))
 
 (defn- item-by-url-title [stats url-title]
   (data/get-item simpledb (:db-queries stats) url-title))
@@ -182,7 +194,8 @@
   "Returns a string representing the item type present in tags"
   (let [t (if (string? tags) (hash-set tags) tags)]
     (cond
-      (contains? t :item-type-cap) "caps")))
+      (contains? t :item-type-cap) "caps"
+      (contains? t :item-type-merch) "merch")))
 
 (defn- wrap-paragraphs [text]
   "Converts newline-delimited text into <p> blocks"
@@ -190,4 +203,19 @@
     (reduce str (map #(str "<p>" % "</p>") paragraphs))))
 
 (defn- formatted-price [item]
-  (replace-re #"\..*" "" (get-in item [:price :price])))
+  "Returns a price string formatted for display"
+  ;(println "DOING FORMATTED PRICE" (:prices item))
+  (let [prices (:prices item)
+        ;first-price (reduce #(todo) prices)
+        ]
+    (println "Prices:" prices)
+    )
+  ;(map #(do (println "DOING" %) (replace-re #"\..*" "" %))
+  (map #(replace-re #"\..*" "" (:price %))
+       (or ;(get-in item [:price :price])
+           (:prices (:price item))
+           ;(map #(get :price %) (get-in item [:price :prices]))
+           ))
+
+  (if-let [price (get-in item [:price :price])]
+    (replace-re #"\..*" "" )))

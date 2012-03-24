@@ -16,9 +16,10 @@
         mysql-data    (mysql/make-MySQLAccess) ; ExpressionEngine database for old site
         simpledb-data simpledb/simpledb
         sizes         (data/get-sizes simpledb-data sdb-count)
-        items          (->> (take 8 (data/get-items mysql-data mysql-count))
+        items         (->> (take 8 (data/get-items mysql-data mysql-count))
                         (map #(add-sizes % sizes))
-                        (map images/migrate-images!))]
+                        ;(map images/migrate-images!)
+                        )]
     (println "Loaded" (count items) "items from MySQL with" @mysql-count "queries and"
              (count (data/get-items simpledb-data sdb-count)) "from SimpleDB with"
              @sdb-count "queries")
@@ -29,4 +30,6 @@
    so set up each item with the default sizing for the new system.
    Note that individual size entries are coded SIZE_ID:QTY, with -1 representing
    'unlimited' inventory."
-  (assoc item :sizes (apply vector (map #(str (:id %) ":-1") sizes))))
+  (if (:item-type-cap (:tags item))
+    (assoc item :sizes (apply vector (map #(str (:id %) ":-1") sizes)))
+    item))

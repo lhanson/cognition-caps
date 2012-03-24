@@ -81,6 +81,8 @@
     (println "Migrating images for item ID" (:id item))
     (let [simpledb-data simpledb/simpledb
           url-map (:image-urls item)]
+      (if (:item-type-merch (:tags item))
+        (println "---- Images: " (:image-urls item)))
       (loop [new-images {}
              idx 0]
         (if (nil? (get url-map (keyword (str "main-" idx))))
