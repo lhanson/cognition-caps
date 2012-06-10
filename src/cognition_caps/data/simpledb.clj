@@ -70,8 +70,7 @@
                                         "0")
                             begin)
           query        `{select * from items
-                         where (and (>= :display-order ~begin-padded)
-                                    (= :hide "false"))
+                         where (>= :display-order ~begin-padded)
                          limit ~limit
                          order-by [:display-order asc]}]
       (map #(unmarshal-item % prices sizes) (sdb/query config query))))
@@ -79,7 +78,7 @@
   (get-visible-item-count [this queryCount]
     (swap! queryCount inc)
     (sdb/query config '{select count from items
-                        where (= :hide false)}))
+                        where (not-null :display-order)}))
 
   (put-items [this queryCount items]
     (println "Persisting" (count items) "items to SimpleDB")
@@ -193,7 +192,6 @@
       (unflatten-image-urls)))
 
 (defn- unmarshal-ids [m]
-  (println "ids")
   (change-key m ::sdb/id :id))
 
 (defn- long-split [re maxlen s]
@@ -224,7 +222,6 @@
 (defn merge-large-descriptions [m]
   "If the given map has multiple integer-suffixed :description attributes, they
    are merged into one :description"
-  (println "Merging")
   (let [descr-keys (filter #(re-matches #"description_\d+" (name %)) (keys m))
         sorted-keys (sort-by #(Integer. (.substring (name %) (inc (.indexOf (name %) "_")))) descr-keys)]
     (if (empty? sorted-keys)
@@ -251,17 +248,17 @@
 
 (defn dereference-sizes [m sizes]
   "Associates the a parsed size map for the given item's encoded size-id:quantity string"
-  (println "Dereferencing sizes")
-;(println "------ currently prices are:" (:prices m))
-  (let [size-id-qty (map #(str/split #":" %) (:sizes m))
-        available-sizes (set (filter #(not (nil? %))
-                                     (map #(if (not= 0 (Integer/parseInt (second %)))
-                                             (first %))
-                                          size-id-qty)))
-        ; Create a list of size maps applicable to this item
-        size-map (reduce #(if (get available-sizes (:id %2)) (cons %2 %1) %1)
-                         '()
-                         sizes)]
-    ; Need to go from a Cons to a list to get the proper order, for some reason
-    (assoc m :sizes (into '() size-map))))
+  (if (:item-type-cap (:tags m))
+    (let [size-id-qty (map #(str/split #":" %) (:sizes m))
+          available-sizes (set (filter #(not (nil? %))
+                                       (map #(if (not= 0 (Integer/parseInt (second %)))
+                                               (first %))
+                                            size-id-qty)))
+          ; Create a list of size maps applicable to this item
+          size-map (reduce #(if (get available-sizes (:id %2)) (cons %2 %1) %1)
+                           '()
+                           sizes)]
+      ; Need to go from a Cons to a list to get the proper order, for some reason
+      (assoc m :sizes (into '() size-map)))
+    m))
 

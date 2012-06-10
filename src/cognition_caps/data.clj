@@ -15,12 +15,17 @@
   (update-item [this queryCount id
                attr-name attr-value]        "Updates the given attribute"))
 
-(defrecord Item [id nom url-title description image-urls price-ids sizes tags user-id date-added display-order hide])
+;; =============================================================================
+;; Field notes:
+;; display-order - The order in which items will be displayed to users.
+;;                 If nil, the item is hidden.
+;; =============================================================================
+(defrecord Item [id nom url-title description image-urls price-ids sizes tags user-id date-added display-order])
 (defn make-Item
   "Creates an Item from the given map, setting defaults when not present"
-  [{:keys [id nom url-title description image-urls price-ids sizes tags user-id date-added display-order hide]
-     :or {url-title id date-added (now) display-order 0 hide false}}]
-    (Item. id nom url-title description image-urls price-ids sizes tags user-id date-added display-order hide))
+  [{:keys [id nom url-title description image-urls price-ids sizes tags user-id date-added display-order]
+     :or {url-title id date-added (now) display-order nil}}]
+    (Item. id nom url-title description image-urls price-ids sizes tags user-id date-added display-order))
 
 (defrecord Size [id nom])
 

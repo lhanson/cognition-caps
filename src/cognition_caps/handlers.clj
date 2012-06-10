@@ -132,7 +132,6 @@
         visible-item-count (data/get-visible-item-count simpledb (:db-queries stats))
         page-count         (math/ceil (/ visible-item-count items-per-page))
         current-page       (inc (math/floor (/ (Integer/parseInt begin) items-per-page)))]
-    (println "Doing" (count items) "between" begin "and" items-per-page)
     (base {:main (show-items items current-page page-count items-per-page)
            :stats stats})))
 
@@ -204,18 +203,5 @@
 
 (defn- formatted-price [item]
   "Returns a price string formatted for display"
-  ;(println "DOING FORMATTED PRICE" (:prices item))
-  (let [prices (:prices item)
-        ;first-price (reduce #(todo) prices)
-        ]
-    (println "Prices:" prices)
-    )
-  ;(map #(do (println "DOING" %) (replace-re #"\..*" "" %))
-  (map #(replace-re #"\..*" "" (:price %))
-       (or ;(get-in item [:price :price])
-           (:prices (:price item))
-           ;(map #(get :price %) (get-in item [:price :prices]))
-           ))
-
-  (if-let [price (get-in item [:price :price])]
-    (replace-re #"\..*" "" )))
+  ; Works for merch, need to re-test for caps
+  (replace-re #"\..*" "" (:price (first (:prices item)))))

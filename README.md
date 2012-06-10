@@ -33,6 +33,8 @@ Because a good project is never finished.
   - Include a series of old url-titles as the title can change multiple times
   - If/when an item is renamed, it cannot be renamed to a name that a different
     item has owned in the past so 301 redirects converge on the unique items
+* Pricing for "merch" item type is fixed; instead we should allow arbitrary
+  quantity selection and scale pricing based on that.
 * Implement all recommendations given by Chrome's PageSpeed extension.
 * Extract annotate-ordered-values and merge-large-descriptions from simpledb
   code to be generic wrappers around rummage.

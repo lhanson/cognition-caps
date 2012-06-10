@@ -18,7 +18,7 @@
         sizes         (data/get-sizes simpledb-data sdb-count)
         items         (->> (take 8 (data/get-items mysql-data mysql-count))
                         (map #(add-sizes % sizes))
-                        ;(map images/migrate-images!)
+                        (map images/migrate-images!)
                         )]
     (println "Loaded" (count items) "items from MySQL with" @mysql-count "queries and"
              (count (data/get-items simpledb-data sdb-count)) "from SimpleDB with"
