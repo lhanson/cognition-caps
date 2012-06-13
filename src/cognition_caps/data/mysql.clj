@@ -21,8 +21,8 @@
   (get-items   [this queryCount]
     (map-display-orders queryCount
                         (map #(mapitem queryCount %)
-                             (concat ;(get-cap-rows queryCount)
-                                     (get-merch-rows queryCount)
+                             (concat (take 4 (get-cap-rows queryCount))
+                                     '();(get-merch-rows queryCount)
                                      ))))
   (get-items-range [this queryCount begin limit]
     (throw (UnsupportedOperationException.
@@ -57,7 +57,7 @@
 (defn- parse-size-string [size-str]
   "Parses a string possibly containing multiple size IDs and returns a Long
    version of the first one"
-  (println "Parsing size string:" size-str)
+;(println "Parsing size string:" size-str)
   (let [id (first (filter #(not (empty? %))
                           (re-split #"\W+" size-str)))]
     (if id (Long/parseLong id))))
@@ -65,6 +65,7 @@
 (defn- get-price-id [price]
   "Finds the price ID for the given price from our default prices"
   (let [price-record (some #(if (= price (:price %)) %) default-prices)]
+;    (println "For price" price "in EE, we find" price-record "in our defaults")
     (:id price-record)))
 
 (defn- get-cap-rows [queryCount]
@@ -74,17 +75,32 @@
                            d.field_id_8 AS \"image1\", d.field_id_18 AS \"image2\",
                            d.field_id_19 AS \"image3\", d.field_id_20 AS \"image4\",
                            d.field_id_30 AS \"display-order\",
-                           t.author_id AS \"user-id\", t.status, t.weblog_id
+                           t.author_id AS \"user-id\", t.status, t.weblog_id AS \"weblog-id\"
                     FROM exp_weblog_titles t
                     JOIN exp_weblog_data d ON t.entry_id = d.entry_id
                     WHERE t.weblog_id = '" *caps-weblog-id* "'
                     ORDER BY `display-order` DESC")]
     (sql/with-connection db
       (sql/with-query-results rs [query]
+                              ;(println "+++++++++++++++++ ROW"rs)
+        ;(doall (map #(println "SIZES for title" (:url-title %) ": " (:sizes %)) rs))
         (let [ee-price-map (get-price-map queryCount)]
-          (doall (map #(assoc % :price-ids (get-price-id
-                                             (get ee-price-map (parse-size-string (:sizes %)))))
-                      (vec rs))))))))
+          ;(println "EE PRIcE MAP:" ee-price-map)
+          ;(let [r (doall (map #(assoc % :price-ids
+          ;                            (get-price-id (get ee-price-map (parse-size-string (:sizes %)))))
+          ;                     (vec rs)))]
+          (let [r (doall (map (fn [%]
+                               ; (println "Mapping sizes for"(:url-title %) ":" (:sizes %))
+                                (-> %
+                                 (assoc :price-ids (get-price-id (get ee-price-map (parse-size-string (:sizes %)))))
+                                 ; Now overlay our default sizing here in size-id:qty strings
+                                 (assoc :sizes (map #(str (:id %) ":-1") default-sizes)))
+                                )
+                               (vec rs)))]
+            ;(doall (map #(println "SIZES for title" (:url-title %) ": " (:sizes %)) r))
+            ;(println "_++++++++++++++++++++++++++++++++ row:" r)
+            r)
+            )))))
 
 (defn- get-merch-rows [queryCount]
   ; exp_weblog_data.field_id_26 rel_id, each have four ids which probably reference the relationship field?
@@ -131,7 +147,13 @@
 (defn mapitem [queryCount itemmap]
   "Does a little massaging of the data from the SQL database and creates an Item"
   ;(println "\nMapping item:" itemmap)
-  (println "Mapping item" itemmap)
+  ;(println "Mapping item" itemmap)
+  ;
+  ;
+  ;a TODO: has price-ids of whatever was set...should we assign these specifically?
+  ;
+  ;
+  ;
   (let [{:keys [entry-date image1 image2 image3 image4]} itemmap
         nom (s/replace (:nom itemmap) #"(?i)\s*cap\s*$" "")
         images (if (or image1 image2 image3 image4)
@@ -168,7 +190,6 @@
                                               (hash-set :item-type-merch)))
                           (assoc :hide (= "closed" (:status itemmap)))
                           (check-price-ids)))]
-    (println "MADE ITEM:" item)
     (if (not= (:url-title itemmap) (:url-title item))
       (do
         (println (str "WARNING: existing URL title '" (:url-title itemmap) "' "

@@ -1,0 +1,49 @@
+= TODO
+
+== Currently working on
+    - (:sizes item) not working on caps. Instead of unmarshalled, it's a number
+      we just want to add our defaults initially since we have no inventory, right?!
+      I think the :sizes is just a remnant from EE that we use to look up price!
+      Dissoc that from the result row - or better yet, assoc in the default
+      
+      Doing that, see mysql.clj:97. Not sticking in the db? Not being unmarshalled by sdb?
+      
+    - Differentiated between (:tags item-type-merch) and (:tags item-type-cap).
+      Merch prices are displaying on the front page, as are images. Now:
+
+      ! Display merch sizes/prices, make sure logic works for caps too.
+        Migrate in a few caps just to test.
+
+      ! Need to develop route for /caps vs /merch and change up +1 buttons accordingly
+        Update: routes work, need to investigate +1 buttons.
+
+      * Need to forward old URLs for merch items
+      * Need to forward old URLs for blog items
+      * Test that +1 urls are set correctly for caps as well as merch
+      * Test that /caps/foo and /merch/foo either match up or are 404'd appropriately
+    - AJAX pagination
+
+
+== Need before release
+    - +1 on cap pages isn't working...
+
+    - Valentine's string in Valentine cap contains funky character
+      Jetty not returning UTF-8 response correctly?
+
+    - Implement Schema.org microdata: http://schema.org/docs/gs.html
+    - Implement Open Graph protocol: http://ogp.me/
+    - Meta title and description? https://developers.google.com/+/plugins/+1button/#plus-snippet
+    - Watch: http://support.google.com/webmasters/bin/answer.py?hl=en&answer=35624
+      Google Sitemap: http://support.google.com/webmasters/bin/answer.py?hl=en&answer=183668
+
+    - Nice 404 page
+
+    - Try these for nav links, etc:
+        text-shadow: white 0.1em 0.1em 0.2em;
+        text-shadow: 2pxpx 2px 2px rgba(255, 255, 255, 1);
+
+== Enhancements after release
+    - Implement encrypted PayPal buttons to avoid users tampering with prices, etc.
+      https://cms.paypal.com/us/cgi-bin/?cmd=_render-content&content_ID=developer/e_howto_html_encryptedwebpayments#id08A3I0P017Q
+      Current version of the site uses non-encrypted buttons anyway
+

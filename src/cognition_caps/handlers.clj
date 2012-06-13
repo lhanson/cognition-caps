@@ -136,6 +136,7 @@
            :stats stats})))
 
 (defn- handle-item [stats item url-title]
+  (println "Handling item for url title " url-title)
   (let [current-title (:url-title item)
         old-title     (:old-url-title item)]
     (if (and old-title (not= current-title url-title))
@@ -149,17 +150,12 @@
                                      (:merch-url-prefix config))
                                    current-title)}})
       (do
-        (debug "Loaded item for url-title" url-title ": " item)
-        (println "PRICE:" (:price item))
-        (println "PRICES:" (:prices (:price item)))
-        (println "# PRICES:" (count (:prices (:price item))))
-        (println "TYPEEEE" (type (first (:prices (:price item)))))
-        ;(println "TYPEEEE" (type (first (:price item))))
-        ;(println "FFFF" (first (:price item)))
-        (println "Formatted price: " (formatted-price item))
-        ;(base {:main (show-item item)
-        ;       :title (str (:nom item) " - " *title-base*)
-        ;       :stats stats})
+        ; TODO: handle prices for merch
+        (println "PRICES:" (:prices item))
+        (println "ITEM SIZES:" (:sizes item) ", should have a nom!")
+        (base {:main (show-item item)
+               :title (str (:nom item) " - " *title-base*)
+               :stats stats})
         ))))
 
 (defn- item-by-url-title [stats url-title]
@@ -167,13 +163,11 @@
 
 (defn cap [stats url-title]
   (if-let [cap (item-by-url-title stats url-title)]
-    (if (:item-type-cap (:tags cap))
-      (handle-item stats cap url-title))))
+    (handle-item stats cap url-title)))
 
 (defn merch [stats url-title]
   (if-let [merch (item-by-url-title stats url-title)]
-    (if (:item-type-merch (:tags merch))
-      (handle-item stats merch url-title))))
+    (handle-item stats merch url-title)))
 
 (defn sizing [stats]
   (base {:main (html/html-resource "sizing.html")
@@ -191,7 +185,7 @@
 
 (defn- item-type [tags]
   "Returns a string representing the item type present in tags"
-  (let [t (if (string? tags) (hash-set tags) tags)]
+  (let [t (if (keyword? tags) (hash-set tags) tags)]
     (cond
       (contains? t :item-type-cap) "caps"
       (contains? t :item-type-merch) "merch")))
@@ -204,4 +198,6 @@
 (defn- formatted-price [item]
   "Returns a price string formatted for display"
   ; Works for merch, need to re-test for caps
+ ; (println "Doing prices:" (:prices item) "for item type" (:tags item))
+  ;(println "ITEM:"item)
   (replace-re #"\..*" "" (:price (first (:prices item)))))

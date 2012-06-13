@@ -12,7 +12,7 @@
 (declare annotate-ordered-values unannotate-ordered-values change-key
          dereference-price dereference-sizes marshal-item
          merge-large-descriptions unmarshal-item unmarshal-ids
-         split-large-descriptions)
+         split-large-descriptions ensure-tags-set)
 
 (def *items-domain* "items")
 
@@ -33,12 +33,7 @@
   (if-let [result (sdb/query config
                              `{select * from items
                                where (= ~field-name ~field-value)})]
-    (let [item (unmarshal-item (first result) prices sizes)]
-      (println "Unmarshalled:" item)
-      (println "\n\nPRICES:" (:prices item))
-      item
-    )))
-;    (unmarshal-item (first result) prices sizes)))
+    (unmarshal-item (first result) prices sizes)))
 
 (defrecord SimpleDBAccess []
   DataAccess
@@ -165,6 +160,14 @@
                  (merge new-item entry)
                  image-urls))))))
 
+(defn- ensure-tags-set [m]
+  "Ensures that (:tags m) is a set of keywords and not just a single one"
+  (println "TYPE:" (type (:tags m)))
+  (let [n (if (keyword? (:tags m)) (assoc m :tags (hash-set (:tags m))) m)]
+    (println "Ended up with n:"n)
+    n
+    ))
+
 (defn- remove-empty-values [item]
   "Removes entries for which the value is nil"
   (loop [k (keys item) i item]
@@ -184,10 +187,12 @@
 
 (defn unmarshal-item [item prices sizes]
   "Reconstitutes the given item after reading from SimpleDB"
+  (println "Unmarshaling item with tags:" (:tags item))
   (-> item
       (unmarshal-ids)
       (merge-large-descriptions)
       (dereference-price prices)
+      (ensure-tags-set)
       (dereference-sizes sizes)
       (unflatten-image-urls)))
 
@@ -235,19 +240,30 @@
 
 (defn dereference-price [m prices]
   "Associates the full price map(s) for the given item's price-ids"
-;                   (some #(if (= (:price-ids m) (:id %)) %) prices))
-  ;(assoc m :prices (some #(if (= (:price-id m) (:id %)) %) prices)))
-  (println "Dereferencing price")
+  ;(println "Doing some on " (:price-ids m) "with" prices)
+  ;(if (not (seq? (:price-ids m)))
+  ;  (println "NOT A SEQ:" (type (:price-ids m))))
   (assoc m :prices (filter (fn [price]
+                             ;(println "Some-ing" price)
                              (some (fn [m-price-id]
                                      (do ;(println "Comparing" (:id price) "with" m-price-id)
                                      (if (= (:id price) m-price-id)
+                                       (do 
+                                        ;(println "Matched price" price)
                                        price)))
-                                   (:price-ids m)))
+                                       )
+                                   (conj '() (:price-ids m))))
                            prices)))
 
 (defn dereference-sizes [m sizes]
-  "Associates the a parsed size map for the given item's encoded size-id:quantity string"
+  "Associates a parsed size map for the given item's encoded size-id:quantity string"
+  (println "Dereferencing sizes:" sizes)
+  (println "Tags:" (:tags m))
+  ;;;;; TODO: figured it out. (:tags m) is not a collection
+  ;(println "type Tags:" (type (:tags m)))
+  ;(println "Item type cap" (:item-type-cap (:tags m)))
+  ;(println "count type cap" (count (:tags m)))
+  ;(println "count type " (type (first (:tags m))))
   (if (:item-type-cap (:tags m))
     (let [size-id-qty (map #(str/split #":" %) (:sizes m))
           available-sizes (set (filter #(not (nil? %))
@@ -258,6 +274,7 @@
           size-map (reduce #(if (get available-sizes (:id %2)) (cons %2 %1) %1)
                            '()
                            sizes)]
+      (println "It's a cap, replacing :sizes with defaults")
       ; Need to go from a Cons to a list to get the proper order, for some reason
       (assoc m :sizes (into '() size-map)))
     m))
