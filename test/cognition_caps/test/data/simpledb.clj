@@ -52,7 +52,7 @@
     (is (= (rest prices) (:prices unmarshalled)))))
 
 (deftest dereference-sizes
-  (let [sizes '({:id 1 :nom "Small-ish"} {:id 2 :nom "One Size Fits Most"} {:id 3 :nom "Large"})
+  (let [sizes (list {:id (long 1) :nom "Small-ish"} {:id (long 2) :nom "One Size Fits Most"} {:id (long 3) :nom "Large"})
         unmarshalled (sdb/dereference-sizes {:sizes #{"3:-1"} :tags #{:item-type-cap}} sizes)]
     (is (= 1 (count (:sizes unmarshalled))))
     (is (= (take-last 1 sizes) (:sizes unmarshalled)))))

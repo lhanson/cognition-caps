@@ -249,8 +249,8 @@
   (if (:item-type-cap (:tags m))
     (let [size-id-qty (map #(str/split #":" %) (:sizes m))
           available-sizes (set (filter #(not (nil? %))
-                                       (map #(if (not= 0 (Integer/parseInt (second %)))
-                                               (Integer/parseInt (first %)))
+                                       (map #(if (not= 0 (Long/parseLong (second %)))
+                                               (Long/parseLong (first %)))
                                             size-id-qty)))
           ; Create a list of size maps applicable to this item
           size-map (reduce #(if (get available-sizes (:id %2)) (cons %2 %1) %1)
