@@ -3,8 +3,8 @@
         [cognition-caps.data])
   (:require [cognition-caps.data.simpledb :as sdb]))
 
-;;; Tests that items with descriptions longer than SimpleDB's 1024 byte limit
-;;; are spit into multiple attributes
+; Tests that items with descriptions longer than SimpleDB's 1024 byte limit
+; are spit into multiple attributes
 (deftest split-large-descriptions
   (let [max-size 1024
         short-cap (make-Item {:description "short description"})
@@ -44,4 +44,16 @@
     (is (= (seq (:image-urls cap))
            (seq (array-map :thumb-0 "thumb-0.jpg" :thumb-1 "thumb-1.jpg"
                            :thumb-2 "thumb-2.jpg" :thumb-3 "thumb-3.jpg"))))))
+
+(deftest dereference-prices
+  (let [prices '({:id 1 :qty 1 :price 1.00} {:id 2 :qty 2 :price 2.00} {:id 3 :qty 2 :price 3.00})
+        unmarshalled (sdb/dereference-price {:price-ids #{2 3}}prices)]
+    (is (= 2 (count (:prices unmarshalled))))
+    (is (= (rest prices) (:prices unmarshalled)))))
+
+(deftest dereference-sizes
+  (let [sizes '({:id 1 :nom "Small-ish"} {:id 2 :nom "One Size Fits Most"} {:id 3 :nom "Large"})
+        unmarshalled (sdb/dereference-sizes {:sizes #{"3:-1"} :tags #{:item-type-cap}} sizes)]
+    (is (= 1 (count (:sizes unmarshalled))))
+    (is (= (take-last 1 sizes) (:sizes unmarshalled)))))
 

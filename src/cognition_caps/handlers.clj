@@ -12,7 +12,7 @@
 (declare item-type formatted-price wrap-paragraphs)
 
 (def *title-base* "Cognition Caps")
-(def *items-per-page* 4) ;TODO: live version start with 32
+(def *items-per-page* 8) ;TODO: live version start with 32
 
 (defmacro maybe-append
   ([expr] `(if-let [x# ~expr] (html/append x#) identity))
@@ -136,7 +136,6 @@
            :stats stats})))
 
 (defn- handle-item [stats item url-title]
-  (println "Handling item for url title " url-title)
   (let [current-title (:url-title item)
         old-title     (:old-url-title item)]
     (if (and old-title (not= current-title url-title))
@@ -197,7 +196,5 @@
 
 (defn- formatted-price [item]
   "Returns a price string formatted for display"
-  ; Works for merch, need to re-test for caps
- ; (println "Doing prices:" (:prices item) "for item type" (:tags item))
-  ;(println "ITEM:"item)
   (replace-re #"\..*" "" (:price (first (:prices item)))))
+

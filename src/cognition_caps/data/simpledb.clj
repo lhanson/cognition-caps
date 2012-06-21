@@ -162,11 +162,9 @@
 
 (defn- ensure-tags-set [m]
   "Ensures that (:tags m) is a set of keywords and not just a single one"
-  (println "TYPE:" (type (:tags m)))
-  (let [n (if (keyword? (:tags m)) (assoc m :tags (hash-set (:tags m))) m)]
-    (println "Ended up with n:"n)
-    n
-    ))
+  (if (keyword? (:tags m))
+    (assoc m :tags (hash-set (:tags m)))
+    m))
 
 (defn- remove-empty-values [item]
   "Removes entries for which the value is nil"
@@ -187,7 +185,6 @@
 
 (defn unmarshal-item [item prices sizes]
   "Reconstitutes the given item after reading from SimpleDB"
-  (println "Unmarshaling item with tags:" (:tags item))
   (-> item
       (unmarshal-ids)
       (merge-large-descriptions)
@@ -240,41 +237,25 @@
 
 (defn dereference-price [m prices]
   "Associates the full price map(s) for the given item's price-ids"
-  ;(println "Doing some on " (:price-ids m) "with" prices)
-  ;(if (not (seq? (:price-ids m)))
-  ;  (println "NOT A SEQ:" (type (:price-ids m))))
-  (assoc m :prices (filter (fn [price]
-                             ;(println "Some-ing" price)
-                             (some (fn [m-price-id]
-                                     (do ;(println "Comparing" (:id price) "with" m-price-id)
-                                     (if (= (:id price) m-price-id)
-                                       (do 
-                                        ;(println "Matched price" price)
-                                       price)))
-                                       )
-                                   (conj '() (:price-ids m))))
-                           prices)))
+  (let [price-ids (:price-ids m)
+        price-id-seq (if (coll? price-ids) (seq price-ids) (seq [price-ids]))]
+    (assoc m :prices (map (fn [price-id]
+                            (some #(if (= price-id (:id %)) %)
+                                  prices))
+                          price-id-seq))))
 
 (defn dereference-sizes [m sizes]
   "Associates a parsed size map for the given item's encoded size-id:quantity string"
-  (println "Dereferencing sizes:" sizes)
-  (println "Tags:" (:tags m))
-  ;;;;; TODO: figured it out. (:tags m) is not a collection
-  ;(println "type Tags:" (type (:tags m)))
-  ;(println "Item type cap" (:item-type-cap (:tags m)))
-  ;(println "count type cap" (count (:tags m)))
-  ;(println "count type " (type (first (:tags m))))
   (if (:item-type-cap (:tags m))
     (let [size-id-qty (map #(str/split #":" %) (:sizes m))
           available-sizes (set (filter #(not (nil? %))
                                        (map #(if (not= 0 (Integer/parseInt (second %)))
-                                               (first %))
+                                               (Integer/parseInt (first %)))
                                             size-id-qty)))
           ; Create a list of size maps applicable to this item
           size-map (reduce #(if (get available-sizes (:id %2)) (cons %2 %1) %1)
                            '()
                            sizes)]
-      (println "It's a cap, replacing :sizes with defaults")
       ; Need to go from a Cons to a list to get the proper order, for some reason
       (assoc m :sizes (into '() size-map)))
     m))

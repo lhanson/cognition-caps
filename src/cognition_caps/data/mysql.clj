@@ -57,16 +57,13 @@
 (defn- parse-size-string [size-str]
   "Parses a string possibly containing multiple size IDs and returns a Long
    version of the first one"
-;(println "Parsing size string:" size-str)
   (let [id (first (filter #(not (empty? %))
                           (re-split #"\W+" size-str)))]
     (if id (Long/parseLong id))))
 
 (defn- get-price-id [price]
   "Finds the price ID for the given price from our default prices"
-  (let [price-record (some #(if (= price (:price %)) %) default-prices)]
-;    (println "For price" price "in EE, we find" price-record "in our defaults")
-    (:id price-record)))
+  (:id (some #(if (= price (:price %)) %) default-prices)))
 
 (defn- get-cap-rows [queryCount]
   (let [query (str "SELECT t.entry_id AS \"id\", t.title AS \"nom\",
@@ -82,25 +79,13 @@
                     ORDER BY `display-order` DESC")]
     (sql/with-connection db
       (sql/with-query-results rs [query]
-                              ;(println "+++++++++++++++++ ROW"rs)
-        ;(doall (map #(println "SIZES for title" (:url-title %) ": " (:sizes %)) rs))
         (let [ee-price-map (get-price-map queryCount)]
-          ;(println "EE PRIcE MAP:" ee-price-map)
-          ;(let [r (doall (map #(assoc % :price-ids
-          ;                            (get-price-id (get ee-price-map (parse-size-string (:sizes %)))))
-          ;                     (vec rs)))]
-          (let [r (doall (map (fn [%]
-                               ; (println "Mapping sizes for"(:url-title %) ":" (:sizes %))
-                                (-> %
-                                 (assoc :price-ids (get-price-id (get ee-price-map (parse-size-string (:sizes %)))))
-                                 ; Now overlay our default sizing here in size-id:qty strings
-                                 (assoc :sizes (map #(str (:id %) ":-1") default-sizes)))
-                                )
-                               (vec rs)))]
-            ;(doall (map #(println "SIZES for title" (:url-title %) ": " (:sizes %)) r))
-            ;(println "_++++++++++++++++++++++++++++++++ row:" r)
-            r)
-            )))))
+          (doall (map (fn [%]
+                        (-> %
+                         (assoc :price-ids (get-price-id (get ee-price-map (parse-size-string (:sizes %)))))
+                         ; Now overlay our default sizing here in size-id:qty strings
+                         (assoc :sizes (map #(str (:id %) ":-1") default-sizes))))
+                       (vec rs))))))))
 
 (defn- get-merch-rows [queryCount]
   ; exp_weblog_data.field_id_26 rel_id, each have four ids which probably reference the relationship field?
@@ -146,14 +131,6 @@
 
 (defn mapitem [queryCount itemmap]
   "Does a little massaging of the data from the SQL database and creates an Item"
-  ;(println "\nMapping item:" itemmap)
-  ;(println "Mapping item" itemmap)
-  ;
-  ;
-  ;a TODO: has price-ids of whatever was set...should we assign these specifically?
-  ;
-  ;
-  ;
   (let [{:keys [entry-date image1 image2 image3 image4]} itemmap
         nom (s/replace (:nom itemmap) #"(?i)\s*cap\s*$" "")
         images (if (or image1 image2 image3 image4)
@@ -163,8 +140,6 @@
                              (do
                                (println (str "WARNING: no price ID for item " (:id c) ": " (:nom c)
                                              ", defaulting to base price"))
-                               ; TODO: does the cap map even have the tag present?
-                               ; might need to add that in
                                (if (:item-type-cap (:tags c))
                                  (assoc c :price-ids "2")
                                  (assoc c :price-ids (map str (range 9 13)))))))
