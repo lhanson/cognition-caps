@@ -7,7 +7,9 @@
   (:require [cognition-caps.data :as data]
             [clojure.contrib.math :as math]
             [clj-time.coerce :as time-coerce]
-            [net.cgrand.enlive-html :as html]))
+            [net.cgrand.enlive-html :as html]
+            [clojure.pprint :as pp]
+            ))
 
 (declare item-type formatted-price wrap-paragraphs)
 
@@ -90,10 +92,12 @@
   (if-let [sizes (:sizes item)]
     (html/clone-for [size sizes]
                     (html/do->
-                      (change-when (= (:id size) (str data/default-size))
+                      (change-when (= (:id size) data/default-size)
                                    (html/set-attr :selected "selected"))
                       (html/set-attr :value (lower-case (:nom size)))
-                      (html/content (lower-case (:nom size))))))
+                      (html/content (lower-case (:nom size)))))
+    ; Assume it's merch, so has multiple prices in lieu of sizes
+    )
   [:#thumbnails :img] (html/clone-for [img (filter #(.startsWith (name (key %)) "thumb-")
                                                    (:image-urls item))]
                                       (html/set-attr :src (val img)))
@@ -102,7 +106,7 @@
   [:#itemInfoWrapper [:input (html/attr= :name "item_number")]]
   (html/set-attr :value (:id item))
   [:#itemInfoWrapper [:input (html/attr= :name "amount")]]
-  (html/set-attr :value (get-in item [:price :price]))
+  (html/set-attr :value (:price (first (:prices item))))
   [:#itemInfoWrapper :.g-plusone]
   (html/set-attr :data-href
                  (str "http://wearcognition.com/"
@@ -136,6 +140,7 @@
            :stats stats})))
 
 (defn- handle-item [stats item url-title]
+  (println "Price:" (:price item))
   (let [current-title (:url-title item)
         old-title     (:old-url-title item)]
     (if (and old-title (not= current-title url-title))
@@ -150,8 +155,16 @@
                                    current-title)}})
       (do
         ; TODO: handle prices for merch
-        (println "PRICES:" (:prices item))
-        (println "ITEM SIZES:" (:sizes item) ", should have a nom!")
+        (println "ITEM")
+        (pp/pprint item)
+        ;(println "PRICES:" (:prices item))
+        ;(println "ITEM SIZES:" (:sizes item) ", should have a nom! Type: " (type (:sizes item)))
+        ;(doall
+        ;  (map
+        ;  (fn [size]
+        ;    (println "Size:" (:id size) ", default:" (str data/default-size)  ", equal:" (= (:id size) data/default-size))
+        ;    )
+        ;  (:sizes item)))
         (base {:main (show-item item)
                :title (str (:nom item) " - " *title-base*)
                :stats stats})

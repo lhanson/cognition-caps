@@ -37,7 +37,7 @@
 ;; =============================================================================
 ;; Default data 
 ;; =============================================================================
-(def default-size 2)
+(def default-size (long 2))
 (def default-sizes [{:id 1 :nom "Small-ish"}
                     {:id 2 :nom "One Size Fits Most"}
                     {:id 3 :nom "Large"}])
