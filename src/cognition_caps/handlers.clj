@@ -78,7 +78,9 @@
   [:#pagination :.next :a]
     (html/set-attr :href (str "/?begin=" (offset (inc current-page) items-per-page)
                               "&limit=" items-per-page))
-  [:#pagination :.next] #(when (< current-page page-count) %))
+  [:#pagination :.next] #(when (< current-page page-count) %)
+  ; Remove pagination if only one page is shown
+  [:#pagination] #(when (> (count (html/select % [:li])) 1) %))
 
 ; Snippet for generating markup for an individual item page
 (html/defsnippet show-item "item.html" [:#itemDetails]
@@ -107,6 +109,8 @@
   [:#thumbnails :img] (html/clone-for [img (filter #(.startsWith (name (key %)) "thumb-")
                                                    (:image-urls item))]
                                       (html/set-attr :src (val img)))
+  ; Remove thumbnails if only one is shown
+  [:#thumbnails] #(when (> (count (html/select % [:img])) 1) %)
   [:#itemInfoWrapper [:input (html/attr= :name "item_name")]]
   (html/set-attr :value (:nom item))
   [:#itemInfoWrapper [:input (html/attr= :name "item_number")]]
@@ -122,6 +126,7 @@
        (:url-title item))))
 
 (html/deftemplate base "base.html" [{:keys [title main stats]}]
+  [html/comment-node] nil
   [:title] (if title (html/content title) (html/content *title-base*))
   [:#main] (maybe-append main)
   [:#main :> :a] (change-when (or (nil? title) (= title *title-base*)) html/unwrap)
