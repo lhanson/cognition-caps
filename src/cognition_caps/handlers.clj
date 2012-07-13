@@ -119,11 +119,11 @@
   (html/set-attr :value (:price (first (:prices item))))
   [:#itemInfoWrapper :.g-plusone]
   (html/set-attr :data-href
-                 (str "http://wearcognition.com/"
-       (if (:item-type-cap (:tags item))
-         "caps/"
-         "merch/")
-       (:url-title item))))
+    (str "http://wearcognition.com/"
+      (if (:item-type-cap (:tags item))
+        "caps/"
+        "merch/")
+      (:url-title item))))
 
 (html/deftemplate base "base.html" [{:keys [title main stats]}]
   [html/comment-node] nil
@@ -174,11 +174,13 @@
 
 (defn cap [stats url-title]
   (if-let [cap (item-by-url-title stats url-title)]
-    (handle-item stats cap url-title)))
+    (if (:item-type-cap (:tags cap))
+      (handle-item stats cap url-title))))
 
 (defn merch [stats url-title]
   (if-let [merch (item-by-url-title stats url-title)]
-    (handle-item stats merch url-title)))
+    (if (:item-type-merch (:tags merch))
+      (handle-item stats merch url-title))))
 
 (defn sizing [stats]
   (base {:main (html/html-resource "sizing.html")
