@@ -22,7 +22,8 @@
     (map-display-orders queryCount
                         (map #(mapitem queryCount %)
                              (concat (take 4 (get-cap-rows queryCount))
-                                     '();(get-merch-rows queryCount)
+                                     (take 4 (get-merch-rows queryCount))
+                                     ;'();(get-merch-rows queryCount)
                                      ))))
   (get-items-range [this queryCount begin limit]
     (throw (UnsupportedOperationException.

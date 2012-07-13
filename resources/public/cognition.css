@@ -189,6 +189,10 @@ nav a:hover { border-bottom: none;}
     margin: 0px 13px 0px 0px;
     border: 2px dotted #B2CD00;
 }
+#sizingLink:hover {
+    border: 2px dotted #B2CD00;
+    padding: 3px;
+}
 
 #itemInfoWrapper {
     float: left;
@@ -230,8 +234,10 @@ nav a:hover { border-bottom: none;}
     background-color: #999;
 }
 #itemDetails form select {
-    width: 160px;
     border: 0px;
+}
+#sizeSelection {
+    width: 160px;
 }
 #itemDetails form input {
     width: 156px;

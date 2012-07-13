@@ -19,7 +19,6 @@
                     <div class="g-plusone" data-size="medium" data-href=""></div>
                 </div>
             </div>
-            <!-- TODO: need a form for merch too, no? -->
             <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="paypal">
                 <input type="hidden" name="business" value="orders@wearcognition.com" />
                 <input type="hidden" name="cmd" value="_cart" />
@@ -34,6 +33,10 @@
                     <option value=""></option>
                 </select>
                 <a id="sizingLink" href="/sizing" target="_blank">Size Chart</a>
+                <label for="qtySelection">Select Quantity</label>
+                <select id="qtySelection" name="quantity">
+                    <option value=""></option>
+                </select>
                 <input type="submit" value="Add to cart" />
             </form>
         </section>

@@ -8,17 +8,17 @@
 
 (defn migrate-data! []
   (println "Migrating...")
-;  (println "Populating defaults in SimpleDB")
-;  (simpledb/populate-defaults!)
+  (println "Populating defaults in SimpleDB")
+  (simpledb/populate-defaults!)
   (println "Querying data from ExpressionEngine/MySQL")
   (let [mysql-count   (atom 0)
         sdb-count     (atom 0)
         mysql-data    (mysql/make-MySQLAccess) ; ExpressionEngine database for old site
         simpledb-data simpledb/simpledb
         sizes         (data/get-sizes simpledb-data sdb-count)
-        items         (->> (take 1 (data/get-items mysql-data mysql-count))
+        items         (->> (take 8 (data/get-items mysql-data mysql-count))
                         (map #(add-sizes % sizes))
-                        ;(map images/migrate-images!)
+                        (map images/migrate-images!)
                         )]
     (println "Item tags from mysql:" (map #(type (:tags %)) items))
     (println "Loaded" (count items) "items from MySQL with" @mysql-count "queries and"

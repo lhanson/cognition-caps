@@ -1,11 +1,6 @@
 = TODO
 
 == Currently working on
-      
-    - Differentiated between (:tags item-type-merch) and (:tags item-type-cap).
-      Merch prices are displaying on the front page, as are images. Now:
-
-      ! Display merch sizes/prices, make sure logic works for caps too.
 
       ! Need to develop route for /caps vs /merch and change up +1 buttons accordingly
         Update: routes work, need to investigate +1 buttons.

@@ -8,8 +8,7 @@
             [clojure.contrib.math :as math]
             [clj-time.coerce :as time-coerce]
             [net.cgrand.enlive-html :as html]
-            [clojure.pprint :as pp]
-            ))
+            [clojure.pprint :as pp]))
 
 (declare item-type formatted-price wrap-paragraphs)
 
@@ -88,6 +87,8 @@
   [:#itemImageWrapper :img] (html/set-attr :src (:main-0 (:image-urls item)))
   [:.description] (html/html-content (wrap-paragraphs (:description item)))
   [:.description [:p html/last-of-type]] (html/add-class "itemMaterials")
+  [#{:#sizeSelection [:label (html/attr= :for "sizeSelection")] :#sizingLink}]
+  (change-when (nil? (:sizes item)) nil)
   [:#sizeSelection :option]
   (if-let [sizes (:sizes item)]
     (html/clone-for [size sizes]
@@ -95,9 +96,14 @@
                       (change-when (= (:id size) data/default-size)
                                    (html/set-attr :selected "selected"))
                       (html/set-attr :value (lower-case (:nom size)))
-                      (html/content (lower-case (:nom size)))))
-    ; Assume it's merch, so has multiple prices in lieu of sizes
-    )
+                      (html/content (lower-case (:nom size))))))
+  [#{:#qtySelection [:label (html/attr= :for "qtySelection")]}]
+  #(when (:item-type-merch (:tags item)) %)
+  [:#qtySelection :option]
+  (html/clone-for [qty (take 5 (iterate inc 1))]
+                  (html/do->
+                    (html/set-attr :value qty)
+                    (html/content (str qty))))
   [:#thumbnails :img] (html/clone-for [img (filter #(.startsWith (name (key %)) "thumb-")
                                                    (:image-urls item))]
                                       (html/set-attr :src (val img)))
@@ -140,7 +146,6 @@
            :stats stats})))
 
 (defn- handle-item [stats item url-title]
-  (println "Price:" (:price item))
   (let [current-title (:url-title item)
         old-title     (:old-url-title item)]
     (if (and old-title (not= current-title url-title))
@@ -154,21 +159,10 @@
                                      (:merch-url-prefix config))
                                    current-title)}})
       (do
-        ; TODO: handle prices for merch
-        (println "ITEM")
         (pp/pprint item)
-        ;(println "PRICES:" (:prices item))
-        ;(println "ITEM SIZES:" (:sizes item) ", should have a nom! Type: " (type (:sizes item)))
-        ;(doall
-        ;  (map
-        ;  (fn [size]
-        ;    (println "Size:" (:id size) ", default:" (str data/default-size)  ", equal:" (= (:id size) data/default-size))
-        ;    )
-        ;  (:sizes item)))
         (base {:main (show-item item)
                :title (str (:nom item) " - " *title-base*)
-               :stats stats})
-        ))))
+               :stats stats})))))
 
 (defn- item-by-url-title [stats url-title]
   (data/get-item simpledb (:db-queries stats) url-title))
