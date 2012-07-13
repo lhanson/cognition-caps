@@ -32,7 +32,7 @@
   (GET "/sizing" {stats :stats} (handlers/sizing stats))
   (GET "/faq" {stats :stats} (handlers/faq stats))
   (route/resources "/")
-  (route/not-found "Page not found"))
+  (ANY "*" {uri :uri} route/not-found (handlers/fourohfour uri)))
 
 (defn wrap-stats [handler]
   "Ring middleware which inserts the start time (in nanos) into the request"

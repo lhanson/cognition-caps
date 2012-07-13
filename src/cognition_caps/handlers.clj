@@ -125,15 +125,22 @@
         "merch/")
       (:url-title item))))
 
+(html/defsnippet fourohfoursnippet "404.html" [:#main :> :*]
+  [url]
+  [:code] (html/content url))
+
 (html/deftemplate base "base.html" [{:keys [title main stats]}]
   [html/comment-node] nil
   [:title] (if title (html/content title) (html/content *title-base*))
   [:#main] (maybe-append main)
   [:#main :> :a] (change-when (or (nil? title) (= title *title-base*)) html/unwrap)
   ; The last thing we do is to set the elapsed time
-  [:#requestStats] (html/content (str "Response generated in "
-                                      (/ (- (System/nanoTime) (:start-ts stats)) 1000000.0)
-                                      " ms with " @(:db-queries stats) " SimpleDB queries")))
+  [:#requestStats]
+    (if stats
+      (html/content (str "Response generated in "
+                         (/ (- (System/nanoTime) (:start-ts stats)) 1000000.0)
+                                 " ms with " @(:db-queries stats) " SimpleDB queries"))
+      identity))
 
 ;; =============================================================================
 ;; Pages
@@ -191,6 +198,11 @@
   (base {:main (html/html-resource "faq.html")
          :title (str "FAQ - " *title-base*)
          :stats stats}))
+
+(defn fourohfour [uri]
+  (println "4d04:" uri)
+  (base {:title "Page Not Found"
+         :main (fourohfoursnippet uri)}))
 
 ;; =============================================================================
 ;; Utility functions

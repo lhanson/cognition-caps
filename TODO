@@ -7,8 +7,6 @@
 
 
 == Need before release
-    - +1 on cap pages isn't working...
-
     - Valentine's string in Valentine cap contains funky character
       Jetty not returning UTF-8 response correctly?
 
@@ -18,13 +16,12 @@
     - Watch: http://support.google.com/webmasters/bin/answer.py?hl=en&answer=35624
       Google Sitemap: http://support.google.com/webmasters/bin/answer.py?hl=en&answer=183668
 
-    - Nice 404 page
-
+== Enhancements after release
+    - Footer doesn't stick to bottom on 404 page.
+    - +1 on cap pages isn't working...
     - Try these for nav links, etc:
         text-shadow: white 0.1em 0.1em 0.2em;
         text-shadow: 2pxpx 2px 2px rgba(255, 255, 255, 1);
-
-== Enhancements after release
     - Admin interface
     - Implement encrypted PayPal buttons to avoid users tampering with prices, etc.
       https://cms.paypal.com/us/cgi-bin/?cmd=_render-content&content_ID=developer/e_howto_html_encryptedwebpayments#id08A3I0P017Q
