@@ -7,9 +7,7 @@
         input-data {:url-title orig-url-title}
         item (make-Item input-data)]
     (is (= (url-title orig-url-title) (:url-title item)))
-    (is (:date-added item) "Expected a default date to be set")
-    (is (= (:display-order item) 0) "Expected a default display order to be set")
-    (is (= (:hide item) false) "Expected items to be displayed by default")))
+    (is (:date-added item) "Expected a default date to be set")))
 
 (deftest url-title-generation
   (is (= "plaid-envy" (url-title "Plaid Envy")))

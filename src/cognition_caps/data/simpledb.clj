@@ -246,8 +246,6 @@
 
 (defn dereference-sizes [m sizes]
   "Associates a parsed size map for the given item's encoded size-id:quantity string"
-  (println "m:"m)
-  (println "sizes: :" (:sizes m))
   (if (:item-type-cap (:tags m))
     (let [size-id-qty (map #(str/split #":" %) (:sizes m))
           available-sizes (set (filter #(not (nil? %))
