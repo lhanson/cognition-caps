@@ -1,12 +1,15 @@
 (ns cognition-caps.core
   (:use compojure.core
         ring.adapter.jetty
+        ring.middleware.reload
         [clojure.contrib.string :only (replace-re)]
         [cognition-caps.config :only (config)])
   (:require [cognition-caps [data :as data] [handlers :as handlers]]
             [clojure.string :as s]
             [compojure.route :as route]
-            [compojure.handler :as handler]))
+            [compojure.handler :as handler])
+  (:import (org.mortbay.jetty NCSARequestLog)
+           (org.mortbay.jetty.handler RequestLogHandler)))
 
 (defn- redirect [location] {:status 301 :headers {"Location" location}})
 
@@ -16,6 +19,7 @@
   (GET [":url", :url #".+/|.+?\p{Upper}.*"] [url]
     (redirect (->> url (replace-re #"/+$" "") (s/lower-case))))
   ; Redirect URLs from the old site
+  (GET "/index.php/caps" [] (redirect "/caps"))
   (GET ["/index.php/caps/caps-description/:old-url-title", :old-url-title #".+?"]
     [old-url-title]
     (redirect (str (:cap-url-prefix config)
@@ -40,12 +44,19 @@
     (handler (merge request {:stats {:start-ts (System/nanoTime)
                                      :db-queries (atom 0)}}))))
 
-(def app (-> all-routes
+(def app (-> (var all-routes)
+             (wrap-reload '(cognition-caps.core cognition-caps.handlers))
              handler/site
              wrap-stats))
 
 (defn start [port]
-  (run-jetty app {:port port}))
+  (run-jetty app {:port port
+                  :configurator (fn [server]
+                                  (doto server
+                                    (.addHandler (doto (RequestLogHandler.)
+                                                   (.setRequestLog (NCSARequestLog.))) server)))
+                  }))
 
 (defn -main []
   (start (Integer/parseInt (or (System/getenv "PORT") "3000"))))
+
