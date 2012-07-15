@@ -43,3 +43,7 @@
 (deftest old-cap-redirect
   (assert-redirect (request *old-cap-url*) 301 *new-cap-url*
                    "Old URL scheme redirects to the current one"))
+
+(deftest test-redirects
+  (is (= false "TODO: Load old_urls and make sure each URL is redirected appropriately")))
+

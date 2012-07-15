@@ -5,7 +5,6 @@
     - Need to forward old URLs for blog items
     - AJAX pagination
 
-
 == Need before release
     - Valentine's string in Valentine cap contains funky character
       Jetty not returning UTF-8 response correctly?

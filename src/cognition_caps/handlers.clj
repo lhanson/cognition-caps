@@ -200,7 +200,6 @@
          :stats stats}))
 
 (defn fourohfour [uri]
-  (println "4d04:" uri)
   (base {:title "Page Not Found"
          :main (fourohfoursnippet uri)}))
 
