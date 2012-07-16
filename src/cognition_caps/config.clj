@@ -9,7 +9,8 @@
      :app-log-level (if dev-mode :debug :info)
      ; The length of the string used to represent display order in the database
      ; so that we can properly pad query values.
-     :display-order-len 4}))
+     :display-order-len 4
+     :old-site-url "http://67.222.57.142"}))
 
 (defonce config
   (if (:dev-mode base-config)

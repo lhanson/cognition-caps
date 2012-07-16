@@ -199,6 +199,10 @@
          :title (str "FAQ - " *title-base*)
          :stats stats}))
 
+(defn rss-all [stats])
+(defn rss-store [stats])
+(defn rss-blog [stats])
+
 (defn fourohfour [uri]
   (base {:title "Page Not Found"
          :main (fourohfoursnippet uri)}))

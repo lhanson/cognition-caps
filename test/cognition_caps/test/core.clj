@@ -4,9 +4,6 @@
         clojure.test
         [clojure.string :only (upper-case)]))
 
-(def *old-cap-url* "/index.php/caps/caps-description/wi-river-cap")
-(def *new-cap-url* "/caps/wi-river")
-
 (defn- request
   "Performs a Ring request on the specified web app"
   ([resource &{ :keys [method params]
@@ -19,12 +16,14 @@
       (is (= status (:status response)) msg)
       (is (= status (:status response)))))
 
-(defn- assert-redirect [response status new-url msg]
+(defn- assert-redirect
   "Verifies that the given request gives the provided status code and redirects to new-url"
-  (if msg (is (and (= status (:status response))
-                   (= new-url (get (:headers response) "Location"))) msg)
-          (is (and (= status (:status response))
-                   (= new-url (get (:headers response) "Location"))))))
+  ([response status new-url] (assert-redirect response status new-url nil))
+  ([response status new-url msg]
+    (if msg (is (and (= status (:status response))
+                     (= new-url (get (:headers response) "Location"))) msg)
+            (is (and (= status (:status response))
+                     (= new-url (get (:headers response) "Location")))))))
 
 (deftest basic-routes
   (assert-status 200 (request "/") "Root URL returns 200")
@@ -36,14 +35,27 @@
     (assert-redirect (request url-trailing) 301 url
                      "Trailing slashes redirect to URL without them")
     (assert-redirect (request (upper-case url)) 301 url
-                     "Uppercase characters in URLs redirect to lower-case")
-    (assert-redirect (request (str *old-cap-url* "/")) 301 *old-cap-url*
-                     "Canonicalization redirect takes place before legacy URL redirect")))
-
-(deftest old-cap-redirect
-  (assert-redirect (request *old-cap-url*) 301 *new-cap-url*
-                   "Old URL scheme redirects to the current one"))
+                     "Uppercase characters in URLs redirect to lower-case")))
 
 (deftest test-redirects
-  (is (= false "TODO: Load old_urls and make sure each URL is redirected appropriately")))
-
+  ; 301 root redirects
+  (doseq [url ["/index.php"
+               "/index.php/about"]]
+    (assert-redirect (request url) 301 "/"))
+  ; Various other 301s to specific pages
+  (assert-redirect (request "/index.php/caps") 301 "/caps")
+  (assert-redirect (request "/index.php/caps/caps.rss") 301 "/feeds/store.rss")
+  (assert-redirect (request "/index.php/blog/rss_2.0") 301 "/feeds/blog.rss")
+  (assert-redirect (request "/index.php/caps/caps-description/wi-river-cap") 301 "/caps/wi-river")
+  (assert-redirect (request "/index.php/merch") 301 "/merch")
+  (assert-redirect (request "/index.php/merch/merchandise-description/cognition-buttons-colorful") 301 "/merch/cognition-buttons-colorful")
+  (assert-redirect (request "/images/favicon(4).ico") 301 "/favicon.ico")
+  ; 302 image redirects
+  (doseq [url ["/images/uploads/00445d34233252c8d6510dfab2217bda.JPG"
+               "/images/uploads/00445d34233252c8d6510dfab2217bda.jpg"
+               "/images/uploads/00445d34233252c8d6510dfab2217bda.jpeg"
+               "/images/uploads/00445d34233252c8d6510dfab2217bda.png"
+               "/images/uploads/00445d34233252c8d6510dfab2217bda.png"
+               "/images/uploads/cache/00445d34233252c8d6510dfab2217bda-100x117.JPG"]]
+    (assert-redirect (request url) 302 (str (:old-site-url base-config) url)
+                     "Links to images on the old site are redirected there")))

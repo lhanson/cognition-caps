@@ -1,13 +1,19 @@
 = TODO
 
 == Currently working on
-    - Need to forward old URLs for merch items
     - Need to forward old URLs for blog items
-    - AJAX pagination
 
 == Need before release
+    - /caps and /merch category routes need to resolve to a filtered view
+    - /store.rss contains the old site's RSS and a new feed as well
+      Do I need a historic version of old items? How far back does RSS file history go?
+      Maybe just do 10.
+      Use feedburner!
+      Have blog.atom(?), store.atom, and all.atom
+
     - Valentine's string in Valentine cap contains funky character
       Jetty not returning UTF-8 response correctly?
+    - Aggregate/compress CSS and JS
 
     - Implement Schema.org microdata: http://schema.org/docs/gs.html
     - Implement Open Graph protocol: http://ogp.me/
@@ -16,6 +22,7 @@
       Google Sitemap: http://support.google.com/webmasters/bin/answer.py?hl=en&answer=183668
 
 == Enhancements after release
+    - AJAX pagination
     - Footer doesn't stick to bottom on 404 page.
     - +1 on cap pages isn't working...
     - Try these for nav links, etc:

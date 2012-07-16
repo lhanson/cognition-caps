@@ -19,28 +19,30 @@
 ;; Routes that redirect requests to the old site's URL scheme
 (defroutes redirect-routes
   ; Temporariy redirects to specific files on our old site
-           ; jpg jpeg png
   (GET ["/images/:imagepath", :imagepath #"(?i)(?:uploads|cache)/.+\.(?:jpg|jpeg|png)$"] {uri :uri}
        (do
          (info (str "Forwarding request to old site: " uri))
-         (redirect (str "http://67.222.57.142" uri) 302)))
+         (redirect (str (:old-site-url config) uri) 302)))
   ; Permanent redirects to specific files on our old site
   (GET "/images/favicon(4).ico" [] (redirect "/favicon.ico"))
   ; Redirect URLs from the old site
-  (GET "/index.php" [] (redirect "/"))
-  (GET "/index.php/caps" [] (redirect "/caps"))
-  (GET ["/index.php/caps/caps-description/:old-url-title", :old-url-title #".+?"]
-    [old-url-title]
-    (redirect (str (:cap-url-prefix config)
+  (GET ["/:path", :path #"index.php(?:/about)?"] [] (redirect "/"))
+  ; Caps or merch categories
+  (GET ["/index.php/:path", :path #"(?:caps|merch)"] [path] (redirect (str "/" path)))
+  ; Specific item pages
+  (GET ["/index.php/:path1/:path2-description/:old-url-title", :path1 #"(?:caps|merch)" :path2 #"(?:caps|merchandise)" :old-url-title #".+?"]
+    [old-url-title path1]
+    (redirect (str "/" path1 "/" ;(:cap-url-prefix config)
                    (-> old-url-title
                        (s/replace #"-cap/?$" "")
                        (s/lower-case)))))
-  ; TODO: index.php* redirect to old site?
+  ; RSS redirects
+  (GET "/index.php/caps/caps.rss" [] (redirect "/feeds/store.rss"))
+  (GET "/index.php/blog/rss_2.0" [] (redirect "/feeds/blog.rss"))
   ; todo: what about the blog? Have a "coming soon" for that. rss should point to the old RSS feed for now, later redirecting
   ; For remaining requests we will serve here, canonicalize on lowercase and no trailing slashes
   (GET [":url", :url #".+/|.+?\p{Upper}.*"] [url]
-    (redirect (->> url (replace-re #"/+$" "") (s/lower-case))))
-)
+    (redirect (->> url (replace-re #"/+$" "") (s/lower-case)))))
 
 (defroutes all-routes
   (GET "/" [& query-params :as request] (handlers/index (:stats request) query-params))
@@ -50,8 +52,11 @@
              (= "merch" item-type) (handlers/merch (:stats request) url-title)))
   (GET "/sizing" {stats :stats} (handlers/sizing stats))
   (GET "/faq" {stats :stats} (handlers/faq stats))
+  (GET "/feeds/all.rss" {stats :stats} (handlers/rss-all stats))
+  (GET "/feeds/store.rss" {stats :stats} (handlers/rss-store stats))
+  (GET "/feeds/blog.rss" {stats :stats} (handlers/rss-blog stats))
   (route/resources "/")
-  (ANY "*" {uri :uri} route/not-found (handlers/fourohfour uri)))
+  (ANY "*" {uri :uri} (route/not-found (handlers/fourohfour uri))))
 
 (defn wrap-stats [handler]
   "Ring middleware which inserts the start time (in nanos) into the request"
