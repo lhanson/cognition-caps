@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0"
+    xmlns:dc="http://purl.org/dc/elements/1.1/"
+    xmlns:sy="http://purl.org/rss/1.0/modules/syndication/"
+    xmlns:admin="http://webns.net/mvcb/"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:content="http://purl.org/rss/1.0/modules/content/">
+    
+
+    <channel>
+    
+    <title>Cognition Caps</title>
+    <link>http://wearcognition.com/index.php/caps/</link>
+    <description>Cognition Caps</description>
+    <dc:rights>Copyright 2011</dc:rights>
+    <dc:date>2012-07-18T03:20:47-06:00</dc:date>
+    
+    <item>
+      <title>Our store feed has moved!</title>
+      <link>http://wearcognition.com</link>
+      <guid>http://wearcognition.com#When:12:07:47Z</guid>
+      <content:encoded><![CDATA[<p>Hi, everyone! We're very excited to launch our new site. As a result, our RSS feeds have been updated and moved. This feed will no longer be active;
+              please unfollow it and subscribe to the new one here: <a href="http://wearcognition.com/feeds/store-atom.xml</a>.</p>
+
+          <p>Thanks!</p>]]></content:encoded>
+      <dc:date>2012-07-18T03:20:47-06:00</dc:date>
+    </item>
+
+    <item>
+      <title>Good Luck</title>
+      <link>http://wearcognition.com/index.php/caps/caps-description/good-luck/</link>
+      <guid>http://wearcognition.com/index.php/caps/caps-description/good-luck/#When:18:51:08Z</guid>
+      <content:encoded><![CDATA[<img src="/images/uploads/cache/9620add9f0efd18aa336c766c2baa851-100x96.JPG" width="100" height="96"  alt="" class="thumb" /><p>You might not believe in luck, but if you do, you can go nuts in this cap.</p>
+
+<p>4-panel, 100% wool with fleece flap.&nbsp; Hand wash, air dry.&nbsp; </p>]]></content:encoded>
+      <dc:date>2011-10-11T18:51:08-06:00</dc:date>
+    </item>
+
+    <item>
+      <title>Lime Stripe</title>
+      <link>http://wearcognition.com/index.php/caps/caps-description/lime-stripe/</link>
+      <guid>http://wearcognition.com/index.php/caps/caps-description/lime-stripe/#When:18:25:27Z</guid>
+      <content:encoded><![CDATA[<img src="/images/uploads/cache/34a2d74f832c5e652099b4a58723ec32-100x107.JPG" width="100" height="106"  alt="" class="thumb" /><p>Bright lime green stripe.&nbsp; For those of us who can&#8217;t stop partying.&nbsp; </p>
+
+<p>4-panel, cotton poly blend with grosgrain stripe. Hand wash, air dry.</p>]]></content:encoded>
+      <dc:date>2011-10-11T18:25:27-06:00</dc:date>
+    </item>
+
+    <item>
+      <title>Bonfire</title>
+      <link>http://wearcognition.com/index.php/caps/caps-description/bonfire/</link>
+      <guid>http://wearcognition.com/index.php/caps/caps-description/bonfire/#When:18:50:44Z</guid>
+      <content:encoded><![CDATA[<img src="/images/uploads/cache/f2f416b3d6ffc18de7f310f4a2f7eb6a-100x117.JPG" width="100" height="116"  alt="" class="thumb" /><p>Nothing better than a dark night in the woods with a blazing red and yellow fire to sit around.&nbsp; This cap captures the colors, but you&#8217;re going to have to ride your ass to the woods for the rest.</p>
+
+<p>4-panel, cotton poly blend, Hand wash, air dry.</p>]]></content:encoded>
+      <dc:date>2011-09-05T18:50:44-06:00</dc:date>
+    </item>
+
+    <item>
+      <title>Valentine</title>
+      <link>http://wearcognition.com/index.php/caps/caps-description/valentine/</link>
+      <guid>http://wearcognition.com/index.php/caps/caps-description/valentine/#When:17:45:14Z</guid>
+      <content:encoded><![CDATA[<img src="/images/uploads/cache/ec3d3cf380124e4d05b1b81358918f4b-100x110.JPG" width="100" height="110"  alt="" class="thumb" /><p>144 million Valentine’s Day cards are sent every year for a holiday for some Saint that no one knows anything about.&nbsp; WTF?&nbsp; I&#8217;m getting back on my bike&#8230; </p>
+
+<p>4-panel, cotton poly blend, Hand wash, air dry.</p>]]></content:encoded>
+      <dc:date>2011-09-04T17:45:14-06:00</dc:date>
+    </item>
+
+    <item>
+      <title>Stealth Stripe</title>
+      <link>http://wearcognition.com/index.php/caps/caps-description/stealth-stripe/</link>
+      <guid>http://wearcognition.com/index.php/caps/caps-description/stealth-stripe/#When:17:02:16Z</guid>
+      <content:encoded><![CDATA[<img src="/images/uploads/cache/21585193ada943c0d505400fb164f54a-100x118.JPG" width="100" height="118"  alt="" class="thumb" /><p>It&#8217;s good to fly a little bit under the radar.&nbsp; </p>
+
+<p>4-panel, cotton poly blend, Hand wash, air dry.</p>]]></content:encoded>
+      <dc:date>2011-09-04T17:02:16-06:00</dc:date>
+    </item>
+
+    <item>
+      <title>Reflections</title>
+      <link>http://wearcognition.com/index.php/caps/caps-description/reflections-cap/</link>
+      <guid>http://wearcognition.com/index.php/caps/caps-description/reflections-cap/#When:21:39:53Z</guid>
+      <content:encoded><![CDATA[<img src="/images/uploads/cache/425b20ecadd728b4d0541f3606f8d8ce-100x112.JPG" width="100" height="111"  alt="" class="thumb" /><p>Think about reflection, a chorus of singular hands clapping, and a tree sneezing in the woods with no one around to hear it.&nbsp; Riding your bike can be like that.</p>
+
+<p>4-panel, cotton poly blend, reflective stripe, Hand wash, air dry.</p>]]></content:encoded>
+      <dc:date>2011-08-04T21:39:53-06:00</dc:date>
+    </item>
+
+    <item>
+      <title>Dog Vision</title>
+      <link>http://wearcognition.com/index.php/caps/caps-description/dog-vision-cap/</link>
+      <guid>http://wearcognition.com/index.php/caps/caps-description/dog-vision-cap/#When:21:31:34Z</guid>
+      <content:encoded><![CDATA[<img src="/images/uploads/cache/00445d34233252c8d6510dfab2217bda-100x117.JPG" width="100" height="116"  alt="" class="thumb" /><p>This cap is black and white so you can rest knowing that no matter what your dog will know what it looks like.&nbsp; </p>
+
+<p>4-panel, cotton poly blend, Upcycled material.&nbsp; Machine wash, air dry.</p>]]></content:encoded>
+      <dc:date>2011-08-04T21:31:34-06:00</dc:date>
+    </item>
+
+    <item>
+      <title>Night Sky Glow</title>
+      <link>http://wearcognition.com/index.php/caps/caps-description/sunset-glow-cap/</link>
+      <guid>http://wearcognition.com/index.php/caps/caps-description/sunset-glow-cap/#When:21:08:37Z</guid>
+      <content:encoded><![CDATA[<img src="/images/uploads/cache/591804b22a751d4f2a0334b830492d02-100x115.JPG" width="100" height="115"  alt="" class="thumb" /><p>The sun sets and then all of a sudden&#8230;BAM!&nbsp; Those stars were there the whole time, you just couldn&#8217;t see them because it was light out!! This cap&#8217;s kind of like that.</p>
+
+<p>4-panel, cotton poly blend, Machine wash, air dry.</p>]]></content:encoded>
+      <dc:date>2011-08-04T21:08:37-06:00</dc:date>
+    </item>
+
+    <item>
+      <title>Picnic Cap</title>
+      <link>http://wearcognition.com/index.php/caps/caps-description/picnic-cap/</link>
+      <guid>http://wearcognition.com/index.php/caps/caps-description/picnic-cap/#When:22:45:47Z</guid>
+      <content:encoded><![CDATA[<img src="/images/uploads/cache/5bbd8ade32485cd9d45bee503b0344af-100x120.JPG" width="100" height="119"  alt="" class="thumb" /><p>Pack up your plastic wine glasses and cigars.&nbsp; We&#8217;re going on a picnic.&nbsp; </p>
+
+<p>6-panel, 100% cotton. Upcycled material. Machine wash, air dry.</p>]]></content:encoded>
+      <dc:date>2011-07-27T22:45:47-06:00</dc:date>
+    </item>
+
+    
+    </channel>
+</rss>

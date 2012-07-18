@@ -44,8 +44,6 @@
     (assert-redirect (request url) 301 "/"))
   ; Various other 301s to specific pages
   (assert-redirect (request "/index.php/caps") 301 "/caps")
-  (assert-redirect (request "/index.php/caps/caps.rss") 301 "/feeds/store.rss")
-  (assert-redirect (request "/index.php/blog/rss_2.0") 301 "/feeds/blog.rss")
   (assert-redirect (request "/index.php/caps/caps-description/wi-river-cap") 301 "/caps/wi-river")
   (assert-redirect (request "/index.php/merch") 301 "/merch")
   (assert-redirect (request "/index.php/merch/merchandise-description/cognition-buttons-colorful") 301 "/merch/cognition-buttons-colorful")

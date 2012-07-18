@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0"
+    xmlns:dc="http://purl.org/dc/elements/1.1/"
+    xmlns:sy="http://purl.org/rss/1.0/modules/syndication/"
+    xmlns:admin="http://webns.net/mvcb/"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:content="http://purl.org/rss/1.0/modules/content/">
+
+    <channel>
+    
+    <title>Cognition Caps</title>
+    <link>http://wearcognition.com/index.php/blog</link>
+    <description>Cognition Caps Blog</description>
+    <dc:rights>Copyright 2012</dc:rights>
+    <dc:date>2012-07-18T03:20:47-06:00</dc:date>
+    
+    <item>
+      <title>Our blog feed has moved!</title>
+      <link>http://wearcognition.com/blog</link>
+      <guid>http://wearcognition.com/blog#When:12:07:47Z</guid>
+      <content:encoded><![CDATA[<p>Hi, everyone! We're very excited to launch our new site. As a result, our RSS feeds have been updated and moved. This feed will no longer be active;
+              please unfollow it and subscribe to the new one here: <a href="http://wearcognition.com/feeds/blog-atom.xml</a>.</p>
+
+          <p>Thanks!</p>]]></content:encoded>
+      <dc:date>2012-07-18T03:20:47-06:00</dc:date>
+    </item>
+
+    <item>
+      <title>We&#8217;re back!</title>
+      <link>http://wearcognition.com/index.php/blog/were-back1/</link>
+      <guid>http://wearcognition.com/index.php/blog/were-back1/#When:02:20:47Z</guid>
+      <description>You feel a tingle on the back of your neck. Static crackles on the TV&#8230;and it&#8217;s not just cosmic microwave background radiation. What was that noise?! Something strange is going on here&#8230;
+
+That&#8217;s right, ordering has been reenabled on the site! We&#8217;ve given the capmaking gnomes a stern talking to, reduced their mythical sauce rations, and told them to get back to work. Thanks for your patience while we were on hiatus!
+
+And as always, there are some cool new improvements in the works&#8230;</description>
+      <dc:date>2012-06-26T02:20:47-06:00</dc:date>
+    </item>
+
+    <item>
+      <title>The LepreCog</title>
+      <link>http://wearcognition.com/index.php/blog/the-leprecog/</link>
+      <guid>http://wearcognition.com/index.php/blog/the-leprecog/#When:13:13:43Z</guid>
+      <description>A St. Patrick&#8217;s Day Alley Cat in Madison , WI
+
+Here&#8217;s a local event coming up here in Madison!
+Details:
+
+BB Clarke Beach
+1pm Registration
+2pm Start
+
+Bring your bike, bag and 5$
+Irish Attire encouraged
+
+Check out the tumblr site for more photos and details.</description>
+      <dc:date>2012-03-13T13:13:43-06:00</dc:date>
+    </item>
+
+    <item>
+      <title>Broken Hearts and Bicycle Parts 8</title>
+      <link>http://wearcognition.com/index.php/blog/broken-hearts-and-bicycle-parts-8/</link>
+      <guid>http://wearcognition.com/index.php/blog/broken-hearts-and-bicycle-parts-8/#When:13:06:56Z</guid>
+      <description>One of the awesome events we sponsor yearly is the Broken Hearts and Bicycle Parts series put on by the Sopo Bicycle Co&#45;op in Atlanta. Well, the 8th edition coming up shortly! Pre&#45;registration is open, check it out!</description>
+      <dc:date>2012-03-13T13:06:56-06:00</dc:date>
+    </item>
+
+    <item>
+      <title>We&#8217;re back!</title>
+      <link>http://wearcognition.com/index.php/blog/were-back/</link>
+      <guid>http://wearcognition.com/index.php/blog/were-back/#When:21:08:23Z</guid>
+      <description>Hi everyone! Unfortunately, the day after we left the country and went off the grid two weeks ago our web hosting account experienced a bit of a hiccup and the site was down. What timing! Sorry for any inconvenience that might have caused, but we&#8217;ve got it sorted out and we&#8217;re open for business once again.
+
+Thanks for your patience!</description>
+      <dc:date>2012-02-05T21:08:23-06:00</dc:date>
+    </item>
+
+    <item>
+      <title>Shipments on hold</title>
+      <link>http://wearcognition.com/index.php/blog/shipments-delayed/</link>
+      <guid>http://wearcognition.com/index.php/blog/shipments-delayed/#When:15:00:50Z</guid>
+      <description>Hi all! The entire Cognition staff (i.e., both of us) will be out of the country and off the grid for a couple of weeks, starting tonight. Please note that no orders will be shipped out until we return, and it&#8217;s unlikely we&#8217;ll be able to respond to emails.
+
+See you when we get back!</description>
+      <dc:date>2012-01-22T15:00:50-06:00</dc:date>
+    </item>
+
+    <item>
+      <title>Sadie Hawkins Style Ride</title>
+      <link>http://wearcognition.com/index.php/blog/sadie-hawkins-style-ride/</link>
+      <guid>http://wearcognition.com/index.php/blog/sadie-hawkins-style-ride/#When:14:56:28Z</guid>
+      <description>Coming up soon (November 5th) in Chicago is the 6th annual Sadie Hawkin&#8217;s Style Ride! Kelly and I (and quite a few other Madison folks, if I recall correctly) have done this event once or twice, and it&#8217;s been a blast. We&#8217;ve also been excited to sponsor it over the years, so check it out! http://sadiehawkinschicago.com/
+
+From the site:
+So what&#8217;s a &#8216;Sadie&#8217; you say?
+The Sadie&#8217;s is geared to be a fun ride for all cyclists. This is a great first ride if you don&#8217;t have experience but also challenging enough for the seasoned rider. Sadie&#8217;s is specifically geared to encourage women to come out and ride in a friendly and non&#45;intimidating event. And guess what? It&#8217;s a charity event! So no matter what, you&#8217;re helping out The Chicago Women&#8217;s Health Center&#8217;s efforts to keep women healthy, educated about their bodies and out riding their bikes!</description>
+      <dc:date>2011-10-06T14:56:28-06:00</dc:date>
+    </item>
+
+    <item>
+      <title>Cirque du SoGay</title>
+      <link>http://wearcognition.com/index.php/blog/cirque-du-sogay1/</link>
+      <guid>http://wearcognition.com/index.php/blog/cirque-du-sogay1/#When:00:27:08Z</guid>
+      <description>Coming up right around the corner in Minneapolis is third edition of the fabulous Cirque du SoGay. From their site:
+Cirque du SoGAY is Queer Bike Gang (QBG)&#8216;s annual bicycle tour of the hottest Queer establishments in the Twin Cities.&amp;nbsp; Cirque du SoGay was created to celebrate Queer culture while connecting people to LGBTQ resources in the community, and is followed by an awards ceremony, performances, and a big gay dance party.
+We supported the event with some caps last year and have again revived the special edition Rainbow Cap in honor of the event.
+
+Sounds like a totally awesome time, if you&#8217;re in or around the Minneapolis area, make sure to check it out! Pre&#45;registration is open September 30 at 5:00pm, or register in person.</description>
+      <dc:date>2011-09-29T00:27:08-06:00</dc:date>
+    </item>
+
+    <item>
+      <title>Dayton Pedal Party</title>
+      <link>http://wearcognition.com/index.php/blog/dayton-pedal-party/</link>
+      <guid>http://wearcognition.com/index.php/blog/dayton-pedal-party/#When:13:19:28Z</guid>
+      <description>Neal in Dayton is organizing a two&#45;day ride from Dayton to Cincinnati and back, on Sept. 24 and 25. Nothing like breathing the cool fall air and a couple of days in the saddle with some pals!
+
+Check out daytonpedalparty.tumblr.com/ for more info.</description>
+      <dc:date>2011-09-06T13:19:28-06:00</dc:date>
+    </item>
+
+    <item>
+      <title>The Bicycle Cap: A Love Story</title>
+      <link>http://wearcognition.com/index.php/blog/the-bicycle-cap-a-love-story/</link>
+      <guid>http://wearcognition.com/index.php/blog/the-bicycle-cap-a-love-story/#When:19:12:12Z</guid>
+      <description>Our interest in this story is twofold: first, it&#8217;s a great story of cap related, pedal powered bicycle love. Secondly, I believe that Charly, the guy who builds the bike&#45;powered sewing setup, is wearing a Cognition cap in some of the shots!
+The Bicycle Cap by peSeta for the New Museum from casa peSeta on Vimeo.
+
+Cameo!
+
+
+Big thanks to Chris for forwarding this to us.</description>
+      <dc:date>2011-06-28T19:12:12-06:00</dc:date>
+    </item>
+
+    
+    </channel>
+</rss>

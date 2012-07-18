@@ -5,7 +5,7 @@
         [clojure.contrib.string :only (replace-re)]
         [clojure.tools.logging :only (info)]
         [cognition-caps.config :only (config)])
-  (:require [cognition-caps [data :as data] [handlers :as handlers]]
+  (:require [cognition-caps [data :as data] [handlers :as handlers] [rss :as rss]]
             [clojure.string :as s]
             [compojure.route :as route]
             [compojure.handler :as handler])
@@ -36,10 +36,6 @@
                    (-> old-url-title
                        (s/replace #"-cap/?$" "")
                        (s/lower-case)))))
-  ; RSS redirects
-  (GET "/index.php/caps/caps.rss" [] (redirect "/feeds/store.rss"))
-  (GET "/index.php/blog/rss_2.0" [] (redirect "/feeds/blog.rss"))
-  ; todo: what about the blog? Have a "coming soon" for that. rss should point to the old RSS feed for now, later redirecting
   ; For remaining requests we will serve here, canonicalize on lowercase and no trailing slashes
   (GET [":url", :url #".+/|.+?\p{Upper}.*"] [url]
     (redirect (->> url (replace-re #"/+$" "") (s/lower-case)))))
@@ -52,9 +48,13 @@
              (= "merch" item-type) (handlers/merch (:stats request) url-title)))
   (GET "/sizing" {stats :stats} (handlers/sizing stats))
   (GET "/faq" {stats :stats} (handlers/faq stats))
-  (GET "/feeds/all.rss" {stats :stats} (handlers/rss-all stats))
-  (GET "/feeds/store.rss" {stats :stats} (handlers/rss-store stats))
-  (GET "/feeds/blog.rss" {stats :stats} (handlers/rss-blog stats))
+  (GET "/blog" {stats :stats} (handlers/blog stats))
+  (GET "/feeds/all-atom.xml" {stats :stats} (rss/rss-all stats))
+  (GET "/feeds/store-atom.xml" {stats :stats} (rss/rss-store stats))
+  (GET "/feeds/blog-atom.xml" {stats :stats} (rss/rss-blog stats))
+  ; Legacy RSS
+  (GET "/index.php/caps/caps.rss" [] (rss/rss-legacy-caps))
+  (GET "/index.php/blog/rss_2.0" [] (rss/rss-legacy-blog))
   (route/resources "/")
   (ANY "*" {uri :uri} (route/not-found (handlers/fourohfour uri))))
 
@@ -65,7 +65,7 @@
                                      :db-queries (atom 0)}}))))
 
 (def app (-> (var all-routes)
-             (wrap-reload '(cognition-caps.core cognition-caps.handlers))
+             (wrap-reload '(cognition-caps.core cognition-caps.handlers cognition-caps.rss))
              handler/site
              wrap-stats))
 

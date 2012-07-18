@@ -1,20 +1,18 @@
 = TODO
 
 == Currently working on
+    - Implementing RSS feeds.
     - Need to forward old URLs for blog items
+    - Implement blog
 
 == Need before release
+    - Add superfeedr hub link to RSS feeds
     - /caps and /merch category routes need to resolve to a filtered view
-    - /store.rss contains the old site's RSS and a new feed as well
-      Do I need a historic version of old items? How far back does RSS file history go?
-      Maybe just do 10.
-      Use feedburner!
-      Have blog.atom(?), store.atom, and all.atom
-
+      Use feedburner?
     - Valentine's string in Valentine cap contains funky character
       Jetty not returning UTF-8 response correctly?
     - Aggregate/compress CSS and JS
-
+    - Jetty logs 200 response for everything?
     - Implement Schema.org microdata: http://schema.org/docs/gs.html
     - Implement Open Graph protocol: http://ogp.me/
     - Meta title and description? https://developers.google.com/+/plugins/+1button/#plus-snippet

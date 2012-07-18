@@ -25,6 +25,9 @@
                                      (take 4 (get-merch-rows queryCount))
                                      ;'();(get-merch-rows queryCount)
                                      ))))
+  (get-items   [this queryCount sort-key order]
+    (throw (UnsupportedOperationException.
+             "Custom-sorted queries to ExpressionEngine are not supported")))
   (get-items-range [this queryCount begin limit]
     (throw (UnsupportedOperationException.
              "Paginated queries to ExpressionEngine are not supported")))

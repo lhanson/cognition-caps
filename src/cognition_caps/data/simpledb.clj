@@ -48,13 +48,16 @@
           (select-item queryCount :old-url-title url-title prices sizes)))))
 
   (get-items [this queryCount]
+    (.get-items this queryCount :display-order 'asc))
+
+  (get-items [this queryCount sort-key order]
     (swap! queryCount inc)
     (let [prices (.get-prices this queryCount)
           sizes (.get-sizes this queryCount)]
       (map #(unmarshal-item % prices sizes)
-           (sdb/query-all config '{select * from items
-                                   where (not-null :display-order)
-                                   order-by [:display-order asc]}))))
+           (sdb/query-all config `{select * from items
+                                   where (and (not-null :display-order) (not-null ~sort-key))
+                                   order-by [~sort-key ~order]}))))
 
   (get-items-range [this queryCount begin limit]
     (swap! queryCount inc)
