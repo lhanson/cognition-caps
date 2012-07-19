@@ -4,17 +4,14 @@
         ring.middleware.reload
         [clojure.contrib.string :only (replace-re)]
         [clojure.tools.logging :only (info)]
-        [cognition-caps.config :only (config)])
+        [cognition-caps.config :only (config)]
+        [cognition-caps.ring :only (redirect)])
   (:require [cognition-caps [data :as data] [handlers :as handlers] [rss :as rss]]
             [clojure.string :as s]
             [compojure.route :as route]
             [compojure.handler :as handler])
   (:import (org.mortbay.jetty NCSARequestLog)
            (org.mortbay.jetty.handler RequestLogHandler)))
-
-(defn- redirect
-  ([location] (redirect location 301))
-  ([location status] {:status status :headers {"Location" location}}))
 
 ;; Routes that redirect requests to the old site's URL scheme
 (defroutes redirect-routes
@@ -32,7 +29,7 @@
   ; Specific item pages
   (GET ["/index.php/:path1/:path2-description/:old-url-title", :path1 #"(?:caps|merch)" :path2 #"(?:caps|merchandise)" :old-url-title #".+?"]
     [old-url-title path1]
-    (redirect (str "/" path1 "/" ;(:cap-url-prefix config)
+    (redirect (str "/" path1 "/"
                    (-> old-url-title
                        (s/replace #"-cap/?$" "")
                        (s/lower-case)))))

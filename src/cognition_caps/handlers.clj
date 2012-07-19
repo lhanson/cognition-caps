@@ -1,16 +1,17 @@
 (ns cognition-caps.handlers
   (:use [cognition-caps.data.simpledb :only (simpledb)]
         [cognition-caps.config :only (config)]
+        [cognition-caps.ring :only (redirect)]
         [clojure.contrib.string :only (lower-case replace-re split-lines)]
         [clojure.tools.logging :only (debug)]
         [clj-time.core :only (after? minus months now)])
-  (:require [cognition-caps.data :as data]
+  (:require [cognition-caps [data :as data] [urls :as urls]]
             [clojure.contrib.math :as math]
             [clj-time.coerce :as time-coerce]
             [net.cgrand.enlive-html :as html]
             [clojure.pprint :as pp]))
 
-(declare item-type formatted-price wrap-paragraphs)
+(declare formatted-price wrap-paragraphs)
 
 (def *title-base* "Cognition Caps")
 (def *items-per-page* 8) ;TODO: live version start with 32
@@ -44,7 +45,7 @@
 (html/defsnippet item-model "mainContent.html" [:#items :.item]
   [item]
   [:*] (item-common item)
-  [[:a :.url]] (html/set-attr :href (str "/" (item-type (:tags item)) "/" (:url-title item)))
+  [[:a :.url]] (html/set-attr :href (urls/relative-url item))
   [:img] (html/set-attr :src (:front-0 (:image-urls item)))
   [:.item] (html/do->
              ;(html/set-attr :data-display-order (:display-order item))
@@ -118,12 +119,7 @@
   [:#itemInfoWrapper [:input (html/attr= :name "amount")]]
   (html/set-attr :value (:price (first (:prices item))))
   [:#itemInfoWrapper :.g-plusone]
-  (html/set-attr :data-href
-    (str "http://wearcognition.com/"
-      (if (:item-type-cap (:tags item))
-        "caps/"
-        "merch/")
-      (:url-title item))))
+  (html/set-attr :data-href (urls/absolute-url item)))
 
 (html/defsnippet fourohfoursnippet "404.html" [:#main :> :*]
   [url]
@@ -165,11 +161,7 @@
         (debug (str "Request for url-title '" url-title
                     "' being redirected to new location '" current-title "'"))
         ; TODO: prime the get-item cache with this result so the redirect is fast
-        {:status 301
-         :headers {"Location" (str (if (:item-type-cap (:tags item))
-                                     (:cap-url-prefix config)
-                                     (:merch-url-prefix config))
-                                   current-title)}})
+        (redirect (urls/relative-url item) 301))
       (do
         (pp/pprint item)
         (base {:main (show-item item)
@@ -210,13 +202,6 @@
 ;; =============================================================================
 ;; Utility functions
 ;; =============================================================================
-
-(defn- item-type [tags]
-  "Returns a string representing the item type present in tags"
-  (let [t (if (keyword? tags) (hash-set tags) tags)]
-    (cond
-      (contains? t :item-type-cap) "caps"
-      (contains? t :item-type-merch) "merch")))
 
 (defn- wrap-paragraphs [text]
   "Converts newline-delimited text into <p> blocks"
