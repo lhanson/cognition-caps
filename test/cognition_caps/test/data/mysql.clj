@@ -4,7 +4,8 @@
 ; A map containing the minimum elements required for the MySQL cap mapping
 (def minimal-itemmap {:nom "Cap Name"
                       :description "Awesome cap"
-                      :year 1 :month 1 :day 1})
+                      :year 1 :month 1 :day 1
+                      :user-id 30})
 
 (deftest cap-name-mapping
   ; Test that extraneous " Cap" suffixes are removed from cap names

@@ -14,7 +14,8 @@
   (get-sizes  [this queryCount]             "Provides a list of available sizes")
   (get-prices [this queryCount]             "Provides a list of price categories")
   (update-item [this queryCount id
-               attr-name attr-value]        "Updates the given attribute"))
+               attr-name attr-value]        "Updates the given attribute")
+  (get-users [this queryCount]              "Returns the users in the system"))
 
 ;; =============================================================================
 ;; Field notes:
@@ -28,10 +29,12 @@
      :or {url-title id date-added (now) display-order nil}}]
     (Item. id nom url-title description image-urls price-ids sizes tags user-id date-added display-order))
 
-(defrecord Size [id nom])
+(defrecord User [id username])
+(defn make-User [{:keys [id username]}]
+  "Creates a user from the given map"
+  (User. id username))
 
-(defrecord User [id nom nickname])
-(defn make-User [id nom nickname] (User. id nom nickname))
+(defrecord Size [id nom])
 
 (defrecord Price [id price qty description])
 
@@ -52,6 +55,9 @@
                      {:id 7  :price "35.00" :description "Faux Fur"}
                      {:id 8  :price "20.00" :description "FixedRiders.com"}
                      {:id 9  :price "1.00"  :description "Stickers & Buttons"}])
+
+(def default-users [{:id 1 :username "Lyle" :email "lyle@wearcognition.com"}
+                    {:id 2 :username "Kelly" :email "kelly@wearcognition.com"}])
 
 ;; =============================================================================
 ;; Utility functions

@@ -27,6 +27,7 @@
         text-shadow: white 0.1em 0.1em 0.2em;
         text-shadow: 2pxpx 2px 2px rgba(255, 255, 255, 1);
     - Admin interface
+    - We define records in data.clj but don't always use them, often just creating a map
     - Implement encrypted PayPal buttons to avoid users tampering with prices, etc.
       https://cms.paypal.com/us/cgi-bin/?cmd=_render-content&content_ID=developer/e_howto_html_encryptedwebpayments#id08A3I0P017Q
       Current version of the site uses non-encrypted buttons anyway

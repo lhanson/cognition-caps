@@ -40,7 +40,7 @@
                                 (keyword (str sdb/*flat-image-prefix* "thumb-1")) "thumb-1.jpg"
                                 (keyword (str sdb/*flat-image-prefix* "thumb-0")) "thumb-0.jpg"
                                 (keyword (str sdb/*flat-image-prefix* "thumb-3")) "thumb-3.jpg")
-        cap  (sdb/unmarshal-item unmarshalled nil nil)]
+        cap  (sdb/unmarshal-item unmarshalled nil nil nil)]
     (is (= (seq (:image-urls cap))
            (seq (array-map :thumb-0 "thumb-0.jpg" :thumb-1 "thumb-1.jpg"
                            :thumb-2 "thumb-2.jpg" :thumb-3 "thumb-3.jpg"))))))

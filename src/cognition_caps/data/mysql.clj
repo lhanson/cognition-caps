@@ -45,7 +45,11 @@
              "Not yet implemented since we're not using ExpressionEngine pricing")))
   (update-item [this queryCount id attr-name attr-value]
     (throw (UnsupportedOperationException.
-             "Writing to ExpressionEngine is not supported"))))
+             "Writing to ExpressionEngine is not supported")))
+  (get-users [this queryCount]
+    (throw (UnsupportedOperationException.
+             "Not implemented for ExpressionEngine"))))
+
 (defn make-MySQLAccess [] (MySQLAccess.))
 
 (defonce db
@@ -160,6 +164,7 @@
                                 (rest urls)))))
         item (make-Item (-> itemmap
                           (assoc :nom nom)
+                          (assoc :user-id (dec (:user-id itemmap))) ; Our hardcoded users line up this way
                           (assoc :url-title (url-title nom))
                           (assoc :description (cs/trim (:description itemmap)))
                           (assoc :date-added entry-date)
@@ -190,8 +195,8 @@
       (if (empty? proto-items)
         items
         (if (:hide item)
-              (recur display-order (conj items (dissoc item :display-order)) (rest proto-items))
-            (recur (inc display-order)
+          (recur display-order (conj items (dissoc item :display-order)) (rest proto-items))
+          (recur (inc display-order)
                  (conj items (assoc item :display-order display-order-padded))
                  (rest proto-items)))))))
 

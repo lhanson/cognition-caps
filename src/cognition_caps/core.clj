@@ -6,7 +6,7 @@
         [clojure.tools.logging :only (info)]
         [cognition-caps.config :only (config)]
         [cognition-caps.ring :only (redirect)])
-  (:require [cognition-caps [data :as data] [handlers :as handlers] [rss :as rss]]
+  (:require [cognition-caps [data :as data] [handlers :as handlers] [feed :as feed]]
             [clojure.string :as s]
             [compojure.route :as route]
             [compojure.handler :as handler])
@@ -46,12 +46,12 @@
   (GET "/sizing" {stats :stats} (handlers/sizing stats))
   (GET "/faq" {stats :stats} (handlers/faq stats))
   (GET "/blog" {stats :stats} (handlers/blog stats))
-  (GET "/feeds/all-atom.xml" {stats :stats} (rss/rss-all stats))
-  (GET "/feeds/store-atom.xml" {stats :stats} (rss/rss-store stats))
-  (GET "/feeds/blog-atom.xml" {stats :stats} (rss/rss-blog stats))
+  (GET "/feeds/all-atom.xml" {stats :stats} (feed/atom-all stats))
+  (GET "/feeds/store-atom.xml" {stats :stats} (feed/atom-store stats))
+  (GET "/feeds/blog-atom.xml" {stats :stats} (feed/atom-blog stats))
   ; Legacy RSS
-  (GET "/index.php/caps/caps.rss" [] (rss/rss-legacy-caps))
-  (GET "/index.php/blog/rss_2.0" [] (rss/rss-legacy-blog))
+  (GET "/index.php/caps/caps.feed" [] (feed/rss-legacy-caps))
+  (GET "/index.php/blog/feed_2.0" [] (feed/rss-legacy-blog))
   (route/resources "/")
   (ANY "*" {uri :uri} (route/not-found (handlers/fourohfour uri))))
 
@@ -62,7 +62,7 @@
                                      :db-queries (atom 0)}}))))
 
 (def app (-> (var all-routes)
-             (wrap-reload '(cognition-caps.core cognition-caps.handlers cognition-caps.rss))
+             (wrap-reload '(cognition-caps.core cognition-caps.handlers cognition-caps.feed))
              handler/site
              wrap-stats))
 

@@ -1,4 +1,4 @@
-(ns cognition-caps.rss
+(ns cognition-caps.feed
   (:use [clojure.tools.logging :only (debug)]
         [clojure.java.io :only (file)]
         [cognition-caps.data.simpledb :only (simpledb)]
@@ -8,44 +8,52 @@
             [clj-time.format :as tf])
   (:import (com.sun.syndication.io SyndFeedOutput)
            (com.sun.syndication.feed.synd SyndFeedImpl SyndLinkImpl)
-           (com.sun.syndication.feed.atom Feed Link Entry Content)))
+           (com.sun.syndication.feed.atom Feed Generator Link Entry Content Person)))
 (declare atom-id-gen get-date)
 
-(defn rss-all [stats]
+(defn atom-all [stats]
   "ALL"
   ; TODO: intersperse the last X entries from the store and from the blog
 )
 
-; First just return legacy RSS feed
-(defn rss-store [stats]
-  ; TODO: need contributor/author info. new table in simpledb, new migration step
+(defn atom-store [stats]
+  "Returns an Atom feed for store items"
   (let [items (take 10 (data/get-items simpledb (:db-queries stats) :date-added 'desc))
         entries (map (fn [item]
-                       (println "Doing item" (:url-title item))
                        (doto (new Entry)
                          (.setTitle (:nom item))
                          (.setId (atom-id-gen item))
                          (.setPublished (get-date (:date-added item)))
                          (.setUpdated   (get-date (:date-added item)))
+                         (.setAuthors [(doto (new Person)
+                                         (.setName (get-in item [:user :username]))
+                                         (.setEmail (get-in item [:user :email])))])
                          (.setAlternateLinks [(doto (new Link) (.setHref (str (:url-base config) "/" )))])
                          (.setContents [(doto (new Content) (.setType "html") (.setValue (:description item)))])
                          ))
-                     (take 2 items))
+                     items)
         feed (new SyndFeedImpl
                   (doto (new Feed)
                     (.setFeedType "atom_1.0")
+                    (.setGenerator (doto (Generator.)
+                                     (.setUrl "https://github.com/lhanson/cognition-caps")
+                                     (.setValue "Cognition Caps Backend")))
                     (.setTitle "Cognition Caps - Store")
+                    (.setSubtitle (doto (Content.)
+                                    (.setValue "Handmade cycling caps from Madison, WI")
+                                    (.setType "text")))
                     (.setId (str (:url-base config) "/"))
+                    (.setIcon (str (:url-base config) "/favicon.ico"))
+                    (.setLogo (str (:url-base config) "/images/top_animation.gif"))
                     (.setUpdated (get-date (:date-added (first items))))
                     (.setOtherLinks [(doto (new Link) (.setHref (str (:url-base config) "/feeds/store-atom.xml")) (.setRel "self"))])
                     (.setAlternateLinks [(doto (new Link) (.setHref (:url-base config)))])
                     (.setEntries entries)))]
-    (println "got " (count items) "items for RSS")
     (println "feed:" (.. (new SyndFeedOutput) (outputString feed))))
   ; Return latest 10 items.
 )
 
-(defn rss-blog [stats]
+(defn atom-blog [stats]
   "BLOG"
   ; TODO: Return new blog feed
 )

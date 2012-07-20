@@ -10,9 +10,9 @@
             [clj-logging-config.log4j :as l]))
 
 (declare annotate-ordered-values unannotate-ordered-values change-key
-         dereference-price dereference-sizes marshal-item
+         dereference-price dereference-sizes dereference-user marshal-item
          merge-large-descriptions unmarshal-item unmarshal-ids
-         split-large-descriptions ensure-tags-set)
+         unmarshal-user split-large-descriptions ensure-tags-set)
 
 (def *items-domain* "items")
 
@@ -53,8 +53,9 @@
   (get-items [this queryCount sort-key order]
     (swap! queryCount inc)
     (let [prices (.get-prices this queryCount)
-          sizes (.get-sizes this queryCount)]
-      (map #(unmarshal-item % prices sizes)
+          sizes (.get-sizes this queryCount)
+          users (.get-users this queryCount)]
+      (map #(unmarshal-item % prices sizes users)
            (sdb/query-all config `{select * from items
                                    where (and (not-null :display-order) (not-null ~sort-key))
                                    order-by [~sort-key ~order]}))))
@@ -63,6 +64,7 @@
     (swap! queryCount inc)
     (let [prices       (.get-prices this queryCount)
           sizes        (.get-sizes this queryCount)
+          users        (.get-users this queryCount)
           begin-padded (str (str/repeat (- (get config/config :display-order-len)
                                            (count begin))
                                         "0")
@@ -71,7 +73,7 @@
                          where (>= :display-order ~begin-padded)
                          limit ~limit
                          order-by [:display-order asc]}]
-      (map #(unmarshal-item % prices sizes) (sdb/query config query))))
+      (map #(unmarshal-item % prices sizes users) (sdb/query config query))))
 
   (get-visible-item-count [this queryCount]
     (swap! queryCount inc)
@@ -95,7 +97,14 @@
 
   (update-item [this queryCount id attr-name attr-value]
     (swap! queryCount inc)
-    (sdb/put-attrs config *items-domain* {::sdb/id id (keyword attr-name) attr-value})))
+    (sdb/put-attrs config *items-domain* {::sdb/id id (keyword attr-name) attr-value}))
+
+  (get-users [this queryCount]
+    (swap! queryCount inc)
+    (map #(unmarshal-user %)
+         (sdb/query-all config '{select * from users 
+                                 where (not-null ::sdb/id)
+                                 order-by [::sdb/id asc]}))))
 
 (def simpledb (SimpleDBAccess.))
 
@@ -105,7 +114,9 @@
   (sdb/create-domain config "sizes")
   (sdb/batch-put-attrs config "sizes" (map #(change-key % :id ::sdb/id) default-sizes))
   (sdb/create-domain config "prices")
-  (sdb/batch-put-attrs config "prices" (map #(change-key % :id ::sdb/id) default-prices)))
+  (sdb/batch-put-attrs config "prices" (map #(change-key % :id ::sdb/id) default-prices))
+  (sdb/create-domain config "users")
+  (sdb/batch-put-attrs config "users" (map #(change-key % :id ::sdb/id) default-users)))
 
 (defn- annotate-ordered-values [item]
   "If any of the values in the given map are sequences, prepends each of the
@@ -186,7 +197,7 @@
     (split-large-descriptions)
     (flatten-image-urls)))
 
-(defn unmarshal-item [item prices sizes]
+(defn unmarshal-item [item prices sizes users]
   "Reconstitutes the given item after reading from SimpleDB"
   (-> item
       (unmarshal-ids)
@@ -194,7 +205,12 @@
       (dereference-price prices)
       (ensure-tags-set)
       (dereference-sizes sizes)
+      (dereference-user users)
       (unflatten-image-urls)))
+
+(defn unmarshal-user [user]
+  (-> user
+    (unmarshal-ids)))
 
 (defn- unmarshal-ids [m]
   (change-key m ::sdb/id :id))
@@ -261,9 +277,9 @@
                            sizes)]
       ; Need to go from a Cons to a list to get the proper order, for some reason
       (assoc m :sizes (into '() size-map)))
-    ;(do 
-      ; TODO: items don't have sizes, they just have a list of prices
-      m
- ;   )
-  ))
+    m))
+
+(defn dereference-user [m users]
+  "Associates a user based on :user-id in m"
+  (dissoc (assoc m :user (first (filter #(= (:user-id m) (:id %)) users))) :user-id))
 
