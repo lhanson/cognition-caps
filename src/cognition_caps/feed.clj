@@ -9,7 +9,7 @@
   (:import (com.sun.syndication.io SyndFeedOutput)
            (com.sun.syndication.feed.synd SyndFeedImpl SyndLinkImpl)
            (com.sun.syndication.feed.atom Feed Generator Link Entry Content Person)))
-(declare atom-id-gen get-date)
+(declare atom-id-gen get-date wrap-content-type)
 
 (defn atom-all [stats]
   "ALL"
@@ -29,8 +29,7 @@
                                          (.setName (get-in item [:user :username]))
                                          (.setEmail (get-in item [:user :email])))])
                          (.setAlternateLinks [(doto (new Link) (.setHref (str (:url-base config) "/" )))])
-                         (.setContents [(doto (new Content) (.setType "html") (.setValue (:description item)))])
-                         ))
+                         (.setContents [(doto (new Content) (.setType "html") (.setValue (:description item)))])))
                      items)
         feed (new SyndFeedImpl
                   (doto (new Feed)
@@ -49,9 +48,7 @@
                     (.setOtherLinks [(doto (new Link) (.setHref (str (:url-base config) "/feeds/store-atom.xml")) (.setRel "self"))])
                     (.setAlternateLinks [(doto (new Link) (.setHref (:url-base config)))])
                     (.setEntries entries)))]
-    (println "feed:" (.. (new SyndFeedOutput) (outputString feed))))
-  ; Return latest 10 items.
-)
+    (.. (new SyndFeedOutput) (outputString feed))))
 
 (defn atom-blog [stats]
   "BLOG"
@@ -80,4 +77,10 @@
 (defn- get-date [unix-timestamp]
   "Returns a java.util.Date instance for the given unix timestamp"
   (tc/to-date (tc/from-long (* unix-timestamp 1000))))
+
+(defn wrap-content-type [accept atom-feed]
+  "Returns a Ring response with the provided feed and an appropriate
+  Content-Type set based on the accept headers"
+  { :headers {"Content-Type" "application/atom+xml"}
+    :body atom-feed })
 

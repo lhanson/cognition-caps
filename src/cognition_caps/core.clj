@@ -46,9 +46,12 @@
   (GET "/sizing" {stats :stats} (handlers/sizing stats))
   (GET "/faq" {stats :stats} (handlers/faq stats))
   (GET "/blog" {stats :stats} (handlers/blog stats))
-  (GET "/feeds/all-atom.xml" {stats :stats} (feed/atom-all stats))
-  (GET "/feeds/store-atom.xml" {stats :stats} (feed/atom-store stats))
-  (GET "/feeds/blog-atom.xml" {stats :stats} (feed/atom-blog stats))
+  (GET "/feeds/all-atom.xml" {stats :stats {accept "accept"} :headers}
+       (feed/wrap-content-type accept (feed/atom-all stats)))
+  (GET "/feeds/store-atom.xml" {stats :stats {accept "accept"} :headers}
+       (feed/wrap-content-type accept (feed/atom-store stats)))
+  (GET "/feeds/blog-atom.xml" {stats :stats {accept "accept"} :headers}
+       (feed/wrap-content-type accept (feed/atom-blog stats)))
   ; Legacy RSS
   (GET "/index.php/caps/caps.feed" [] (feed/rss-legacy-caps))
   (GET "/index.php/blog/feed_2.0" [] (feed/rss-legacy-blog))
