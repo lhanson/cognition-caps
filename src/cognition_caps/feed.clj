@@ -11,6 +11,8 @@
            (com.sun.syndication.feed.atom Feed Generator Link Entry Content Person)))
 (declare atom-id-gen get-date wrap-content-type)
 
+(def *feed-entry-count* 10)
+
 (defn atom-all [stats]
   "ALL"
   ; TODO: intersperse the last X entries from the store and from the blog
@@ -18,7 +20,7 @@
 
 (defn atom-store [stats]
   "Returns an Atom feed for store items"
-  (let [items (take 10 (data/get-items simpledb (:db-queries stats) :date-added 'desc))
+  (let [items (take *feed-entry-count* (data/get-items simpledb (:db-queries stats) :date-added 'desc))
         entries (map (fn [item]
                        (doto (new Entry)
                          (.setTitle (:nom item))
@@ -51,8 +53,9 @@
     (.. (new SyndFeedOutput) (outputString feed))))
 
 (defn atom-blog [stats]
-  "BLOG"
-  ; TODO: Return new blog feed
+  (let [entries (take *feed-entry-count* (data/get-blog simpledb (:db-queries stats)))]
+    (println "Got" (count entries) "blog entries")
+    )
 )
 
 (defn rss-legacy-caps []

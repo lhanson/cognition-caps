@@ -109,3 +109,12 @@
                                (assoc (keyword (str "thumb-" idx)) thumb-url))
                            (inc idx))))))))))))
 
+(defn migrate-blog-image! [blog-entry]
+  (let [image-file (doto (java.io.File/createTempFile "blog" ".jpg") (.deleteOnExit))
+        old-url (str *old-prefix* (:image-url blog-entry))
+        suffix (subs old-url (.lastIndexOf old-url "."))]
+    (println "Migrating blog image" old-url)
+    (download! old-url image-file)
+    (let [new-url (s3/upload-image image-file (:id blog-entry) (str (org.apache.commons.codec.digest.DigestUtils/md5Hex (java.io.FileInputStream. image-file)) suffix))]
+      (assoc blog-entry :image-url new-url))))
+

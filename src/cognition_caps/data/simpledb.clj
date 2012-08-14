@@ -11,10 +11,11 @@
 
 (declare annotate-ordered-values unannotate-ordered-values change-key
          dereference-price dereference-sizes dereference-user marshal-item
-         merge-large-descriptions unmarshal-item unmarshal-ids
-         unmarshal-user split-large-descriptions ensure-tags-set)
+         merge-large-descriptions unmarshal-item marshal-blog unmarshal-blog
+         unmarshal-ids unmarshal-user split-large-descriptions ensure-tags-set)
 
 (def *items-domain* "items")
+(def *blog-domain* "blog")
 
 (defonce config
   (let [base {:out :console :level :info}]
@@ -99,6 +100,22 @@
     (swap! queryCount inc)
     (sdb/put-attrs config *items-domain* {::sdb/id id (keyword attr-name) attr-value}))
 
+  (get-blog [this queryCount]
+    (swap! queryCount inc)
+    (let [users (.get-users this queryCount)]
+      (map #(unmarshal-blog % users)
+           (sdb/query-all config '{select * from blog
+                                   where (not-null :date-added)
+                                   order-by [:date-added desc]}))))
+
+  (put-blog [this queryCount items]
+    (println "Persisting" (count items) "blog entries to SimpleDB")
+    (swap! queryCount inc)
+    (try
+      (println "Persisting" (map marshal-blog items))
+      (sdb/batch-put-attrs config *blog-domain* (map marshal-blog items))
+      (catch Exception e (println (st/print-stack-trace e)))))
+
   (get-users [this queryCount]
     (swap! queryCount inc)
     (map #(unmarshal-user %)
@@ -110,7 +127,8 @@
 
 (defn populate-defaults! []
   "Sets up SimpleDB with our basic set of predefined values"
-  (sdb/create-domain config "items")
+  (sdb/create-domain config *items-domain*)
+  (sdb/create-domain config *blog-domain*)
   (sdb/create-domain config "sizes")
   (sdb/batch-put-attrs config "sizes" (map #(change-key % :id ::sdb/id) default-sizes))
   (sdb/create-domain config "prices")
@@ -208,6 +226,18 @@
       (dereference-user users)
       (unflatten-image-urls)))
 
+(defn marshal-blog [entry]
+  (-> entry
+    (change-key :id ::sdb/id)
+    ; TODO: need to split up the body. Refactor split-long-description
+    ))
+
+(defn unmarshal-blog [item users]
+  "Reconstitutes the given item after reading from SimpleDB"
+  (-> item
+      (unmarshal-ids)
+      (dereference-user users)))
+
 (defn unmarshal-user [user]
   (-> user
     (unmarshal-ids)))
@@ -226,7 +256,7 @@
                         (long-split re maxlen (.substring s (.end matcher)))))
         (throw (IllegalStateException. "Can't split the string into substrings, no regex match found"))))))
 
-(defn split-large-descriptions [m]
+(defn split-large-descriptions [m field]
   "If the given map has a :description value larger than 1024 bytes, it is
   split into multiple integer-suffixed attributes"
   (if (> (count (:description m)) 1024)

@@ -15,6 +15,8 @@
   (get-prices [this queryCount]             "Provides a list of price categories")
   (update-item [this queryCount id
                attr-name attr-value]        "Updates the given attribute")
+  (get-blog  [this queryCount]              "Returns all blog entries starting with the latest")
+  (put-blog  [this queryCount items]        "Persists blog items")
   (get-users [this queryCount]              "Returns the users in the system"))
 
 ;; =============================================================================
@@ -28,6 +30,10 @@
   [{:keys [id nom url-title description image-urls price-ids sizes tags user-id date-added display-order]
      :or {url-title id date-added (now) display-order nil}}]
     (Item. id nom url-title description image-urls price-ids sizes tags user-id date-added display-order))
+
+(defrecord BlogEntry [id title url-title image-url body])
+(defn make-BlogEntry [{:keys [id title url-title image-url body]}]
+  (BlogEntry. id title url-title image-url body))
 
 (defrecord User [id username])
 (defn make-User [{:keys [id username]}]

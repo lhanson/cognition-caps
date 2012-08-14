@@ -8,7 +8,9 @@
             [clojure.string :as s]
             [clojure.contrib [string :as cs] [sql :as sql]]))
 
-(declare get-cap-rows get-merch-rows get-item-count get-price-map mapitem map-display-orders)
+(declare get-cap-rows get-merch-rows get-blog-rows get-item-count get-price-map
+         mapitem map-blog-entry map-display-orders)
+(def *blog-weblog-id* 2)
 (def *caps-weblog-id* 3)
 (def *merch-weblog-id* 4)
 (def *image-url-prefix* "http://wearcognition.com/images/uploads/")
@@ -23,7 +25,6 @@
                         (map #(mapitem queryCount %)
                              (concat (take 4 (get-cap-rows queryCount))
                                      (take 4 (get-merch-rows queryCount))
-                                     ;'();(get-merch-rows queryCount)
                                      ))))
   (get-items   [this queryCount sort-key order]
     (throw (UnsupportedOperationException.
@@ -44,6 +45,11 @@
     (throw (UnsupportedOperationException.
              "Not yet implemented since we're not using ExpressionEngine pricing")))
   (update-item [this queryCount id attr-name attr-value]
+    (throw (UnsupportedOperationException.
+             "Writing to ExpressionEngine is not supported")))
+  (get-blog [this queryCount]
+    (map #(map-blog-entry queryCount %) (get-blog-rows queryCount)))
+  (put-blog [this queryCount items]
     (throw (UnsupportedOperationException.
              "Writing to ExpressionEngine is not supported")))
   (get-users [this queryCount]
@@ -96,8 +102,6 @@
                        (vec rs))))))))
 
 (defn- get-merch-rows [queryCount]
-  ; exp_weblog_data.field_id_26 rel_id, each have four ids which probably reference the relationship field?
-  ; TODO extract out the query from these functions and just pass them in
   (let [query (str "SELECT t.entry_id AS \"id\", t.title AS \"nom\",
                            t.url_title AS \"url-title\", d.field_id_25 AS \"description\",
                            t.entry_date AS \"entry-date\",
@@ -114,6 +118,17 @@
           ; Don't bother mapping prices since we'll just assign to the defaults in the new database
           (doall (map #(assoc % :price-ids (doall (range 9 13)))
                       (vec rs))))))))
+
+(defn- get-blog-rows [queryCount]
+  (let [query (str "SELECT t.entry_id AS \"id\", t.title AS \"title\", t.url_title AS \"url-title\",
+                           t.entry_date AS \"entry-date\", t.author_id AS \"user-id\", t.status,
+                           d.field_id_10 AS \"body\", d.field_id_11 AS \"image-url\"
+                    FROM exp_weblog_titles t
+                    JOIN exp_weblog_data d ON t.entry_id = d.entry_id
+                    WHERE t.weblog_id = '" *blog-weblog-id* "'
+                    ORDER BY `entry-date` DESC")]
+    (sql/with-connection db
+      (sql/with-query-results rs [query] (vec rs)))))
 
 (defn- select-single-result [query]
   "For a SELECT statement yielding a single value, returns that result"
@@ -181,6 +196,10 @@
         ; Store the old URL title so we can redirect requests to the new one
         (assoc item :old-url-title (:url-title itemmap)))
       item)))
+
+(defn map-blog-entry [queryCount blogmap]
+  (make-BlogEntry (-> blogmap
+                    (assoc :image-url (:image-url blogmap)))))
 
 (defn map-display-orders [queryCount proto-items]
   "Set 0-based, consecutive display-order values for visible items and none for hidden ones"
