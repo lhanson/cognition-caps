@@ -11,8 +11,8 @@
 
 (declare annotate-ordered-values unannotate-ordered-values change-key
          dereference-price dereference-sizes dereference-user marshal-item
-         merge-large-descriptions unmarshal-item marshal-blog unmarshal-blog
-         unmarshal-ids unmarshal-user split-large-descriptions ensure-tags-set)
+         merge-large-field unmarshal-item marshal-blog unmarshal-blog
+         unmarshal-ids unmarshal-user split-large-field ensure-tags-set)
 
 (def *items-domain* "items")
 (def *blog-domain* "blog")
@@ -212,14 +212,14 @@
   (-> item
     (change-key :id ::sdb/id)
     (remove-empty-values)
-    (split-large-descriptions)
+    (split-large-field :description)
     (flatten-image-urls)))
 
 (defn unmarshal-item [item prices sizes users]
   "Reconstitutes the given item after reading from SimpleDB"
   (-> item
       (unmarshal-ids)
-      (merge-large-descriptions)
+      (merge-large-field :description)
       (dereference-price prices)
       (ensure-tags-set)
       (dereference-sizes sizes)
@@ -229,13 +229,13 @@
 (defn marshal-blog [entry]
   (-> entry
     (change-key :id ::sdb/id)
-    ; TODO: need to split up the body. Refactor split-long-description
-    ))
+    (split-large-field :body)))
 
 (defn unmarshal-blog [item users]
   "Reconstitutes the given item after reading from SimpleDB"
   (-> item
       (unmarshal-ids)
+      (merge-large-field :body)
       (dereference-user users)))
 
 (defn unmarshal-user [user]
@@ -256,29 +256,29 @@
                         (long-split re maxlen (.substring s (.end matcher)))))
         (throw (IllegalStateException. "Can't split the string into substrings, no regex match found"))))))
 
-(defn split-large-descriptions [m field]
-  "If the given map has a :description value larger than 1024 bytes, it is
+(defn split-large-field [m field]
+  "If the given map has a :value for 'field' larger than 1024 bytes, it is
   split into multiple integer-suffixed attributes"
-  (if (> (count (:description m)) 1024)
+  (if (> (count (field m)) 1024)
     (dissoc
-      (reduce (fn [m- descr]
-                (assoc (assoc m- (keyword (str "description_" (:_index m-))) descr)
+      (reduce (fn [m- value]
+                (assoc (assoc m- (keyword (str field "_" (:_index m-))) value)
                        :_index (inc (:_index m-))))
               (assoc m :_index 1)
               ; split up the description on whitespace in chunks of up to 1024
-              (long-split #"(?:\S++\s++)+" 1024 (:description m)))
-      :description :_index)
+              (long-split #"(?:\S++\s++)+" 1024 (field m)))
+      field :_index)
     m))
 
-(defn merge-large-descriptions [m]
-  "If the given map has multiple integer-suffixed :description attributes, they
-   are merged into one :description"
-  (let [descr-keys (filter #(re-matches #"description_\d+" (name %)) (keys m))
-        sorted-keys (sort-by #(Integer. (.substring (name %) (inc (.indexOf (name %) "_")))) descr-keys)]
+(defn merge-large-field [m field]
+  "If the given map has multiple integer-suffixed :'field' attributes, they
+   are merged into one :'field'"
+  (let [field-keys (filter #(re-matches (re-pattern (str field "_\\d+")) (name %)) (keys m))
+        sorted-keys (sort-by #(Integer. (.substring (name %) (inc (.indexOf (name %) "_")))) field-keys)]
     (if (empty? sorted-keys)
       m
       (reduce (fn [m- k] (dissoc m- k))
-            (assoc m :description (reduce #(str %1 ((keyword %2) m)) "" sorted-keys))
+            (assoc m field (reduce #(str %1 ((keyword %2) m)) "" sorted-keys))
             sorted-keys))))
 
 (defn- change-key [m old-key new-key]
