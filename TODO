@@ -3,7 +3,7 @@
 == Currently working on
     - Implementing RSS feeds.
     - Need to forward old URLs for blog items
-    - Implement blog
+    - Implement blog front-end
 
 == Need before release
     - Add superfeedr hub link to RSS feeds

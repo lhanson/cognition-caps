@@ -1,7 +1,8 @@
 ;;; DataAccess implementation against Amazon SimpleDB
 (ns cognition-caps.data.simpledb
   (:use [cognition-caps.data]
-        [clojure.tools.logging])
+        [clojure.tools.logging]
+        [clojure.pprint])
   (:require [cognition-caps.config :as config]
             [clojure.contrib.string :as str]
             [clojure.stacktrace :as st]
@@ -109,10 +110,9 @@
                                    order-by [:date-added desc]}))))
 
   (put-blog [this queryCount items]
-    (println "Persisting" (count items) "blog entries to SimpleDB")
     (swap! queryCount inc)
     (try
-      (println "Persisting" (map marshal-blog items))
+      (debug "Persisting" (pprint (map marshal-blog items)))
       (sdb/batch-put-attrs config *blog-domain* (map marshal-blog items))
       (catch Exception e (println (st/print-stack-trace e)))))
 
@@ -260,14 +260,16 @@
   "If the given map has a :value for 'field' larger than 1024 bytes, it is
   split into multiple integer-suffixed attributes"
   (if (> (count (field m)) 1024)
-    (dissoc
-      (reduce (fn [m- value]
-                (assoc (assoc m- (keyword (str field "_" (:_index m-))) value)
-                       :_index (inc (:_index m-))))
-              (assoc m :_index 1)
-              ; split up the description on whitespace in chunks of up to 1024
-              (long-split #"(?:\S++\s++)+" 1024 (field m)))
-      field :_index)
+    (do
+      (debug "Splitting" field "on" m)
+      (dissoc
+        (reduce (fn [m- value]
+                  (assoc (assoc m- (keyword (str field "_" (:_index m-))) value)
+                         :_index (inc (:_index m-))))
+                (assoc m :_index 1)
+                ; split up the description on whitespace in chunks of up to 1024
+                (long-split #"(?:\S++\s++)+" 1024 (field m)))
+        field :_index))
     m))
 
 (defn merge-large-field [m field]

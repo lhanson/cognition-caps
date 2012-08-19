@@ -31,9 +31,9 @@
      :or {url-title id date-added (now) display-order nil}}]
     (Item. id nom url-title description image-urls price-ids sizes tags user-id date-added display-order))
 
-(defrecord BlogEntry [id title url-title image-url body])
-(defn make-BlogEntry [{:keys [id title url-title image-url body]}]
-  (BlogEntry. id title url-title image-url body))
+(defrecord BlogEntry [id title url-title image-url body user-id date-added])
+(defn make-BlogEntry [{:keys [id title url-title image-url body user-id date-added]}]
+  (BlogEntry. id title url-title image-url body user-id date-added))
 
 (defrecord User [id username])
 (defn make-User [{:keys [id username]}]

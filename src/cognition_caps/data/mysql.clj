@@ -199,7 +199,8 @@
 
 (defn map-blog-entry [queryCount blogmap]
   (make-BlogEntry (-> blogmap
-                    (assoc :image-url (:image-url blogmap)))))
+                    (assoc :user-id (dec (:user-id blogmap))) ; Our hardcoded users line up this way
+                    (assoc :date-added (:entry-date blogmap)))))
 
 (defn map-display-orders [queryCount proto-items]
   "Set 0-based, consecutive display-order values for visible items and none for hidden ones"
