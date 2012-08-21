@@ -18,45 +18,54 @@
   ; TODO: intersperse the last X entries from the store and from the blog
 )
 
+(defn- create-entries [maps title-key contents-key]
+  "Returns a collection of com.sun.syndication.feed.atom.Entry from the given maps"
+  (map (fn [entry]
+         (let [date-added (get-date (:date-added entry))]
+           (doto (new Entry)
+             (.setTitle (title-key entry))
+             (.setId (atom-id-gen entry))
+             (.setPublished date-added)
+             (.setUpdated   date-added)
+             (.setAuthors [(doto (new Person)
+                             (.setName (get-in entry [:user :username]))
+                             (.setEmail (get-in entry [:user :email])))])
+             (.setAlternateLinks [(doto (new Link) (.setHref (str (:url-base config) "/" )))])
+             (.setContents [(doto (new Content) (.setType "html") (.setValue (contents-key entry)))]))))
+       maps))
+
+(defn- create-feed [entries title-suffix feed-filename]
+  "Returns a com.sun.syndication.feed.synd.SyndFeedImpl from the given entries"
+  (new SyndFeedImpl
+       (doto (new Feed)
+         (.setFeedType "atom_1.0")
+         (.setGenerator (doto (Generator.)
+                          (.setUrl "https://github.com/lhanson/cognition-caps")
+                          (.setValue "Cognition Caps Backend")))
+         (.setTitle (str "Cognition Caps - " title-suffix))
+         (.setSubtitle (doto (Content.)
+                         (.setValue "Handmade cycling caps from Madison, WI")
+                         (.setType "text")))
+         (.setId (str (:url-base config) "/"))
+         (.setIcon (str (:url-base config) "/favicon.ico"))
+         (.setLogo (str (:url-base config) "/images/top_animation.gif"))
+         (.setUpdated (.getPublished (first entries)))
+         (.setOtherLinks [(doto (new Link) (.setHref (str (:url-base config) (str "/feeds/" feed-filename))) (.setRel "self"))])
+         (.setAlternateLinks [(doto (new Link) (.setHref (:url-base config)))])
+         (.setEntries entries))))
+
 (defn atom-store [stats]
   "Returns an Atom feed for store items"
   (let [items (take *feed-entry-count* (data/get-items simpledb (:db-queries stats) :date-added 'desc))
-        entries (map (fn [item]
-                       (doto (new Entry)
-                         (.setTitle (:nom item))
-                         (.setId (atom-id-gen item))
-                         (.setPublished (get-date (:date-added item)))
-                         (.setUpdated   (get-date (:date-added item)))
-                         (.setAuthors [(doto (new Person)
-                                         (.setName (get-in item [:user :username]))
-                                         (.setEmail (get-in item [:user :email])))])
-                         (.setAlternateLinks [(doto (new Link) (.setHref (str (:url-base config) "/" )))])
-                         (.setContents [(doto (new Content) (.setType "html") (.setValue (:description item)))])))
-                     items)
-        feed (new SyndFeedImpl
-                  (doto (new Feed)
-                    (.setFeedType "atom_1.0")
-                    (.setGenerator (doto (Generator.)
-                                     (.setUrl "https://github.com/lhanson/cognition-caps")
-                                     (.setValue "Cognition Caps Backend")))
-                    (.setTitle "Cognition Caps - Store")
-                    (.setSubtitle (doto (Content.)
-                                    (.setValue "Handmade cycling caps from Madison, WI")
-                                    (.setType "text")))
-                    (.setId (str (:url-base config) "/"))
-                    (.setIcon (str (:url-base config) "/favicon.ico"))
-                    (.setLogo (str (:url-base config) "/images/top_animation.gif"))
-                    (.setUpdated (get-date (:date-added (first items))))
-                    (.setOtherLinks [(doto (new Link) (.setHref (str (:url-base config) "/feeds/store-atom.xml")) (.setRel "self"))])
-                    (.setAlternateLinks [(doto (new Link) (.setHref (:url-base config)))])
-                    (.setEntries entries)))]
+        entries (create-entries items :nom :description)
+        feed (create-feed entries "Store" "store-atom.xml")]
     (.. (new SyndFeedOutput) (outputString feed))))
 
 (defn atom-blog [stats]
-  (let [entries (take *feed-entry-count* (data/get-blog simpledb (:db-queries stats)))]
-    (println "Got" (count entries) "blog entries")
-    )
-)
+  (let [entries (take *feed-entry-count* (data/get-blog simpledb (:db-queries stats)))
+        feed-entries (create-entries entries :title :body)
+        feed (create-feed feed-entries "Blog" "blog-atom.xml")]
+    (.. (new SyndFeedOutput) (outputString feed))))
 
 (defn rss-legacy-caps []
   "Produces the old RSS feed snapshot for caps"
