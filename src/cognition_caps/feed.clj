@@ -13,11 +13,6 @@
 
 (def *feed-entry-count* 10)
 
-(defn atom-all [stats]
-  "ALL"
-  ; TODO: intersperse the last X entries from the store and from the blog
-)
-
 (defn- create-entries [maps title-key contents-key]
   "Returns a collection of com.sun.syndication.feed.atom.Entry from the given maps"
   (map (fn [entry]
@@ -65,6 +60,16 @@
   (let [entries (take *feed-entry-count* (data/get-blog simpledb (:db-queries stats)))
         feed-entries (create-entries entries :title :body)
         feed (create-feed feed-entries "Blog" "blog-atom.xml")]
+    (.. (new SyndFeedOutput) (outputString feed))))
+
+(defn atom-all [stats]
+  (let [items (take *feed-entry-count* (data/get-items simpledb (:db-queries stats) :date-added 'desc))
+        blog-entries (take *feed-entry-count* (data/get-blog simpledb (:db-queries stats)))
+        ; It might be more efficient to loop *feed-entry-count* times and pull the most recent element
+        ; of the two collections, but this is simple
+        recent (take *feed-entry-count* (sort-by :date-added (concat items blog-entries)))
+        feed-entries (create-entries recent)
+        feed (create-feed feed-entries "All Updates" "all-atom.xml")]
     (.. (new SyndFeedOutput) (outputString feed))))
 
 (defn rss-legacy-caps []
