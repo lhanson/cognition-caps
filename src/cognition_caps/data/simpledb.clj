@@ -233,6 +233,8 @@
 
 (defn unmarshal-blog [item users]
   "Reconstitutes the given item after reading from SimpleDB"
+  (println "Unmarahslling blog...")
+  (pprint item)
   (-> item
       (unmarshal-ids)
       (merge-large-field :body)

@@ -13,12 +13,16 @@
 
 (def *feed-entry-count* 10)
 
-(defn- create-entries [maps title-key contents-key]
+(defn- create-entries [maps]
   "Returns a collection of com.sun.syndication.feed.atom.Entry from the given maps"
   (map (fn [entry]
-         (let [date-added (get-date (:date-added entry))]
+         (let [date-added (get-date (:date-added entry))
+               ; Items have :nom, BlogEntries have :title
+               title (or (:nom entry) (:title entry))
+               ; Items have :description, BlogEntries have :body
+               content (or (:description entry) (:body entry)) ]
            (doto (new Entry)
-             (.setTitle (title-key entry))
+             (.setTitle title)
              (.setId (atom-id-gen entry))
              (.setPublished date-added)
              (.setUpdated   date-added)
@@ -26,7 +30,7 @@
                              (.setName (get-in entry [:user :username]))
                              (.setEmail (get-in entry [:user :email])))])
              (.setAlternateLinks [(doto (new Link) (.setHref (str (:url-base config) "/" )))])
-             (.setContents [(doto (new Content) (.setType "html") (.setValue (contents-key entry)))]))))
+             (.setContents [(doto (new Content) (.setType "html") (.setValue content))]))))
        maps))
 
 (defn- create-feed [entries title-suffix feed-filename]
@@ -52,13 +56,13 @@
 (defn atom-store [stats]
   "Returns an Atom feed for store items"
   (let [items (take *feed-entry-count* (data/get-items simpledb (:db-queries stats) :date-added 'desc))
-        entries (create-entries items :nom :description)
+        entries (create-entries items)
         feed (create-feed entries "Store" "store-atom.xml")]
     (.. (new SyndFeedOutput) (outputString feed))))
 
 (defn atom-blog [stats]
   (let [entries (take *feed-entry-count* (data/get-blog simpledb (:db-queries stats)))
-        feed-entries (create-entries entries :title :body)
+        feed-entries (create-entries entries)
         feed (create-feed feed-entries "Blog" "blog-atom.xml")]
     (.. (new SyndFeedOutput) (outputString feed))))
 
@@ -67,7 +71,7 @@
         blog-entries (take *feed-entry-count* (data/get-blog simpledb (:db-queries stats)))
         ; It might be more efficient to loop *feed-entry-count* times and pull the most recent element
         ; of the two collections, but this is simple
-        recent (take *feed-entry-count* (sort-by :date-added (concat items blog-entries)))
+        recent (take *feed-entry-count* (sort-by :date-added > (concat items blog-entries)))
         feed-entries (create-entries recent)
         feed (create-feed feed-entries "All Updates" "all-atom.xml")]
     (.. (new SyndFeedOutput) (outputString feed))))

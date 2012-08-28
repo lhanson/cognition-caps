@@ -1,11 +1,13 @@
 = TODO
 
 == Currently working on
-    - Implementing RSS feeds.
+    - Blog import is only including the first line of blog entry contents
+      - SDB data layer returning single string, see what raw amazon query pulls back
+      - After this is finished, make sure legacy blog feed is updated with newest entry (LepreCog?)
     - Need to forward old URLs for blog items
-    - Implement blog front-end
 
 == Need before release
+    - Set up the legacy RSS feed to include recent entries and point to new blog
     - Add superfeedr hub link to RSS feeds
     - /caps and /merch category routes need to resolve to a filtered view
       Use feedburner?
@@ -22,6 +24,7 @@
 == Enhancements after release
     - AJAX pagination
     - Footer doesn't stick to bottom on 404 page.
+    - Implement blog page
     - +1 on cap pages isn't working...
     - Try these for nav links, etc:
         text-shadow: white 0.1em 0.1em 0.2em;
