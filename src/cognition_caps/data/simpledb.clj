@@ -30,24 +30,25 @@
            :client (sdb/create-client (get config/config "amazon-access-id")
                                       (get config/config "amazon-access-key")))))
 
-(defn- select-item [queryCount field-name field-value prices sizes]
+(defn- select-item [queryCount field-name field-value prices sizes users]
   (swap! queryCount inc)
   (if-let [result (sdb/query config
                              `{select * from items
                                where (= ~field-name ~field-value)})]
-    (unmarshal-item (first result) prices sizes)))
+    (unmarshal-item (first result) prices sizes users)))
 
 (defrecord SimpleDBAccess []
   DataAccess
   (get-item [this queryCount url-title]
     (let [prices (.get-prices this queryCount)
           sizes (.get-sizes this queryCount)
-          item (select-item queryCount :url-title url-title prices sizes)]
+          users (.get-users this queryCount)
+          item (select-item queryCount :url-title url-title prices sizes users)]
       (if item
         item
         (do
           (debug (str "No item found for url-title '" url-title "', querying for a name change"))
-          (select-item queryCount :old-url-title url-title prices sizes)))))
+          (select-item queryCount :old-url-title url-title prices sizes users)))))
 
   (get-items [this queryCount]
     (.get-items this queryCount :display-order 'asc))
