@@ -214,9 +214,6 @@ nav a:hover { border-bottom: none;}
     border-bottom: 1px dotted #999;
 }
 #itemInfoWrapper .fb-like, #itemInfoWrapper .plusone { vertical-align: top; }
-#itemInfoWrapper .fb-like {
-    width: 110px;
-}
 #itemInfoWrapper .plusone {
     display: inline-block;
 }
