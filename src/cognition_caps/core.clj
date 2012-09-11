@@ -31,7 +31,7 @@
     [old-url-title path1]
     (redirect (str "/" path1 "/"
                    (-> old-url-title
-                       (s/replace #"-cap/?$" "")
+                       (s/replace #"-cap/?|/$" "")
                        (s/lower-case)))))
   ; For remaining requests we will serve here, canonicalize on lowercase and no trailing slashes
   (GET [":url", :url #".+/|.+?\p{Upper}.*"] [url]
