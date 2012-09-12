@@ -2,7 +2,7 @@
   (:use [cognition-caps.data.simpledb :only (simpledb)]
         [cognition-caps.config :only (config)]
         [cognition-caps.ring :only (redirect)]
-        [clojure.contrib.string :only (lower-case replace-re split-lines)]
+        [clojure.contrib.string :only (lower-case replace-re)]
         [clojure.tools.logging :only (debug)]
         [clj-time.core :only (after? minus months now)])
   (:require [cognition-caps [data :as data] [urls :as urls]]
@@ -11,7 +11,7 @@
             [net.cgrand.enlive-html :as html]
             [clojure.pprint :as pp]))
 
-(declare formatted-price wrap-paragraphs)
+(declare formatted-price)
 
 (def *title-base* "Cognition Caps")
 (def *items-per-page* 8) ;TODO: live version start with 32
@@ -88,7 +88,7 @@
   [item]
   [:*] (item-common item)
   [:#itemImageWrapper :img] (html/set-attr :src (:main-0 (:image-urls item)))
-  [:.description] (html/html-content (wrap-paragraphs (:description item)))
+  [:.description] (html/html-content (:description item))
   [:.description [:p html/last-of-type]] (html/add-class "itemMaterials")
   [#{:#sizeSelection [:label (html/attr= :for "sizeSelection")] :#sizingLink}]
   (change-when (nil? (:sizes item)) nil)
@@ -202,11 +202,6 @@
 ;; =============================================================================
 ;; Utility functions
 ;; =============================================================================
-
-(defn- wrap-paragraphs [text]
-  "Converts newline-delimited text into <p> blocks"
-  (let [paragraphs (filter #(not (empty? %)) (split-lines text))]
-    (reduce str (map #(str "<p>" % "</p>") paragraphs))))
 
 (defn- formatted-price [item]
   "Returns a price string formatted for display"

@@ -3,7 +3,8 @@
 ;;; MySQL won't be used on Heroku.
 (ns cognition-caps.data.mysql
   (:use [cognition-caps.data]
-        [clojure.contrib.str-utils :only (re-split)])
+        [clojure.contrib.str-utils :only (re-split)]
+        [clojure.contrib.string :only (split-lines)])
   (:require [cognition-caps.config :as config]
             [clojure.string :as s]
             [clojure.contrib [string :as cs] [sql :as sql]]))
@@ -23,9 +24,8 @@
   (get-items   [this queryCount]
     (map-display-orders queryCount
                         (map #(mapitem queryCount %)
-                             (concat (take 4 (get-cap-rows queryCount))
-                                     (take 4 (get-merch-rows queryCount))
-                                     ))))
+                             (concat (get-cap-rows queryCount)
+                                     (get-merch-rows queryCount)))))
   (get-items   [this queryCount sort-key order]
     (throw (UnsupportedOperationException.
              "Custom-sorted queries to ExpressionEngine are not supported")))
@@ -152,6 +152,11 @@
         (if queryCount (swap! queryCount inc))
         (doall (reduce #(assoc %1 (:rel_id %2) (:price %2)) {} rs))))))
 
+(defn- wrap-paragraphs [text]
+  "Converts newline-delimited text into <p> blocks"
+  (let [paragraphs (filter #(not (empty? %)) (split-lines text))]
+    (reduce str (map #(str "<p>" % "</p>") paragraphs))))
+
 (defn mapitem [queryCount itemmap]
   "Does a little massaging of the data from the SQL database and creates an Item"
   (let [{:keys [entry-date image1 image2 image3 image4]} itemmap
@@ -181,7 +186,7 @@
                           (assoc :nom nom)
                           (assoc :user-id (dec (:user-id itemmap))) ; Our hardcoded users line up this way
                           (assoc :url-title (url-title nom))
-                          (assoc :description (cs/trim (:description itemmap)))
+                          (assoc :description (wrap-paragraphs (cs/trim (:description itemmap))))
                           (assoc :date-added entry-date)
                           (assoc :image-urls (map-images images))
                           (assoc :tags (if (= *caps-weblog-id* (:weblog-id itemmap))
@@ -200,6 +205,7 @@
 (defn map-blog-entry [queryCount blogmap]
   (make-BlogEntry (-> blogmap
                     (assoc :user-id (dec (:user-id blogmap))) ; Our hardcoded users line up this way
+                    (assoc :body (wrap-paragraphs (:body blogmap)))
                     (assoc :date-added (:entry-date blogmap)))))
 
 (defn map-display-orders [queryCount proto-items]
