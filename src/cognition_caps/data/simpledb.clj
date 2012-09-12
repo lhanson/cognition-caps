@@ -260,25 +260,26 @@
         (throw (IllegalStateException. "Can't split the string into substrings, no regex match found"))))))
 
 (defn split-large-field [m field]
-  "If the given map has a :value for 'field' larger than 1024 bytes, it is
-  split into multiple integer-suffixed attributes"
-  (if (> (count (field m)) 1024)
+  "If the given map has a :value for `field` larger than the max, it is
+  split into multiple integer-suffixed attributes. Assumes that `field` is a
+  keyword."
+  (if (> (count (field m)) (:max-string-len config/config))
     (do
       (debug "Splitting" field "on" m)
       (dissoc
         (reduce (fn [m- value]
-                  (assoc (assoc m- (keyword (str field "_" (:_index m-))) value)
+                  (assoc (assoc m- (keyword (subs (str field "_" (:_index m-)) 1)) value)
                          :_index (inc (:_index m-))))
                 (assoc m :_index 1)
-                ; split up the description on whitespace in chunks of up to 1024
-                (long-split #"(?:\S++\s++)+" 1024 (field m)))
+                ; split up the description on whitespace in chunks of up to our maximum configured value
+                (long-split #"(?:\S++\s++)+" (:max-string-len config/config) (field m)))
         field :_index))
     m))
 
 (defn merge-large-field [m field]
   "If the given map has multiple integer-suffixed :'field' attributes, they
    are merged into one :'field'"
-  (let [field-keys (filter #(re-matches (re-pattern (str field "_\\d+")) (name %)) (keys m))
+  (let [field-keys (filter #(re-matches (re-pattern (str field "_\\d+")) (str %)) (keys m))
         sorted-keys (sort-by #(Integer. (.substring (name %) (inc (.indexOf (name %) "_")))) field-keys)]
     (if (empty? sorted-keys)
       m

@@ -1,12 +1,13 @@
 (ns cognition-caps.test.data.simpledb
   (:use [clojure.test]
-        [cognition-caps.data])
+        [cognition-caps.data]
+        [cognition-caps.config :only (config)])
   (:require [cognition-caps.data.simpledb :as sdb]))
 
 ; Tests that items with fields longer than SimpleDB's 1024 byte limit
 ; are spit into multiple attributes
 (deftest split-large-fields
-  (let [max-size 1024
+  (let [max-size (:max-string-len config)
         short-cap (make-Item {:description "short description"})
         long-description (str (apply str (repeat (- max-size 2) "."))
                               " wordSpansBreak" (apply str (repeat 100 ".")))
@@ -17,7 +18,7 @@
     (is (and (< max-size (count (:description long-cap)))
              (not (:description long-cap-transformed)))
         (str "Descriptions over " max-size " bytes should be split into integer-suffixed fields"))
-    (let [description-keys (filter #(re-matches #"description_\d+" (name %))
+    (let [description-keys (filter #(re-matches #":description_\d+" (str %))
                                    (keys long-cap-transformed))]
       (is (> (count description-keys) 1)
           "Expecting multiple description_ keys"))))

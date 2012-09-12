@@ -8,6 +8,9 @@
      ; The length of the string used to represent display order in the database
      ; so that we can properly pad query values.
      :display-order-len 4
+     ; SimpleDB values can only be 1024 characters long. We'll leave some
+     ; headroom for prefix encoding and other such encoding
+     :max-string-len 1000
      :url-base "http://wearcognition.com"
      :old-site-url "http://67.222.57.142"}))
 
