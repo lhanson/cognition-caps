@@ -1,31 +1,26 @@
 = TODO
 
-== Currently working on
-    - Blog import is only including the first line of blog entry contents
-      - SDB data layer returning single string, see what raw amazon query pulls back
-      - After this is finished, make sure legacy blog feed is updated with newest entry (LepreCog?)
-    - Need to forward old URLs for blog items
-
 == Need before release
     - Set up the legacy RSS feed to include recent entries and point to new blog
+    - Forward old URLs for blog items
     - Add superfeedr hub link to RSS feeds
     - /caps and /merch category routes need to resolve to a filtered view
-      Use feedburner?
-    - Valentine's string in Valentine cap contains funky character
-      Jetty not returning UTF-8 response correctly?
-    - Aggregate/compress CSS and JS
+    - Use feedburner?
     - Jetty logs 200 response for everything?
+
+== Enhancements after release
+    - AJAX pagination
+    - Jetty not returning UTF-8 response correctly?
+      ? Valentine's string in Valentine cap contains funky character
+    - Footer doesn't stick to bottom on 404 page.
+    - Implement blog page
+    - +1 on cap pages isn't working...
+    - Aggregate/compress CSS and JS
     - Implement Schema.org microdata: http://schema.org/docs/gs.html
     - Implement Open Graph protocol: http://ogp.me/
     - Meta title and description? https://developers.google.com/+/plugins/+1button/#plus-snippet
     - Watch: http://support.google.com/webmasters/bin/answer.py?hl=en&answer=35624
-      Google Sitemap: http://support.google.com/webmasters/bin/answer.py?hl=en&answer=183668
-
-== Enhancements after release
-    - AJAX pagination
-    - Footer doesn't stick to bottom on 404 page.
-    - Implement blog page
-    - +1 on cap pages isn't working...
+    - Google Sitemap: http://support.google.com/webmasters/bin/answer.py?hl=en&answer=183668
     - Try these for nav links, etc:
         text-shadow: white 0.1em 0.1em 0.2em;
         text-shadow: 2pxpx 2px 2px rgba(255, 255, 255, 1);
