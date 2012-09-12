@@ -22,9 +22,8 @@
     (throw (UnsupportedOperationException.
              "Looking up a single item from ExpressionEngine is not supported")))
   (get-items   [this queryCount]
-    (map-display-orders queryCount
-                        (map #(mapitem queryCount %)
-                             (concat (get-cap-rows queryCount)
+    (map #(mapitem queryCount %)
+         (map-display-orders (concat (get-cap-rows queryCount)
                                      (get-merch-rows queryCount)))))
   (get-items   [this queryCount sort-key order]
     (throw (UnsupportedOperationException.
@@ -192,7 +191,6 @@
                           (assoc :tags (if (= *caps-weblog-id* (:weblog-id itemmap))
                                               (hash-set :item-type-cap)
                                               (hash-set :item-type-merch)))
-                          (assoc :hide (= "closed" (:status itemmap)))
                           (check-price-ids)))]
     (if (not= (:url-title itemmap) (:url-title item))
       (do
@@ -208,7 +206,7 @@
                     (assoc :body (wrap-paragraphs (:body blogmap)))
                     (assoc :date-added (:entry-date blogmap)))))
 
-(defn map-display-orders [queryCount proto-items]
+(defn map-display-orders [proto-items]
   "Set 0-based, consecutive display-order values for visible items and none for hidden ones"
   (loop [display-order 0
          items []
@@ -220,8 +218,8 @@
           item (first proto-items)]
       (if (empty? proto-items)
         items
-        (if (:hide item)
-          (recur display-order (conj items (dissoc item :display-order)) (rest proto-items))
+        (if (= "closed" (:status item))
+          (recur display-order (conj items (assoc item :display-order nil)) (rest proto-items))
           (recur (inc display-order)
                  (conj items (assoc item :display-order display-order-padded))
                  (rest proto-items)))))))
