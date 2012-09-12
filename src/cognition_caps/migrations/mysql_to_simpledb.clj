@@ -8,28 +8,26 @@
 
 (defn migrate-data! []
   (println "Migrating...")
-  ;(println "Populating defaults in SimpleDB")
+  (println "Populating defaults in SimpleDB")
   (simpledb/populate-defaults!)
   (println "Querying data from ExpressionEngine/MySQL")
   (let [mysql-count   (atom 0)
         sdb-count     (atom 0)
         mysql-data    (mysql/make-MySQLAccess) ; ExpressionEngine database for old site
         simpledb-data simpledb/simpledb
-        ;sizes         (data/get-sizes simpledb-data sdb-count)
-        ;items         (->> (take 1 (data/get-items mysql-data mysql-count))
-        ;                (map #(add-sizes % sizes))
-        ;                ;(map images/migrate-images!)
-        ;                )
-        ;blog          (->> (take 5 (data/get-blog mysql-data mysql-count))
-        ;                (map images/migrate-blog-image!)
-        ;                )]
-        blog          (take 5 (data/get-blog mysql-data mysql-count))
-                        ]
-    ;(println "Loaded" (count items) "items and" (count blog) "blog entries from MySQL with"
-    ;         @mysql-count "queries and" (count (data/get-items simpledb-data sdb-count))
-    ;         "from SimpleDB with" @sdb-count "queries")
-    ;(data/put-items simpledb-data sdb-count items)
-    (data/put-blog simpledb-data sdb-count blog)))
+        sizes         (data/get-sizes simpledb-data sdb-count)
+        items         (->> (data/get-items mysql-data mysql-count)
+                        (map #(add-sizes % sizes))
+                        (map images/migrate-images!))
+        blog          (->> (data/get-blog mysql-data mysql-count)
+                        (map images/migrate-blog-image!))
+        ]
+    (println "Loaded" (count items) "items and" (count blog) "blog entries from MySQL with"
+             @mysql-count "queries and" (count (data/get-items simpledb-data sdb-count))
+             "from SimpleDB with" @sdb-count "queries")
+    (data/put-items simpledb-data sdb-count items)
+    (data/put-blog simpledb-data sdb-count blog)
+    ))
 
 (defn- add-sizes [item sizes]
   "We're not carrying over the size/price relations from ExpressionEngine,
@@ -38,7 +36,6 @@
    'unlimited' inventory."
   (if (:item-type-cap (:tags item))
     (let [item-with-sizes (assoc item :sizes (apply vector (map #(str (:id %) ":-1") sizes)))]
-      ;(println "*************** ITEM:" item-with-sizes)
     item-with-sizes)
     item))
 
