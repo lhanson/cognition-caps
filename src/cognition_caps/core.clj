@@ -10,8 +10,8 @@
             [clojure.string :as s]
             [compojure.route :as route]
             [compojure.handler :as handler])
-  (:import (org.mortbay.jetty NCSARequestLog)
-           (org.mortbay.jetty.handler RequestLogHandler)))
+  (:import (org.eclipse.jetty.server NCSARequestLog)
+           (org.eclipse.jetty.server.handler AbstractHandler HandlerCollection RequestLogHandler)))
 
 ;; Routes that redirect requests to the old site's URL scheme
 (defroutes redirect-routes
@@ -73,9 +73,11 @@
   (run-jetty app {:port port
                   :configurator (fn [server]
                                   (doto server
-                                    (.addHandler (doto (RequestLogHandler.)
-                                                   (.setRequestLog (NCSARequestLog.))))))
-                  }))
+                                    (.setHandler
+                                      (doto (new HandlerCollection)
+                                        (.addHandler (.getHandler server))
+                                        (.addHandler (doto (new RequestLogHandler)
+                                                       (.setRequestLog (NCSARequestLog.))))))))}))
 
 (defn -main []
   (start (Integer/parseInt (or (System/getenv "PORT") "3000"))))
