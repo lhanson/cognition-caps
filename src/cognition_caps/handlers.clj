@@ -14,7 +14,7 @@
 (declare formatted-price)
 
 (def *title-base* "Cognition Caps")
-(def *items-per-page* 8) ;TODO: live version start with 32
+(def *items-per-page* 32)
 
 (defmacro maybe-append
   ([expr] `(if-let [x# ~expr] (html/append x#) identity))
