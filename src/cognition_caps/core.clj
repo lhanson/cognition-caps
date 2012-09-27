@@ -15,12 +15,13 @@
 
 ;; Routes that redirect requests to the old site's URL scheme
 (defroutes redirect-routes
-  ; Temporariy redirects to specific files on our old site
+  ;;; Temporariy redirects to specific files on our old site
   (GET ["/images/:imagepath", :imagepath #"(?i)(?:uploads|cache)/.+\.(?:jpg|jpeg|png)$"] {uri :uri}
        (do
          (info (str "Forwarding request to old site: " uri))
          (redirect (str (:old-site-url config) uri) 302)))
-  ; Permanent redirects to specific files on our old site
+
+  ;;; Permanent redirects to specific files on our old site
   (GET "/images/favicon(4).ico" [] (redirect "/favicon.ico"))
   ; Redirect URLs from the old site
   (GET ["/:path", :path #"index.php(?:/about)?"] [] (redirect "/"))
@@ -33,6 +34,14 @@
                    (-> old-url-title
                        (s/replace #"-cap/?|/$" "")
                        (s/lower-case)))))
+  ; Specific blog entries
+  (GET ["/index.php/blog/comments/:old-url-title", :old-url-title #".+?"] [old-url-title]
+    (redirect (str "/blog/" (s/lower-case old-url-title))))
+  ; Paginated blog listings just redirect to main blog page because although ../P0, ../P5, ...
+  ; appear consistent in Expression Engine (start most recent, skip by 5*n items), ../P1, ../P2
+  ; are inconsistent. So let's not go out of our way to accomodate people bookmarking paginated
+  ; blog listings.
+  (GET ["/index.php/blog/:blog-page", :blog-page #"P\d+"] [_] (redirect "/blog"))
   ; For remaining requests we will serve here, canonicalize on lowercase and no trailing slashes
   (GET [":url", :url #".+/|.+?\p{Upper}.*"] [url]
     (redirect (->> url (replace-re #"/+$" "") (s/lower-case)))))

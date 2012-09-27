@@ -47,6 +47,8 @@
   (assert-redirect (request "/index.php/caps/caps-description/wi-river-cap") 301 "/caps/wi-river")
   (assert-redirect (request "/index.php/merch") 301 "/merch")
   (assert-redirect (request "/index.php/merch/merchandise-description/cognition-buttons-colorful") 301 "/merch/cognition-buttons-colorful")
+  (assert-redirect (request "/index.php/blog/comments/blog-entry") 301 "/blog/blog-entry")
+  (assert-redirect (request "/index.php/blog/P25") 301 "/blog")
   (assert-redirect (request "/images/favicon(4).ico") 301 "/favicon.ico")
   ; 302 image redirects
   (doseq [url ["/images/uploads/00445d34233252c8d6510dfab2217bda.JPG"
