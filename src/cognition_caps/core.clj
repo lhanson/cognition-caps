@@ -55,6 +55,8 @@
   (GET "/sizing" {stats :stats} (handlers/sizing stats))
   (GET "/faq" {stats :stats} (handlers/faq stats))
   (GET "/blog" {stats :stats} (handlers/blog stats))
+  (GET "/blog/:url-title" [url-title & params :as request]
+       (handlers/blog-entry (:stats request) url-title))
   (GET "/feeds/all-atom.xml" {stats :stats {accept "accept"} :headers}
        (feed/wrap-content-type accept (feed/atom-all stats)))
   (GET "/feeds/store-atom.xml" {stats :stats {accept "accept"} :headers}

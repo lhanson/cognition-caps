@@ -7,8 +7,10 @@
     - Implement blog page(s). We've already forwared old URLs to new URLs, implement
       all blog views (/blog, /blog/url-title). Shouldn't be tough, just do it.
     - Use feedburner?
+    - Google Analytics
 
 == Enhancements after release
+    - Some images in S3 are corrupted/don't work (see: /blog/lord-of-griffith-ii image)
     - Pagination. Infinite scroll, with standard paging for fallback.
     - Jetty not returning UTF-8 response correctly?
       ? Valentine's string in Valentine cap contains funky character

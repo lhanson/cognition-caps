@@ -16,6 +16,7 @@
   (update-item [this queryCount id
                attr-name attr-value]        "Updates the given attribute")
   (get-blog  [this queryCount]              "Returns all blog entries starting with the latest")
+  (get-blog-entry [this queryCount url-title] "Provides the blog entry corresponding to the given url-title")
   (put-blog  [this queryCount items]        "Persists blog items")
   (get-users [this queryCount]              "Returns the users in the system"))
 

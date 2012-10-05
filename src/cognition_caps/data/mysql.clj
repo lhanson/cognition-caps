@@ -51,6 +51,9 @@
   (put-blog [this queryCount items]
     (throw (UnsupportedOperationException.
              "Writing to ExpressionEngine is not supported")))
+  (get-blog-entry [this queryCount url-title]
+    (throw (UnsupportedOperationException.
+             "Not implemented for ExpressionEngine")))
   (get-users [this queryCount]
     (throw (UnsupportedOperationException.
              "Not implemented for ExpressionEngine"))))

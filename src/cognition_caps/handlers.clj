@@ -8,6 +8,7 @@
   (:require [cognition-caps [data :as data] [urls :as urls]]
             [clojure.contrib.math :as math]
             [clj-time.coerce :as time-coerce]
+            [clj-time.format :as time-format]
             [net.cgrand.enlive-html :as html]
             [clojure.pprint :as pp]))
 
@@ -121,6 +122,15 @@
   [:#itemInfoWrapper :.g-plusone]
   (html/set-attr :data-href (urls/absolute-url item)))
 
+; Snippet for generating markup for an individual blog entry
+(html/defsnippet show-blog-entry "blog-entry.html" [:#blogEntry]
+  [entry]
+  [:#title] (html/content (:title entry))
+  [:#author] (html/content (:user-id entry)) ;TODO: decode to username
+  [:#publishDate] (html/content (time-format/unparse (time-format/formatter "EEE, dd MMM yyyy") (time-coerce/from-long (* 1000 (:date-added entry)))))
+  [:#body] (html/html-content (:body entry))
+  [:#itemImageWrapper :img] (html/set-attr :src (:image-url entry)))
+
 (html/defsnippet fourohfoursnippet "404.html" [:#main :> :*]
   [url]
   [:code] (html/content url))
@@ -152,6 +162,20 @@
         current-page       (inc (math/floor (/ (Integer/parseInt begin) items-per-page)))]
     (base {:main (show-items items current-page page-count items-per-page)
            :stats stats})))
+
+;(defn caps [stats {:keys [begin limit] :or {begin "0"}}]
+;  "Renders the list of caps. See 'index' docstring for pagination details"
+;  (let [items-per-page (if limit (Integer/parseInt limit) *items-per-page*)
+;        ; TODO: how to paginate ONLY a particular kind of item? Can't call get-items-range,
+;        ; need to filter BEFORE the range is calculated. Maybe get-items-range takes
+;        ; a keyword that filters on its presense in the item's :tags.
+;        items (data/get-items-range simpledb (:db-queries stats) begin items-per-page)
+;        visible-item-count (data/get-visible-item-count simpledb (:db-queries stats))
+;        page-count         (math/ceil (/ visible-item-count items-per-page))
+;        current-page       (inc (math/floor (/ (Integer/parseInt begin) items-per-page)))]
+;    (base {:main (show-items items current-page page-count items-per-page)
+;           :stats stats})))
+; TODO: merch-items, filtered view of merch
 
 (defn- handle-item [stats item url-title]
   (let [current-title (:url-title item)
@@ -194,6 +218,12 @@
 (defn blog [stats]
   ; TODO
 )
+
+(defn blog-entry [stats url-title]
+  (if-let [entry (data/get-blog-entry simpledb (:db-queries stats) url-title)]
+    (base {:main (show-blog-entry entry)
+           :title (str (:title entry) " - " *title-base*)
+           :stats stats})))
 
 (defn fourohfour [uri]
   (base {:title "Page Not Found"

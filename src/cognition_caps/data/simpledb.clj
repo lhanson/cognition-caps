@@ -117,6 +117,13 @@
       (sdb/batch-put-attrs config *blog-domain* (map marshal-blog items))
       (catch Exception e (println (st/print-stack-trace e)))))
 
+  (get-blog-entry [this queryCount url-title]
+    (swap! queryCount inc)
+    (let [users (.get-users this queryCount)]
+      (unmarshal-blog (first (sdb/query config `{select * from blog
+                                                 where (= :url-title ~url-title)}))
+                      users)))
+
   (get-users [this queryCount]
     (swap! queryCount inc)
     (map #(unmarshal-user %)
@@ -232,10 +239,9 @@
     (change-key :id ::sdb/id)
     (split-large-field :body)))
 
-(defn unmarshal-blog [item users]
-  "Reconstitutes the given item after reading from SimpleDB"
-  (pprint item)
-  (-> item
+(defn unmarshal-blog [entry users]
+  "Reconstitutes the given entry after reading from SimpleDB"
+  (-> entry
       (unmarshal-ids)
       (merge-large-field :body)
       (dereference-user users)))
