@@ -1,16 +1,14 @@
 = TODO
 
 == Need before release
+    - All blog images in S3 are corrupted/don't work (see: /blog/lord-of-griffith-ii image)
     - Set up the legacy RSS feed to include recent entries and point to new blog
     - /caps and /merch category routes need to resolve to a filtered view
-    - Add superfeedr hub link to RSS feeds
-    - Implement blog page(s). We've already forwared old URLs to new URLs, implement
-      all blog views (/blog, /blog/url-title). Shouldn't be tough, just do it.
-    - Use feedburner?
     - Google Analytics
 
 == Enhancements after release
-    - Some images in S3 are corrupted/don't work (see: /blog/lord-of-griffith-ii image)
+    - Use feedburner?
+    - Add superfeedr hub link to RSS feeds
     - Pagination. Infinite scroll, with standard paging for fallback.
     - Jetty not returning UTF-8 response correctly?
       ? Valentine's string in Valentine cap contains funky character

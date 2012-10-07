@@ -2,8 +2,13 @@
 
 body {
     text-align: center;
+    font-size: 15px;
     font-family: Oswald, arial, serif;
     background: white url(images/bg.jpg) repeat center top;
+}
+h1 {
+    font-size: 30px;
+    font-weight: bold;
 }
 
 a {
@@ -147,7 +152,6 @@ nav a:hover { border-bottom: none;}
 }
 .fn {
     font-family: Georgia, 'Times New Roman', Times, serif;
-    font-size: 20px;
     text-transform: lowercase;
     margin-right: 5px;
 }
@@ -171,7 +175,6 @@ nav a:hover { border-bottom: none;}
 }
 .description p + p { margin-top: 1em; }
 .description, .itemMaterials {
-    font-size: 14px;
     line-height: 24px;
     font-family: Georgia, 'Times New Roman', Times, serif;
 }
@@ -220,7 +223,6 @@ nav a:hover { border-bottom: none;}
 #itemDetails form * { margin-right: 15px; }
 #itemDetails form label { text-transform: uppercase; }
 #itemDetails form a {
-    font-size: 11px;
     padding: 5px;
     color: black;
     background-color: white;
@@ -261,7 +263,6 @@ nav a:hover { border-bottom: none;}
 }
 #faq dt {
     font-family: Oswald, arial, serif;
-    font-size: 15px;
     font-weight: bold;
     text-transform: uppercase;
     margin-bottom: 4px;
@@ -273,9 +274,14 @@ nav a:hover { border-bottom: none;}
     padding: 2px 7px 2px 7px;
     margin-right: 15px;
 }
-#faq dd, #sizing {
+#blogEntry {
+    padding: 10px;
+    text-align: left;
+    line-height: 1.5em;
+}
+#blogEntry header p { margin: 10px 0px 10px 0px; }
+#faq dd, #sizing, #blogEntry #body {
     font-family: Georgia, 'Times New Roman', Times, serif;
-    font-size: 13px;
     margin-bottom: 25px;
 }
 #faq dd:before {
