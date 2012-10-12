@@ -136,6 +136,7 @@ nav a:hover { border-bottom: none;}
     width: 229px;
     margin: 14px;
     text-align: right;
+    vertical-align: top;
 }
 .item a, #images a {
     color: black;
