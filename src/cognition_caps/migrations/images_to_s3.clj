@@ -109,12 +109,35 @@
                                (assoc (keyword (str "thumb-" idx)) thumb-url))
                            (inc idx))))))))))))
 
+(defn- migrate-blog-body-image!
+  "Takes a placeholder URL (like {filedir}image.jpg), expands out the URL, and
+   uploads it to S3. Returns the new S3 URL."
+  [placeholder_url item-id]
+  (let [image-file (doto (java.io.File/createTempFile "blogBodyImage" ".jpg") (.deleteOnExit))
+        old-url (s/replace placeholder_url #"\{filedir_1\}" *old-prefix*)
+        suffix (subs old-url (.lastIndexOf old-url "."))]
+    (println "Downloading embedded body image" old-url)
+    (download! old-url image-file)
+    (shell/with-sh-dir (System/getProperty "java.io.tmpdir") (shell/sh "jpegoptim" "--strip-all" (.getPath image-file)))
+    (s3/upload-image image-file
+                     item-id
+                     (str (org.apache.commons.codec.digest.DigestUtils/md5Hex (java.io.FileInputStream. image-file)) suffix))))
+
 (defn migrate-blog-image! [blog-entry]
   (let [image-file (doto (java.io.File/createTempFile "blog" ".jpg") (.deleteOnExit))
-        old-url (str *old-prefix* (:image-url blog-entry))
+        old-url (s/trim (str *old-prefix* (:image-url blog-entry)))
         suffix (subs old-url (.lastIndexOf old-url "."))]
     (println "Migrating blog image" old-url)
     (download! old-url image-file)
     (let [new-url (s3/upload-image image-file (:id blog-entry) (str (org.apache.commons.codec.digest.DigestUtils/md5Hex (java.io.FileInputStream. image-file)) suffix))]
-      (assoc blog-entry :image-url new-url))))
+      ; Now migrate any images we host that are embedded in the body of the post
+      (loop [entry (assoc blog-entry :image-url new-url)
+             filedir-images (rest (re-find #".*\"(\{filedir_1\}.+?)\".*" (:body blog-entry)))]
+        (if (empty? filedir-images)
+          entry
+          (let [placeholder-url (first filedir-images)]
+            (let [new-url (migrate-blog-body-image! placeholder-url (:id blog-entry))]
+              (println "Replacing" placeholder-url "with" new-url)
+              (recur (assoc entry :body (s/replace (:body blog-entry) placeholder-url new-url))
+                     (rest filedir-images)))))))))
 

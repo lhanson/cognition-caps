@@ -129,7 +129,7 @@
   [:#author] (html/content (:user-id entry)) ;TODO: decode to username
   [:#publishDate] (html/content (time-format/unparse (time-format/formatter "EEE, dd MMM yyyy") (time-coerce/from-long (* 1000 (:date-added entry)))))
   [:#body] (html/html-content (:body entry))
-  [:#itemImageWrapper :img] (html/set-attr :src (:image-url entry)))
+  [:#titlePhoto] (html/set-attr :src (:image-url entry)))
 
 (html/defsnippet fourohfoursnippet "404.html" [:#main :> :*]
   [url]

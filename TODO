@@ -1,20 +1,25 @@
 = TODO
 
 == Need before release
-    - All blog images in S3 are corrupted/don't work (see: /blog/lord-of-griffith-ii image)
     - Set up the legacy RSS feed to include recent entries and point to new blog
     - /caps and /merch category routes need to resolve to a filtered view
     - Google Analytics
+
+== Bugs
+    - Inline files uploaded in old blog entries still contain ${filedir_1} placeholders and 404 as a result
+      Strategy: parse entries with regex to find matches, fill in placeholder, migrate those images,
+      replace link in body of blog post
+    - Footer doesn't stick to bottom on 404 page.
+    - +1 on cap pages isn't working...
+    - Jetty not returning UTF-8 response correctly?
+      ? Valentine's string in Valentine cap contains funky character
 
 == Enhancements after release
     - Use feedburner?
     - Add superfeedr hub link to RSS feeds
     - Pagination. Infinite scroll, with standard paging for fallback.
-    - Jetty not returning UTF-8 response correctly?
-      ? Valentine's string in Valentine cap contains funky character
-    - Footer doesn't stick to bottom on 404 page.
-    - +1 on cap pages isn't working...
     - Aggregate/compress CSS and JS
+    - Ensure that none of the image uploads are still being served, e.g. /images/uploads/1bfbd200c292e19034742e27e66d0a24.jpg
     - Implement Schema.org microdata: http://schema.org/docs/gs.html
     - Implement Open Graph protocol: http://ogp.me/
     - Meta title and description? https://developers.google.com/+/plugins/+1button/#plus-snippet
