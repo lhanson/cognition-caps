@@ -2,7 +2,6 @@
 
 == Need before release
     - Set up the legacy RSS feed to include recent entries and point to new blog
-    - /caps and /merch category routes need to resolve to a filtered view
     - Google Analytics
 
 == Bugs

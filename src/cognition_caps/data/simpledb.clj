@@ -78,6 +78,23 @@
                          order-by [:display-order asc]}]
       (map #(unmarshal-item % prices sizes users) (sdb/query config query))))
 
+  (get-items-range-filter [this queryCount begin limit filter-tag]
+    (swap! queryCount inc)
+    (let [prices       (.get-prices this queryCount)
+          sizes        (.get-sizes this queryCount)
+          users        (.get-users this queryCount)
+          begin-padded (str (str/repeat (- (get config/config :display-order-len)
+                                           (count begin))
+                                        "0")
+                            begin)
+          query        `{select * from items
+                         where (and (>= :display-order ~begin-padded)
+                                    (= :tags ~filter-tag))
+                         limit ~limit
+                         order-by [:display-order asc]}]
+      (map #(unmarshal-item % prices sizes users) (sdb/query config query))))
+
+
   (get-visible-item-count [this queryCount]
     (swap! queryCount inc)
     (sdb/query config '{select count from items

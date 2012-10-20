@@ -163,19 +163,25 @@
     (base {:main (show-items items current-page page-count items-per-page)
            :stats stats})))
 
-;(defn caps [stats {:keys [begin limit] :or {begin "0"}}]
-;  "Renders the list of caps. See 'index' docstring for pagination details"
-;  (let [items-per-page (if limit (Integer/parseInt limit) *items-per-page*)
-;        ; TODO: how to paginate ONLY a particular kind of item? Can't call get-items-range,
-;        ; need to filter BEFORE the range is calculated. Maybe get-items-range takes
-;        ; a keyword that filters on its presense in the item's :tags.
-;        items (data/get-items-range simpledb (:db-queries stats) begin items-per-page)
-;        visible-item-count (data/get-visible-item-count simpledb (:db-queries stats))
-;        page-count         (math/ceil (/ visible-item-count items-per-page))
-;        current-page       (inc (math/floor (/ (Integer/parseInt begin) items-per-page)))]
-;    (base {:main (show-items items current-page page-count items-per-page)
-;           :stats stats})))
-; TODO: merch-items, filtered view of merch
+(defn caps [stats {:keys [begin limit] :or {begin "0"}}]
+  "Renders the list of caps. See 'index' docstring for pagination details"
+  (let [items-per-page (if limit (Integer/parseInt limit) *items-per-page*)
+        items (data/get-items-range-filter simpledb (:db-queries stats) begin items-per-page :item-type-cap)
+        visible-item-count (data/get-visible-item-count simpledb (:db-queries stats))
+        page-count         (math/ceil (/ visible-item-count items-per-page))
+        current-page       (inc (math/floor (/ (Integer/parseInt begin) items-per-page)))]
+    (base {:main (show-items items current-page page-count items-per-page)
+           :stats stats})))
+
+(defn merches [stats {:keys [begin limit] :or {begin "0"}}]
+  "Renders the list of merchandise. See 'index' docstring for pagination details"
+  (let [items-per-page (if limit (Integer/parseInt limit) *items-per-page*)
+        items (data/get-items-range-filter simpledb (:db-queries stats) begin items-per-page :item-type-merch)
+        visible-item-count (data/get-visible-item-count simpledb (:db-queries stats))
+        page-count         (math/ceil (/ visible-item-count items-per-page))
+        current-page       (inc (math/floor (/ (Integer/parseInt begin) items-per-page)))]
+    (base {:main (show-items items current-page page-count items-per-page)
+           :stats stats})))
 
 (defn- handle-item [stats item url-title]
   (let [current-title (:url-title item)
