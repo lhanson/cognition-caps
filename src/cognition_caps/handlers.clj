@@ -231,6 +231,11 @@
            :title (str (:title entry) " - " *title-base*)
            :stats stats})))
 
+(defn thanks [stats]
+  (base {:main (html/html-resource "thanks.html")
+         :title (str "Thanks for your order! - " *title-base*)
+         :stats stats}))
+
 (defn fourohfour [uri]
   (base {:title "Page Not Found"
          :main (fourohfoursnippet uri)}))

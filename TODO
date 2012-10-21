@@ -4,9 +4,6 @@
     - Google Analytics
 
 == Bugs
-    - Inline files uploaded in old blog entries still contain ${filedir_1} placeholders and 404 as a result
-      Strategy: parse entries with regex to find matches, fill in placeholder, migrate those images,
-      replace link in body of blog post
     - Footer doesn't stick to bottom on 404 page.
     - +1 on cap pages isn't working...
     - Jetty not returning UTF-8 response correctly?

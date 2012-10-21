@@ -42,6 +42,8 @@
   ; are inconsistent. So let's not go out of our way to accomodate people bookmarking paginated
   ; blog listings.
   (GET ["/index.php/blog/:blog-page", :blog-page #"P\d+"] [_] (redirect "/blog"))
+  ; Thank you page
+  (GET "/index.php/thank_you" [_] (redirect "/thanks"))
   ; For remaining requests we will serve here, canonicalize on lowercase and no trailing slashes
   (GET [":url", :url #".+/|.+?\p{Upper}.*"] [url]
     (redirect (->> url (replace-re #"/+$" "") (s/lower-case)))))
@@ -69,6 +71,7 @@
        (feed/wrap-content-type accept (feed/atom-store stats)))
   (GET "/feeds/blog-atom.xml" {stats :stats {accept "accept"} :headers}
        (feed/wrap-content-type accept (feed/atom-blog stats)))
+  (GET "/thanks" {stats :stats} (handlers/thanks stats))
   (route/resources "/")
   (ANY "*" {uri :uri} (route/not-found (handlers/fourohfour uri))))
 

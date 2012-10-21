@@ -279,13 +279,18 @@ nav a:hover { border-bottom: none;}
     padding: 2px 7px 2px 7px;
     margin-right: 15px;
 }
-#blogEntry {
+#blogEntry, #thanks {
     padding: 10px;
     text-align: left;
     line-height: 1.5em;
 }
+#thanks h1 { margin-bottom: 50px; }
+#thanks .signature {
+    margin-top: 50px; text-align: center;
+ }
+#thanks .signature p { margin: 0px; font-style: italic; font-weight: bold; }
 #blogEntry header p { margin: 10px 0px 10px 0px; }
-#faq dd, #sizing, #blogEntry #body {
+#faq dd, #sizing, #blogEntry #body, #thanks {
     font-family: Georgia, 'Times New Roman', Times, serif;
     margin-bottom: 25px;
 }
