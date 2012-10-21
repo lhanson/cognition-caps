@@ -1,8 +1,5 @@
 = TODO
 
-== Need before release
-    - Google Analytics
-
 == Bugs
     - Footer doesn't stick to bottom on 404 page.
     - +1 on cap pages isn't working...
