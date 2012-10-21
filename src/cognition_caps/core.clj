@@ -48,6 +48,9 @@
 
 (defroutes all-routes
   (GET "/" [& query-params :as request] (handlers/index (:stats request) query-params))
+  ; Legacy RSS
+  (GET "/index.php/caps/caps.rss" [] (feed/rss-legacy-caps))
+  (GET "/index.php/blog/rss_2.0" [] (feed/rss-legacy-blog))
   redirect-routes
   (GET "/:item-type" [item-type & params :as request]
        (cond (= "caps" item-type)  (handlers/caps (:stats request) request)
@@ -66,9 +69,6 @@
        (feed/wrap-content-type accept (feed/atom-store stats)))
   (GET "/feeds/blog-atom.xml" {stats :stats {accept "accept"} :headers}
        (feed/wrap-content-type accept (feed/atom-blog stats)))
-  ; Legacy RSS
-  (GET "/index.php/caps/caps.feed" [] (feed/rss-legacy-caps))
-  (GET "/index.php/blog/feed_2.0" [] (feed/rss-legacy-blog))
   (route/resources "/")
   (ANY "*" {uri :uri} (route/not-found (handlers/fourohfour uri))))
 

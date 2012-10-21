@@ -79,12 +79,12 @@
 (defn rss-legacy-caps []
   "Produces the old RSS feed snapshot for caps"
   { :headers {"Content-Type" "application/rss+xml" }
-    :body  (file "resources/caps.rss") })
+    :body  (file "resources/caps-rss.xml") })
 
 (defn rss-legacy-blog []
   "Produces the old RSS feed snapshot for the blog"
   { :headers {"Content-Type" "application/rss+xml" }
-    :body  (file "resources/blog.rss") })
+    :body  (file "resources/blog-rss.xml") })
 
 (defn- atom-id-gen [item]
   "Generates an RFC 4151 tag URI to uniquely identify an Atom entry"
