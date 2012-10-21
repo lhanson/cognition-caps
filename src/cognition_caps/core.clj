@@ -35,7 +35,7 @@
                        (s/replace #"-cap/?|/$" "")
                        (s/lower-case)))))
   ; Specific blog entries
-  (GET ["/index.php/blog/comments/:old-url-title", :old-url-title #".+?"] [old-url-title]
+  (GET ["/:path/:old-url-title", :path #"index.php/blog(?:/comments)??" :old-url-title #"[^/]+?"] [old-url-title]
     (redirect (str "/blog/" (s/lower-case old-url-title))))
   ; Paginated blog listings just redirect to main blog page because although ../P0, ../P5, ...
   ; appear consistent in Expression Engine (start most recent, skip by 5*n items), ../P1, ../P2
