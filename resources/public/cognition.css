@@ -10,6 +10,7 @@ h1 {
     font-size: 30px;
     font-weight: bold;
 }
+p { margin: 1.12em 0; }
 
 a {
     color: black;
