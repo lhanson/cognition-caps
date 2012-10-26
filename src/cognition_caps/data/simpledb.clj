@@ -23,7 +23,7 @@
     (l/set-loggers!
       :root base
       "com.amazonaws"     (assoc base :level :warn)
-      "org.eclipse.jetty" (assoc base :level (:app-log-level config/config))
+      "org.eclipse.jetty" (assoc base :level :info)
       "cognition-caps"    (assoc base :level (:app-log-level config/config)))
     (info "Loggers initialized, creating sdb client")
     (assoc (enc/all-prefixed-config)
