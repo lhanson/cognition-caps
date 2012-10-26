@@ -81,9 +81,14 @@
     (handler (merge request {:stats {:start-ts (System/nanoTime)
                                      :db-queries (atom 0)}}))))
 
+(defn- wrap-reload-if-dev [routes]
+  (if (:dev-mode config)
+    (wrap-reload routes '(cognition-caps.core cognition-caps.handlers cognition-caps.feed))
+    routes))
+
 (def app (-> (var all-routes)
-             (wrap-reload '(cognition-caps.core cognition-caps.handlers cognition-caps.feed))
-             handler/site
+             (wrap-reload-if-dev)
+             handler/api
              wrap-stats))
 
 (defn start [port]
