@@ -13,10 +13,9 @@
                  [log4j "1.2.16"]
                  [org.slf4j/slf4j-api "1.6.1"]
                  [org.slf4j/slf4j-log4j12 "1.6.1"]
-                 [ring/ring-jetty-adapter "1.1.5"]
+                 [ring "1.1.6"]
                  [rome "1.0"]]
   :dev-dependencies [[com.mysql/connectorj "5.1.12"] ; migration from Hostmonster/MySQL
-                     [robert/hooke "1.1.2"]
-                     [ring/ring-devel "1.1.5"]]
+                     [robert/hooke "1.1.2"]]
   :hooks [leiningen.hooks.classpath])                ; add classpath entries for local execution
 
