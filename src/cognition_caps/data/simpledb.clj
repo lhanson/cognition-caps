@@ -76,7 +76,7 @@
                          where (>= :display-order ~begin-padded)
                          limit ~limit
                          order-by [:display-order asc]}]
-      (map #(unmarshal-item % prices sizes users) (sdb/query config query))))
+      (map #(unmarshal-item % prices sizes users) (sdb/query-all config query))))
 
   (get-items-range-filter [this queryCount begin limit filter-tag]
     (swap! queryCount inc)
