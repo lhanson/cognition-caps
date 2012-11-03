@@ -3,8 +3,6 @@
 == Bugs
     - Footer doesn't stick to bottom on 404 page.
     - +1 on cap pages isn't working...
-    - Jetty not returning UTF-8 response correctly?
-      ? Valentine's string in Valentine cap contains funky character
 
 == Enhancements after release
     - Use feedburner?
