@@ -2,7 +2,7 @@ cognition-caps
 ==============
 
 This is the software which runs the
-[Cognition Caps website](http://www.wearcognition.com). Or, it will soon.
+[Cognition Caps website](http://www.wearcognition.com).
 
 It's written in Clojure because it's awesome and I'm silly like that.
 
@@ -13,31 +13,6 @@ For Heroku deployment, we need to set the database credentials
 For local development and migration work against other databases we'll read
 settings from a local file, so rename datasource.properties.example and enter
 the credentials there.
-
-TODO
-====
-Because a good project is never finished.
-
-* Write a database migration from ExpressionEngine/MySQL into SimpleDb.
-* Serve CSS and JS from S3 from either a gzipped or non-gzipped bucket depending
-  on application-detected content negotiation
-* Use Sass for CSS
-* Canonicalize on no-www URL subdomain
-* Maybe have each cap image's background switch to a highlighted green version on hover
-* Make sure Jetty is returning Content-Type headers
-* Add a history tracking entity. When a cap attribute is changed, store a
-  diff into a History domain; something like
-  {:type cap :changed-field "price" :old-value "25" :date-changed "2011-02-01"}.
-  The same could apply to other items as well.
-* Map all old URLs into the new application.
-  - Include a series of old url-titles as the title can change multiple times
-  - If/when an item is renamed, it cannot be renamed to a name that a different
-    item has owned in the past so 301 redirects converge on the unique items
-* Pricing for "merch" item type is fixed; instead we should allow arbitrary
-  quantity selection and scale pricing based on that.
-* Implement all recommendations given by Chrome's PageSpeed extension.
-* Extract annotate-ordered-values and merge-large-descriptions from simpledb
-  code to be generic wrappers around rummage.
 
 License
 =======
