@@ -1,13 +1,12 @@
 = TODO
 
 == Bugs
-    - Footer doesn't stick to bottom on 404 page.
-    - +1 on cap pages isn't working...
 
 == Enhancements after release
+    === Missing features
+    - Blog UI
     === General improvements
     - Implement all recommendations given by Chrome's PageSpeed extension.
-    - Canonicalize on www URL subdomain
     - Maybe have each cap image's background switch to a highlighted green version on hover
     - Use feedburner?
     - Add superfeedr hub link to RSS feeds
