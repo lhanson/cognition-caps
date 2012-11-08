@@ -34,14 +34,14 @@
                    (-> old-url-title
                        (s/replace #"-cap/?|/$" "")
                        (s/lower-case)))))
-  ; Specific blog entries
-  (GET ["/:path/:old-url-title", :path #"index.php/blog(?:/comments)??" :old-url-title #"[^/]+?"] [old-url-title]
-    (redirect (str "/blog/" (s/lower-case old-url-title))))
   ; Paginated blog listings just redirect to main blog page because although ../P0, ../P5, ...
   ; appear consistent in Expression Engine (start most recent, skip by 5*n items), ../P1, ../P2
   ; are inconsistent. So let's not go out of our way to accomodate people bookmarking paginated
   ; blog listings.
-  (GET ["/index.php/blog/:blog-page", :blog-page #"P\d+"] [_] (redirect "/blog"))
+  (GET ["/index.php/blog/:blog-page", :blog-page #"(?i)P\d+"] [_] (redirect "/blog"))
+  ; Specific blog entries
+  (GET ["/:path/:old-url-title", :path #"index.php/blog(?:/comments)??" :old-url-title #"[^/]+?"] [old-url-title]
+    (redirect (str "/blog/" (s/lower-case old-url-title))))
   ; Thank you page
   (GET "/index.php/thank_you" [_] (redirect "/thanks"))
   ; For remaining requests we will serve here, canonicalize on lowercase and no trailing slashes

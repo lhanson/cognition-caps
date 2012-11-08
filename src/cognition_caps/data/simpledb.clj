@@ -136,10 +136,10 @@
 
   (get-blog-entry [this queryCount url-title]
     (swap! queryCount inc)
-    (let [users (.get-users this queryCount)]
-      (unmarshal-blog (first (sdb/query config `{select * from blog
-                                                 where (= :url-title ~url-title)}))
-                      users)))
+    (if-let [raw-entry (first (sdb/query config `{select * from blog
+                                                 where (= :url-title ~url-title)}))]
+      (let [users (.get-users this queryCount)]
+        (unmarshal-blog raw-entry users))))
 
   (get-users [this queryCount]
     (swap! queryCount inc)
