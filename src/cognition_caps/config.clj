@@ -11,7 +11,7 @@
      ; SimpleDB values can only be 1024 characters long. We'll leave some
      ; headroom for prefix encoding and other such encoding
      :max-string-len 1000
-     :url-base "http://wearcognition.com"
+     :url-base "http://www.wearcognition.com"
      :old-site-url "http://67.222.57.142"}))
 
 (defonce config
