@@ -68,8 +68,7 @@ nav a:hover { border-bottom: none;}
     text-align: right;
     background: url(/images/cart.gif) left no-repeat;
     margin: 0px;
-    padding: 0px;
-    width: 68px;
+    padding: 0px 0px 0px 25px;
 }
 
 #main {
