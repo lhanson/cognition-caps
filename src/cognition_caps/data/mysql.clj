@@ -14,7 +14,6 @@
 (def *blog-weblog-id* 2)
 (def *caps-weblog-id* 3)
 (def *merch-weblog-id* 4)
-(def *image-url-prefix* "http://wearcognition.com/images/uploads/")
 
 (defrecord MySQLAccess []
   DataAccess
