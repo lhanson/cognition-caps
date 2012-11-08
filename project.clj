@@ -15,7 +15,5 @@
                  [org.slf4j/slf4j-log4j12 "1.6.1"]
                  [ring "1.1.6"]
                  [rome "1.0"]]
-  :dev-dependencies [[com.mysql/connectorj "5.1.12"] ; migration from Hostmonster/MySQL
-                     [robert/hooke "1.1.2"]]
-  :hooks [leiningen.hooks.classpath])                ; add classpath entries for local execution
+  :dev-dependencies [[com.mysql/connectorj "5.1.12"]]) ; migration from Hostmonster/MySQL
 
