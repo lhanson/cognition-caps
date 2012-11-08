@@ -148,7 +148,7 @@
                                  where (not-null ::sdb/id)
                                  order-by [::sdb/id asc]}))))
 
-(def simpledb (SimpleDBAccess.))
+(defonce simpledb (SimpleDBAccess.))
 
 (defn populate-defaults! []
   "Sets up SimpleDB with our basic set of predefined values"
