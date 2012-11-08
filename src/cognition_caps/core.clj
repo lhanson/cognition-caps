@@ -9,7 +9,8 @@
   (:require [cognition-caps [data :as data] [handlers :as handlers] [feed :as feed]]
             [clojure.string :as s]
             [compojure.route :as route]
-            [compojure.handler :as handler])
+            [compojure.handler :as handler]
+            [ring.util.response :as ring-response])
   (:import (org.eclipse.jetty.server NCSARequestLog)
            (org.eclipse.jetty.server.handler AbstractHandler HandlerCollection RequestLogHandler)))
 
@@ -23,6 +24,12 @@
 
   ;;; Permanent redirects to specific files on our old site
   (GET "/images/favicon(4).ico" [] (redirect "/favicon.ico"))
+  ; There should be no reason anyone's hitting the old ExpressionEngine member pages unless it's
+  ; a bot looking for an exploit. 404 them without even sending a body.
+  (ANY ["/index.php:path" :path #"(?:/member/register)?"] {{path :path} :params query-string :query-string}
+       (if (or (and path         (.contains (s/lower-case path)         "member/register"))
+               (and query-string (.contains (s/lower-case query-string) "member/register")))
+         (ring-response/not-found nil)))
   ; Redirect URLs from the old site
   (GET ["/:path", :path #"index.php(?:/about)?"] [] (redirect "/"))
   ; Caps or merch categories

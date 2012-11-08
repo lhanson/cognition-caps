@@ -6,9 +6,9 @@
 
 (defn- request
   "Performs a Ring request on the specified web app"
-  ([resource &{ :keys [method params]
-                :or {method :get params {}}}]
-    (app {:request-method method :uri resource :params params})))
+  ([resource & { :keys [method params query-string]
+                 :or {method :get params {} query-string nil}}]
+    (app {:request-method method :uri resource :params params :query-string query-string})))
 
 (defn- assert-status [status response msg]
   "Verifies that the expected status code matches that of the given response"
@@ -27,7 +27,12 @@
 
 (deftest basic-routes
   (assert-status 200 (request "/") "Root URL returns 200")
-  (assert-status 404 (request "/foo") "Nonexistent URL returns 404"))
+  (assert-status 404 (request "/foo") "Nonexistent URL returns 404")
+  (let [error-msg "Exploits trying to hit ExpressionEngine member pages should 404"]
+    (assert-status 404 (request "/index.php/member/register") error-msg)
+    (assert-status 404 (request "/index.php/member/register" :method :post) error-msg)
+    (assert-status 404 (request "/index.php" :query-string "/member/register") error-msg)
+    (assert-status 404 (request "/index.php" :method :post :query-string "/member/register") error-msg)))
 
 (deftest canonicalization
   (let [url (str (:cap-url-prefix base-config) "some-cap")
