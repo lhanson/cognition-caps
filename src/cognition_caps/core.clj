@@ -4,9 +4,8 @@
         ring.middleware.reload
         [clojure.contrib.string :only (replace-re)]
         [clojure.tools.logging :only (info)]
-        [cognition-caps.config :only (config)]
         [cognition-caps.ring :only (redirect)])
-  (:require [cognition-caps [data :as data] [handlers :as handlers] [feed :as feed]]
+  (:require [cognition-caps [data :as data] [handlers :as handlers] [feed :as feed] [config :as c]]
             [clojure.string :as s]
             [compojure.route :as route]
             [compojure.handler :as handler]
@@ -20,7 +19,7 @@
   (GET ["/images/:imagepath", :imagepath #"(?i)(?:uploads|cache)/.+\.(?:jpg|jpeg|png)$"] {uri :uri}
        (do
          (info (str "Forwarding request to old site: " uri))
-         (redirect (str (:old-site-url config) uri) 302)))
+         (redirect (str (:old-site-url c/config) uri) 302)))
 
   ;;; Permanent redirects to specific files on our old site
   (GET "/images/favicon(4).ico" [] (redirect "/favicon.ico"))
@@ -89,7 +88,7 @@
                                      :db-queries (atom 0)}}))))
 
 (defn- wrap-reload-if-dev [routes]
-  (if (:dev-mode config)
+  (if (:dev-mode c/config)
     (wrap-reload routes '(cognition-caps.core cognition-caps.handlers cognition-caps.feed))
     routes))
 
@@ -99,6 +98,7 @@
              wrap-stats))
 
 (defn start [port]
+  (println "Starting Compojure app")
   (run-jetty app {:port port
                   :configurator (fn [server]
                                   (doto server
@@ -106,8 +106,10 @@
                                       (doto (new HandlerCollection)
                                         (.addHandler (.getHandler server))
                                         (.addHandler (doto (new RequestLogHandler)
-                                                       (.setRequestLog (NCSARequestLog.))))))))}))
+                                                       (.setRequestLog (NCSARequestLog.))))))))})
+  (println "Done running Jetty app"))
 
 (defn -main []
+  (println "Invoked main, starting app")
   (start (Integer/parseInt (or (System/getenv "PORT") "3000"))))
 
