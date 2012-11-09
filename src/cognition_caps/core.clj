@@ -5,7 +5,7 @@
         [clojure.contrib.string :only (replace-re)]
         [clojure.tools.logging :only (info)]
         [cognition-caps.ring :only (redirect)])
-  (:require [cognition-caps [data :as data] [handlers :as handlers] [feed :as feed] [config :as c]]
+  (:require [cognition-caps [data :as data] [handlers :as handlers] [feed :as feed] [config :as c] [dates :as dates]]
             [clojure.string :as s]
             [compojure.route :as route]
             [compojure.handler :as handler]
@@ -54,6 +54,35 @@
   (GET [":url", :url #".+/|.+?\p{Upper}.*"] [url]
     (redirect (->> url (replace-re #"/+$" "") (s/lower-case)))))
 
+(defmacro redef
+  "Redefine an existing value, keeping the metadata intact."
+  [name value]
+  `(let [m# (meta #'~name)
+         v# (def ~name ~value)]
+     (alter-meta! v# merge m#)
+     v#))
+
+(defmacro decorate
+  "Wrap a function in one or more decorators."
+  [func & decorators]
+  `(redef ~func (-> ~func ~@decorators)))
+
+(defmacro decorate-with
+  "Wrap multiple functions in a single decorator."
+  [decorator & funcs]
+  `(do ~@(for [f funcs]
+          `(redef ~f (~decorator ~f)))))
+
+(defn- with-header [handler header value]
+  (fn [request]
+    (let [response (handler request)]
+      (assoc-in response [:headers header] value))))
+
+(defroutes resource-routes
+  (route/resources "/"))
+
+(decorate resource-routes (with-header "Expires" (dates/next-year)))
+
 (defroutes all-routes
   (GET "/" [& query-params :as request] (handlers/index (:stats request) query-params))
   ; Legacy RSS
@@ -78,7 +107,7 @@
   (GET "/feeds/blog-atom.xml" {stats :stats {accept "accept"} :headers}
        (feed/wrap-content-type accept (feed/atom-blog stats)))
   (GET "/thanks" {stats :stats} (handlers/thanks stats))
-  (route/resources "/")
+  resource-routes
   (ANY "*" {uri :uri} (route/not-found (handlers/fourohfour uri))))
 
 (defn wrap-stats [handler]
