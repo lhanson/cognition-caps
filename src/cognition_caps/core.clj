@@ -1,17 +1,14 @@
 (ns cognition-caps.core
   (:use compojure.core
-        ring.adapter.jetty
         ring.middleware.reload
         [clojure.contrib.string :only (replace-re)]
         [clojure.tools.logging :only (info)]
         [cognition-caps.ring :only (redirect)])
-  (:require [cognition-caps [data :as data] [handlers :as handlers] [feed :as feed] [config :as c] [dates :as dates]]
+  (:require [cognition-caps [data :as data] [handlers :as handlers] [feed :as feed] [config :as c] [dates :as dates] [ring-jetty-adapter :as jetty]]
             [clojure.string :as s]
             [compojure.route :as route]
             [compojure.handler :as handler]
-            [ring.util.response :as ring-response])
-  (:import (org.eclipse.jetty.server NCSARequestLog)
-           (org.eclipse.jetty.server.handler AbstractHandler HandlerCollection RequestLogHandler)))
+            [ring.util.response :as ring-response]))
 
 ;; Routes that redirect requests to the old site's URL scheme
 (defroutes redirect-routes
@@ -127,12 +124,5 @@
              wrap-stats))
 
 (defonce server
-  (run-jetty app {:port (Integer/parseInt (or (System/getenv "PORT") "3000"))
-                  :configurator (fn [server]
-                                  (doto server
-                                    (.setHandler
-                                      (doto (new HandlerCollection)
-                                        (.addHandler (.getHandler server))
-                                        (.addHandler (doto (new RequestLogHandler)
-                                                       (.setRequestLog (NCSARequestLog.))))))))}))
+  (jetty/run-jetty app { :port (Integer/parseInt (or (System/getenv "PORT") "3000")) }))
 
