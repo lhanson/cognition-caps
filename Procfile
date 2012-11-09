@@ -1,1 +1,1 @@
-web: lein run -m cognition-caps.core
+web: lein run

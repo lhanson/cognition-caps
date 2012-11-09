@@ -97,19 +97,13 @@
              handler/api
              wrap-stats))
 
-(defn start [port]
-  (println "Starting Compojure app")
-  (run-jetty app {:port port
+(defonce server
+  (run-jetty app {:port (Integer/parseInt (or (System/getenv "PORT") "3000"))
                   :configurator (fn [server]
                                   (doto server
                                     (.setHandler
                                       (doto (new HandlerCollection)
                                         (.addHandler (.getHandler server))
                                         (.addHandler (doto (new RequestLogHandler)
-                                                       (.setRequestLog (NCSARequestLog.))))))))})
-  (println "Done running Jetty app"))
-
-(defn -main []
-  (println "Invoked main, starting app")
-  (start (Integer/parseInt (or (System/getenv "PORT") "3000"))))
+                                                       (.setRequestLog (NCSARequestLog.))))))))}))
 
