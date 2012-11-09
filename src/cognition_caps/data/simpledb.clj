@@ -7,8 +7,7 @@
             [clojure.contrib.string :as str]
             [clojure.stacktrace :as st]
             [cemerick.rummage :as sdb]
-            [cemerick.rummage.encoding :as enc]
-            [clj-logging-config.log4j :as l]))
+            [cemerick.rummage.encoding :as enc]))
 
 (declare annotate-ordered-values unannotate-ordered-values change-key
          dereference-price dereference-sizes dereference-user marshal-item
@@ -19,13 +18,8 @@
 (def *blog-domain* "blog")
 
 (defonce config
-  (let [base {:out :console :level :info}]
-    (l/set-loggers!
-      :root base
-      "com.amazonaws"     (assoc base :level :warn)
-      "org.eclipse.jetty" (assoc base :level :info)
-      "cognition-caps"    (assoc base :level (:app-log-level config/config)))
-    (info "Loggers initialized, creating sdb client")
+  (do
+    (info "Creating sdb client")
     (assoc (enc/all-prefixed-config)
            :client (sdb/create-client (get config/config "amazon-access-id")
                                       (get config/config "amazon-access-key")))))
