@@ -347,7 +347,7 @@ footer {
     height: 169px;
     font-size: 16px;
     margin-top: 135px;
-    background: url(images/bg_footer.gif) repeat left top;
+    background: url(images/bg_footer.png) repeat left top;
 }
 #footerDrawing { margin: -105px 0px 25px 0px; }
 #footerContent {
@@ -356,7 +356,7 @@ footer {
     margin: 0px auto;
     background: url(images/footer_topline.gif) no-repeat,
                 url(images/footer_logo.gif) left 12px no-repeat,
-                url(images/footer_bottomlines.gif) bottom no-repeat;
+                url(images/footer_bottomlines.png) bottom no-repeat;
 }
 #facebookLink {
     float: right;
