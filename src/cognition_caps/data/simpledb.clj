@@ -17,7 +17,7 @@
 (def *items-domain* "items")
 (def *blog-domain* "blog")
 
-(defonce config
+(defonce sdb-conf
   (do
     (info "Creating sdb client")
     (assoc (enc/all-prefixed-config)
@@ -26,7 +26,7 @@
 
 (defn- select-item [queryCount field-name field-value prices sizes users]
   (swap! queryCount inc)
-  (if-let [result (sdb/query config
+  (if-let [result (sdb/query sdb-conf
                              `{select * from items
                                where (= ~field-name ~field-value)})]
     (unmarshal-item (first result) prices sizes users)))
@@ -53,9 +53,9 @@
           sizes (.get-sizes this queryCount)
           users (.get-users this queryCount)]
       (map #(unmarshal-item % prices sizes users)
-           (sdb/query-all config `{select * from items
-                                   where (and (not-null :display-order) (not-null ~sort-key))
-                                   order-by [~sort-key ~order]}))))
+           (sdb/query-all sdb-conf `{select * from items
+                                     where (and (not-null :display-order) (not-null ~sort-key))
+                                     order-by [~sort-key ~order]}))))
 
   (get-items-range [this queryCount begin limit]
     (swap! queryCount inc)
@@ -70,7 +70,7 @@
                          where (>= :display-order ~begin-padded)
                          limit ~limit
                          order-by [:display-order asc]}]
-      (map #(unmarshal-item % prices sizes users) (sdb/query-all config query))))
+      (map #(unmarshal-item % prices sizes users) (sdb/query-all sdb-conf query))))
 
   (get-items-range-filter [this queryCount begin limit filter-tag]
     (swap! queryCount inc)
@@ -86,74 +86,74 @@
                                     (= :tags ~filter-tag))
                          limit ~limit
                          order-by [:display-order asc]}]
-      (map #(unmarshal-item % prices sizes users) (sdb/query config query))))
+      (map #(unmarshal-item % prices sizes users) (sdb/query sdb-conf query))))
 
 
   (get-visible-item-count [this queryCount]
     (swap! queryCount inc)
-    (sdb/query config '{select count from items
+    (sdb/query sdb-conf '{select count from items
                         where (not-null :display-order)}))
 
   (put-items [this queryCount items]
     (println "Persisting" (count items) "items to SimpleDB")
     (swap! queryCount inc)
     (try
-      (sdb/batch-put-attrs config *items-domain* (map marshal-item items))
+      (sdb/batch-put-attrs sdb-conf *items-domain* (map marshal-item items))
       (catch Exception e (println (st/print-stack-trace e)))))
 
   (get-sizes [this queryCount]
     (swap! queryCount inc)
-    (map unmarshal-ids (sdb/query-all config '{select * from sizes})))
+    (map unmarshal-ids (sdb/query-all sdb-conf '{select * from sizes})))
 
   (get-prices [this queryCount]
     (swap! queryCount inc)
-      (map unmarshal-ids (sdb/query-all config '{select * from prices})))
+      (map unmarshal-ids (sdb/query-all sdb-conf '{select * from prices})))
 
   (update-item [this queryCount id attr-name attr-value]
     (swap! queryCount inc)
-    (sdb/put-attrs config *items-domain* {::sdb/id id (keyword attr-name) attr-value}))
+    (sdb/put-attrs sdb-conf *items-domain* {::sdb/id id (keyword attr-name) attr-value}))
 
   (get-blog [this queryCount]
     (swap! queryCount inc)
     (let [users (.get-users this queryCount)]
       (map #(unmarshal-blog % users)
-           (sdb/query-all config '{select * from blog
-                                   where (not-null :date-added)
-                                   order-by [:date-added desc]}))))
+           (sdb/query-all sdb-conf '{select * from blog
+                                       where (not-null :date-added)
+                                       order-by [:date-added desc]}))))
 
   (put-blog [this queryCount items]
     (swap! queryCount inc)
     (try
       (debug "Persisting" (pprint (map marshal-blog items)))
-      (sdb/batch-put-attrs config *blog-domain* (map marshal-blog items))
+      (sdb/batch-put-attrs sdb-conf *blog-domain* (map marshal-blog items))
       (catch Exception e (println (st/print-stack-trace e)))))
 
   (get-blog-entry [this queryCount url-title]
     (swap! queryCount inc)
-    (if-let [raw-entry (first (sdb/query config `{select * from blog
-                                                 where (= :url-title ~url-title)}))]
+    (if-let [raw-entry (first (sdb/query sdb-conf `{select * from blog
+                                                      where (= :url-title ~url-title)}))]
       (let [users (.get-users this queryCount)]
         (unmarshal-blog raw-entry users))))
 
   (get-users [this queryCount]
     (swap! queryCount inc)
     (map #(unmarshal-user %)
-         (sdb/query-all config '{select * from users 
-                                 where (not-null ::sdb/id)
-                                 order-by [::sdb/id asc]}))))
+         (sdb/query-all sdb-conf '{select * from users 
+                                     where (not-null ::sdb/id)
+                                     order-by [::sdb/id asc]}))))
 
 (defonce simpledb (SimpleDBAccess.))
 
 (defn populate-defaults! []
   "Sets up SimpleDB with our basic set of predefined values"
-  (sdb/create-domain config *items-domain*)
-  (sdb/create-domain config *blog-domain*)
-  (sdb/create-domain config "sizes")
-  (sdb/batch-put-attrs config "sizes" (map #(change-key % :id ::sdb/id) default-sizes))
-  (sdb/create-domain config "prices")
-  (sdb/batch-put-attrs config "prices" (map #(change-key % :id ::sdb/id) default-prices))
-  (sdb/create-domain config "users")
-  (sdb/batch-put-attrs config "users" (map #(change-key % :id ::sdb/id) default-users)))
+  (sdb/create-domain sdb-conf *items-domain*)
+  (sdb/create-domain sdb-conf *blog-domain*)
+  (sdb/create-domain sdb-conf "sizes")
+  (sdb/batch-put-attrs sdb-conf "sizes" (map #(change-key % :id ::sdb/id) default-sizes))
+  (sdb/create-domain sdb-conf "prices")
+  (sdb/batch-put-attrs sdb-conf "prices" (map #(change-key % :id ::sdb/id) default-prices))
+  (sdb/create-domain sdb-conf "users")
+  (sdb/batch-put-attrs sdb-conf "users" (map #(change-key % :id ::sdb/id) default-users)))
 
 (defn- annotate-ordered-values [item]
   "If any of the values in the given map are sequences, prepends each of the

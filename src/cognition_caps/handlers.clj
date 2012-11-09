@@ -1,11 +1,11 @@
 (ns cognition-caps.handlers
-  (:use [cognition-caps.data.simpledb :only (simpledb)]
-        [cognition-caps.config :only (config)]
+  (:use [cognition-caps.config :only (config)]
         [cognition-caps.ring :only (redirect)]
         [clojure.contrib.string :only (lower-case replace-re)]
         [clojure.tools.logging :only (debug)]
         [clj-time.core :only (after? minus months now)])
   (:require [cognition-caps [data :as data] [urls :as urls]]
+            [cognition-caps.data.simpledb :as sdb]
             [clojure.contrib.math :as math]
             [clj-time.coerce :as time-coerce]
             [clj-time.format :as time-format]
@@ -156,8 +156,8 @@
   "Renders the main item listing. Note that pagination assumes 0-based, consecutive
    display ordering of visible items."
   (let [items-per-page (if limit (Integer/parseInt limit) *items-per-page*)
-        items (data/get-items-range simpledb (:db-queries stats) begin items-per-page)
-        visible-item-count (data/get-visible-item-count simpledb (:db-queries stats))
+        items (data/get-items-range sdb/simpledb (:db-queries stats) begin items-per-page)
+        visible-item-count (data/get-visible-item-count sdb/simpledb (:db-queries stats))
         page-count         (math/ceil (/ visible-item-count items-per-page))
         current-page       (inc (math/floor (/ (Integer/parseInt begin) items-per-page)))]
     (base {:main (show-items items current-page page-count items-per-page)
@@ -166,8 +166,8 @@
 (defn caps [stats {:keys [begin limit] :or {begin "0"}}]
   "Renders the list of caps. See 'index' docstring for pagination details"
   (let [items-per-page (if limit (Integer/parseInt limit) *items-per-page*)
-        items (data/get-items-range-filter simpledb (:db-queries stats) begin items-per-page :item-type-cap)
-        visible-item-count (data/get-visible-item-count simpledb (:db-queries stats))
+        items (data/get-items-range-filter sdb/simpledb (:db-queries stats) begin items-per-page :item-type-cap)
+        visible-item-count (data/get-visible-item-count sdb/simpledb (:db-queries stats))
         page-count         (math/ceil (/ visible-item-count items-per-page))
         current-page       (inc (math/floor (/ (Integer/parseInt begin) items-per-page)))]
     (base {:main (show-items items current-page page-count items-per-page)
@@ -176,8 +176,8 @@
 (defn merches [stats {:keys [begin limit] :or {begin "0"}}]
   "Renders the list of merchandise. See 'index' docstring for pagination details"
   (let [items-per-page (if limit (Integer/parseInt limit) *items-per-page*)
-        items (data/get-items-range-filter simpledb (:db-queries stats) begin items-per-page :item-type-merch)
-        visible-item-count (data/get-visible-item-count simpledb (:db-queries stats))
+        items (data/get-items-range-filter sdb/simpledb (:db-queries stats) begin items-per-page :item-type-merch)
+        visible-item-count (data/get-visible-item-count sdb/simpledb (:db-queries stats))
         page-count         (math/ceil (/ visible-item-count items-per-page))
         current-page       (inc (math/floor (/ (Integer/parseInt begin) items-per-page)))]
     (base {:main (show-items items current-page page-count items-per-page)
@@ -199,7 +199,7 @@
                :stats stats})))))
 
 (defn- item-by-url-title [stats url-title]
-  (data/get-item simpledb (:db-queries stats) url-title))
+  (data/get-item sdb/simpledb (:db-queries stats) url-title))
 
 (defn cap [stats url-title]
   (if-let [cap (item-by-url-title stats url-title)]
@@ -226,7 +226,7 @@
 )
 
 (defn blog-entry [stats url-title]
-  (if-let [entry (data/get-blog-entry simpledb (:db-queries stats) url-title)]
+  (if-let [entry (data/get-blog-entry sdb/simpledb (:db-queries stats) url-title)]
     (base {:main (show-blog-entry entry)
            :title (str (:title entry) " - " *title-base*)
            :stats stats})))

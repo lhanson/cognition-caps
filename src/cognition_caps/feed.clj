@@ -1,9 +1,9 @@
 (ns cognition-caps.feed
   (:use [clojure.tools.logging :only (debug)]
         [clojure.java.io :only (file)]
-        [cognition-caps.data.simpledb :only (simpledb)]
         [cognition-caps.config :only (config)])
   (:require [cognition-caps.data :as data]
+            [cognition-caps.data.simpledb :as sdb]
             [clj-time.coerce :as tc]
             [clj-time.format :as tf])
   (:import (com.sun.syndication.io SyndFeedOutput)
@@ -55,20 +55,20 @@
 
 (defn atom-store [stats]
   "Returns an Atom feed for store items"
-  (let [items (take *feed-entry-count* (data/get-items simpledb (:db-queries stats) :date-added 'desc))
+  (let [items (take *feed-entry-count* (data/get-items sdb/simpledb (:db-queries stats) :date-added 'desc))
         entries (create-entries items)
         feed (create-feed entries "Store" "store-atom.xml")]
     (.. (new SyndFeedOutput) (outputString feed))))
 
 (defn atom-blog [stats]
-  (let [entries (take *feed-entry-count* (data/get-blog simpledb (:db-queries stats)))
+  (let [entries (take *feed-entry-count* (data/get-blog sdb/simpledb (:db-queries stats)))
         feed-entries (create-entries entries)
         feed (create-feed feed-entries "Blog" "blog-atom.xml")]
     (.. (new SyndFeedOutput) (outputString feed))))
 
 (defn atom-all [stats]
-  (let [items (take *feed-entry-count* (data/get-items simpledb (:db-queries stats) :date-added 'desc))
-        blog-entries (take *feed-entry-count* (data/get-blog simpledb (:db-queries stats)))
+  (let [items (take *feed-entry-count* (data/get-items sdb/simpledb (:db-queries stats) :date-added 'desc))
+        blog-entries (take *feed-entry-count* (data/get-blog sdb/simpledb (:db-queries stats)))
         ; It might be more efficient to loop *feed-entry-count* times and pull the most recent element
         ; of the two collections, but this is simple
         recent (take *feed-entry-count* (sort-by :date-added > (concat items blog-entries)))
