@@ -6,6 +6,7 @@
     === Missing features
         - Blog UI
     === General improvements
+        - Move page design images to S3.
         - Minify JS and CSS
         - Use Sass for CSS
         - Use feedburner?
