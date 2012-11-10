@@ -2,36 +2,35 @@
 
 == Bugs
 
-== Enhancements after release
+== Enhancements
     === Missing features
-    - Blog UI
+        - Blog UI
     === General improvements
-    - Implement all recommendations given by Chrome's PageSpeed extension.
-    - Maybe have each cap image's background switch to a highlighted green version on hover
-    - Use feedburner?
-    - Add superfeedr hub link to RSS feeds
-    - Pagination. Infinite scroll, with standard paging for fallback.
-    - Aggregate/compress CSS and JS
-    - Use Sass for CSS
-    - Implement Schema.org microdata: http://schema.org/docs/gs.html
-    - Implement Open Graph protocol: http://ogp.me/
-    - Meta title and description? https://developers.google.com/+/plugins/+1button/#plus-snippet
-    - Watch: http://support.google.com/webmasters/bin/answer.py?hl=en&answer=35624
-    - Google Sitemap: http://support.google.com/webmasters/bin/answer.py?hl=en&answer=183668
-    - Try these for nav links, etc:
-        text-shadow: white 0.1em 0.1em 0.2em;
-        text-shadow: 2pxpx 2px 2px rgba(255, 255, 255, 1);
-    - Admin interface
-    - We define records in data.clj but don't always use them, often just creating a map
-    - Implement encrypted PayPal buttons to avoid users tampering with prices, etc.
-      https://cms.paypal.com/us/cgi-bin/?cmd=_render-content&content_ID=developer/e_howto_html_encryptedwebpayments#id08A3I0P017Q
-      Current version of the site uses non-encrypted buttons anyway
+        - Maybe have each cap image's background switch to a highlighted green version on hover
+        - Minify JS and CSS
+        - Use Sass for CSS
+        - Use feedburner?
+        - Add superfeedr hub link to RSS feeds
+        - Pagination. Infinite scroll, with standard paging for fallback.
+        - Implement Schema.org microdata: http://schema.org/docs/gs.html
+        - Implement Open Graph protocol: http://ogp.me/
+        - Meta title and description? https://developers.google.com/+/plugins/+1button/#plus-snippet
+        - Watch: http://support.google.com/webmasters/bin/answer.py?hl=en&answer=35624
+        - Google Sitemap: http://support.google.com/webmasters/bin/answer.py?hl=en&answer=183668
+        - Try these for nav links, etc:
+            text-shadow: white 0.1em 0.1em 0.2em;
+            text-shadow: 2pxpx 2px 2px rgba(255, 255, 255, 1);
+        - Admin interface
+        - We define records in data.clj but don't always use them, often just creating a map
+        - Implement encrypted PayPal buttons to avoid users tampering with prices, etc.
+          https://cms.paypal.com/us/cgi-bin/?cmd=_render-content&content_ID=developer/e_howto_html_encryptedwebpayments#id08A3I0P017Q
+          Current version of the site uses non-encrypted buttons anyway
 
     === Admin backend
-    - Add a history tracking entity. When a cap attribute is changed, store a
-      diff into a History domain; something like
-      {:type cap :changed-field "price" :old-value "25" :date-changed "2011-02-01"}.
-      The same could apply to other items as well.
-    - If/when an item is renamed, it cannot be renamed to a name that a different
-      item has owned in the past so 301 redirects converge on the unique items
+        - Add a history tracking entity. When a cap attribute is changed, store a
+          diff into a History domain; something like
+          {:type cap :changed-field "price" :old-value "25" :date-changed "2011-02-01"}.
+          The same could apply to other items as well.
+        - If/when an item is renamed, it cannot be renamed to a name that a different
+          item has owned in the past so 301 redirects converge on the unique items
 
