@@ -6,7 +6,6 @@
     === Missing features
         - Blog UI
     === General improvements
-        - Maybe have each cap image's background switch to a highlighted green version on hover
         - Minify JS and CSS
         - Use Sass for CSS
         - Use feedburner?

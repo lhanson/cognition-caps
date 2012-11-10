@@ -134,12 +134,14 @@ nav a:hover { border-bottom: none;}
 .item {
     display: inline-block;
     position: relative;
-    background: url(images/bg_item.png) no-repeat;
+    /* Sprites done with http://spritepad.wearekiss.com/# */
+    background-image: url(images/sprites.png);
     width: 229px;
     margin: 14px;
     text-align: right;
     vertical-align: top;
 }
+.item:hover { background-position: -230px 0; }
 .item a, #images a {
     color: black;
     border: none;
@@ -196,9 +198,13 @@ nav a:hover { border-bottom: none;}
 #thumbnails img {
     margin: 2px 15px 2px 2px;
 }
-#thumbnails img.selected {
-    margin: 0px 13px 0px 0px;
+#thumbnails img:hover {
     border: 2px dotted #B2CD00;
+    margin: 0px 13px 0px 0px;
+}
+#thumbnails img.selected {
+    border: 2px solid #B2CD00;
+    margin: 0px 13px 0px 0px;
 }
 #sizingLink:hover {
     border: 2px dotted #B2CD00;
@@ -255,8 +261,9 @@ nav a:hover { border-bottom: none;}
     margin-top: 20px;
     text-indent: -9999px;
     white-space: nowrap;
-    background: url(images/cart_add.png) no-repeat left top;
+    background: transparent url(images/sprites.png)  0 -340px;
 }
+#itemDetails form input:hover { background-position: -157px -340px; }
 
 #error {
     margin: 0 auto;
