@@ -72,7 +72,7 @@
 
 (defn- with-header [handler header value]
   (fn [request]
-    (let [response (handler request)]
+    (when-let [response (handler request)]
       (assoc-in response [:headers header] value))))
 
 (defroutes resource-routes
@@ -123,6 +123,6 @@
              handler/api
              wrap-stats))
 
-(defonce server
+(defn -main []
   (jetty/run-jetty app { :port (Integer/parseInt (or (System/getenv "PORT") "3000")) }))
 
