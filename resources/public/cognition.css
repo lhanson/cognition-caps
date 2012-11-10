@@ -88,6 +88,8 @@ nav a:hover { border-bottom: none;}
 
 #featureWrapper {
     position: relative;
+    /* Fallback for IE8, which doesn't support multiple background images */
+    background: url(images/feature/cows_with_bg_frame.png) 21px 0px no-repeat;
     background: url(images/feature_ticker.png) 10px 20px no-repeat,
                 url(images/feature/cows.png) 21px 0px no-repeat,
                 url(images/bg_feature.png) 21px 0px no-repeat;
@@ -354,6 +356,8 @@ footer {
     width: 982px;
     height: 73px;
     margin: 0px auto;
+    /* Fallback for IE8, which doesn't support multiple background images */
+    background: url(images/footer_bg_fallback.png) no-repeat;
     background: url(images/footer_topline.gif) no-repeat,
                 url(images/footer_logo.gif) left 12px no-repeat,
                 url(images/footer_bottomlines.png) bottom no-repeat;
