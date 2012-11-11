@@ -29,11 +29,16 @@
              (.setAuthors [(doto (new Person)
                              (.setName (get-in entry [:user :username]))
                              (.setEmail (get-in entry [:user :email])))])
-             (.setAlternateLinks [(doto (new Link) (.setHref (str (:url-base config) "/" )))])
+             (.setAlternateLinks [(doto (new Link)
+                                    (.setHref (str (:url-base config)
+                                                   "/"
+                                                   (cond (:body entry) (str "blog/" (:url-title entry))
+                                                         (:item-type-cap (:tags entry)) (str "caps/" (:url-title entry))
+                                                         (:item-type-merch (:tags entry)) (str "merch/" (:url-title entry))))))])
              (.setContents [(doto (new Content) (.setType "html") (.setValue content))]))))
        maps))
 
-(defn- create-feed [entries title-suffix feed-filename]
+(defn- create-feed [entries title-suffix link-path feed-filename]
   "Returns a com.sun.syndication.feed.synd.SyndFeedImpl from the given entries"
   (new SyndFeedImpl
        (doto (new Feed)
@@ -50,20 +55,20 @@
          (.setLogo (str (:url-base config) "/images/top_animation.gif"))
          (.setUpdated (.getPublished (first entries)))
          (.setOtherLinks [(doto (new Link) (.setHref (str (:url-base config) (str "/feeds/" feed-filename))) (.setRel "self"))])
-         (.setAlternateLinks [(doto (new Link) (.setHref (:url-base config)))])
+         (.setAlternateLinks [(doto (new Link) (.setHref (str (:url-base config) link-path)))])
          (.setEntries entries))))
 
 (defn atom-store [stats]
   "Returns an Atom feed for store items"
   (let [items (take *feed-entry-count* (data/get-items sdb/simpledb (:db-queries stats) :date-added 'desc))
         entries (create-entries items)
-        feed (create-feed entries "Store" "store-atom.xml")]
+        feed (create-feed entries "Store" ""  "store-atom.xml")]
     (.. (new SyndFeedOutput) (outputString feed))))
 
 (defn atom-blog [stats]
   (let [entries (take *feed-entry-count* (data/get-blog sdb/simpledb (:db-queries stats)))
         feed-entries (create-entries entries)
-        feed (create-feed feed-entries "Blog" "blog-atom.xml")]
+        feed (create-feed feed-entries "Blog" "/blog"  "blog-atom.xml")]
     (.. (new SyndFeedOutput) (outputString feed))))
 
 (defn atom-all [stats]
@@ -73,7 +78,7 @@
         ; of the two collections, but this is simple
         recent (take *feed-entry-count* (sort-by :date-added > (concat items blog-entries)))
         feed-entries (create-entries recent)
-        feed (create-feed feed-entries "All Updates" "all-atom.xml")]
+        feed (create-feed feed-entries "All Updates" ""  "all-atom.xml")]
     (.. (new SyndFeedOutput) (outputString feed))))
 
 (defn rss-legacy-caps []
