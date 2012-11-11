@@ -8,18 +8,18 @@
 
     <channel>
     
-    <title>Cognition Caps</title>
-    <link>http://wearcognition.com/index.php/caps/</link>
+    <title>Cognition Caps - Store</title>
+    <link>http://www.wearcognition.com</link>
     <description>Cognition Caps</description>
-    <dc:rights>Copyright 2011</dc:rights>
-    <dc:date>2012-07-18T03:20:47-06:00</dc:date>
+    <dc:rights>Copyright 2012</dc:rights>
+    <dc:date>2012-11-11T03:20:47-06:00</dc:date>
     
     <item>
       <title>Our store feed has moved!</title>
       <link>http://wearcognition.com</link>
       <guid>http://wearcognition.com#When:12:07:47Z</guid>
       <content:encoded><![CDATA[<p>Hi, everyone! We're very excited to launch our new site. As a result, our RSS feeds have been updated and moved. This feed will no longer be active;
-              please unfollow it and subscribe to the new one here: <a href="http://wearcognition.com/feeds/store-atom.xml</a>.</p>
+              please unfollow it and subscribe to the new one here: <a href="http://www.wearcognition.com/feeds/store-atom.xml">wearcognition.com/feeds/store-atom.xml</a>.</p>
 
           <p>Thanks!</p>]]></content:encoded>
       <dc:date>2012-07-18T03:20:47-06:00</dc:date>
