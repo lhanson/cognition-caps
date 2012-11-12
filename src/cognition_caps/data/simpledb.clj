@@ -10,9 +10,10 @@
             [cemerick.rummage.encoding :as enc]))
 
 (declare annotate-ordered-values unannotate-ordered-values change-key
-         dereference-price dereference-sizes dereference-user marshal-item
-         merge-large-field unmarshal-item marshal-blog unmarshal-blog
-         unmarshal-ids unmarshal-user split-large-field ensure-tags-set)
+         dereference-price dereference-sizes dereference-user flatten-user
+         marshal-item merge-large-field unmarshal-item marshal-blog
+         unmarshal-blog unmarshal-ids unmarshal-user split-large-field
+         ensure-tags-set)
 
 (def *items-domain* "items")
 (def *blog-domain* "blog")
@@ -30,6 +31,12 @@
                              `{select * from items
                                where (= ~field-name ~field-value)})]
     (unmarshal-item (first result) prices sizes users)))
+
+(defn- pad-begin-index [begin]
+  (str (str/repeat (- (get config/config :display-order-len)
+                      (count begin))
+                   "0")
+       begin))
 
 (defrecord SimpleDBAccess []
   DataAccess
@@ -62,10 +69,7 @@
     (let [prices       (.get-prices this queryCount)
           sizes        (.get-sizes this queryCount)
           users        (.get-users this queryCount)
-          begin-padded (str (str/repeat (- (get config/config :display-order-len)
-                                           (count begin))
-                                        "0")
-                            begin)
+          begin-padded (pad-begin-index begin)
           query        `{select * from items
                          where (>= :display-order ~begin-padded)
                          limit ~limit
@@ -77,17 +81,13 @@
     (let [prices       (.get-prices this queryCount)
           sizes        (.get-sizes this queryCount)
           users        (.get-users this queryCount)
-          begin-padded (str (str/repeat (- (get config/config :display-order-len)
-                                           (count begin))
-                                        "0")
-                            begin)
+          begin-padded (pad-begin-index begin)
           query        `{select * from items
                          where (and (>= :display-order ~begin-padded)
                                     (= :tags ~filter-tag))
                          limit ~limit
                          order-by [:display-order asc]}]
       (map #(unmarshal-item % prices sizes users) (sdb/query sdb-conf query))))
-
 
   (get-visible-item-count [this queryCount]
     (swap! queryCount inc)
@@ -128,12 +128,27 @@
       (sdb/batch-put-attrs sdb-conf *blog-domain* (map marshal-blog items))
       (catch Exception e (println (st/print-stack-trace e)))))
 
+  (get-blog-range [this queryCount begin limit]
+    (swap! queryCount inc)
+    (let [users (.get-users this queryCount)
+          begin-padded (pad-begin-index begin)]
+      (map #(unmarshal-blog % users)
+           (sdb/query-all sdb-conf `{select * from blog
+                                     where (>= :display-order ~begin-padded)
+                                     order-by [:display-order asc]
+                                     limit ~limit}))))
+
   (get-blog-entry [this queryCount url-title]
     (swap! queryCount inc)
     (if-let [raw-entry (first (sdb/query sdb-conf `{select * from blog
                                                       where (= :url-title ~url-title)}))]
       (let [users (.get-users this queryCount)]
         (unmarshal-blog raw-entry users))))
+
+  (get-visible-blog-count [this queryCount]
+    (swap! queryCount inc)
+    (sdb/query sdb-conf '{select count from blog
+                          where (not-null :display-order)}))
 
   (get-users [this queryCount]
     (swap! queryCount inc)
@@ -248,6 +263,7 @@
 (defn marshal-blog [entry]
   (-> entry
     (change-key :id ::sdb/id)
+    (flatten-user)
     (split-large-field :body)))
 
 (defn unmarshal-blog [entry users]
@@ -334,4 +350,7 @@
 (defn dereference-user [m users]
   "Associates a user based on :user-id in m"
   (dissoc (assoc m :user (first (filter #(= (:user-id m) (:id %)) users))) :user-id))
+
+(defn flatten-user [m]
+  (dissoc (assoc m :user-id (:id (:user m))) :user))
 

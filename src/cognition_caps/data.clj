@@ -18,8 +18,11 @@
   (update-item [this queryCount id
                attr-name attr-value]        "Updates the given attribute")
   (get-blog  [this queryCount]              "Returns all blog entries starting with the latest")
+  (get-blog-range [this queryCount begin limit]
+             "Provides a sequence of 'limit' blog entries beginning with the given starting index")
   (get-blog-entry [this queryCount url-title] "Provides the blog entry corresponding to the given url-title")
   (put-blog  [this queryCount items]        "Persists blog items")
+  (get-visible-blog-count [this queryCount] "Provides a count of available blog entries for viewing")
   (get-users [this queryCount]              "Returns the users in the system"))
 
 ;; =============================================================================
@@ -34,9 +37,10 @@
      :or {url-title id date-added (now) display-order nil}}]
     (Item. id nom url-title description image-urls price-ids sizes tags user-id date-added display-order))
 
-(defrecord BlogEntry [id title url-title image-url body user-id date-added])
-(defn make-BlogEntry [{:keys [id title url-title image-url body user-id date-added]}]
-  (BlogEntry. id title url-title image-url body user-id date-added))
+; id is the legacy ExpressionEngine value
+(defrecord BlogEntry [id display-order title url-title image-url body user-id date-added])
+(defn make-BlogEntry [{:keys [id display-order title url-title image-url body user-id date-added]}]
+  (BlogEntry. id display-order title url-title image-url body user-id date-added))
 
 (defrecord User [id username])
 (defn make-User [{:keys [id username]}]

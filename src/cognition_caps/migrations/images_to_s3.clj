@@ -109,7 +109,7 @@
                                (assoc (keyword (str "thumb-" idx)) thumb-url))
                            (inc idx))))))))))))
 
-(defn- migrate-blog-body-image!
+(defn migrate-blog-body-image!
   "Takes a placeholder URL (like {filedir}image.jpg), expands out the URL, and
    uploads it to S3. Returns the new S3 URL."
   [placeholder_url item-id]

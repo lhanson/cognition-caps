@@ -94,7 +94,7 @@
              (= "merch" item-type) (handlers/merch (:stats request) url-title)))
   (GET "/sizing" {stats :stats} (handlers/sizing stats))
   (GET "/faq" {stats :stats} (handlers/faq stats))
-  (GET "/blog" {stats :stats} (handlers/blog stats))
+  (GET "/blog" [& query-params :as request] (handlers/blog (:stats request) query-params))
   (GET "/blog/:url-title" [url-title & params :as request]
        (handlers/blog-entry (:stats request) url-title))
   (GET "/feeds/all-atom.xml" {stats :stats {accept "accept"} :headers}
@@ -115,7 +115,7 @@
 
 (defn- wrap-reload-if-dev [routes]
   (if (:dev-mode c/config)
-    (wrap-reload routes '(cognition-caps.core cognition-caps.handlers cognition-caps.feed))
+    (wrap-reload routes '(cognition-caps.core cognition-caps.handlers cognition-caps.feed cognition-caps.simpledb))
     routes))
 
 (def app (-> (var all-routes)

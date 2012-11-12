@@ -16,6 +16,7 @@
 
 (def *title-base* "Cognition Caps")
 (def *items-per-page* 32)
+(def blog-entries-per-page 5)
 
 (defmacro maybe-append
   ([expr] `(if-let [x# ~expr] (html/append x#) identity))
@@ -123,13 +124,20 @@
   (html/set-attr :data-href (urls/absolute-url item)))
 
 ; Snippet for generating markup for an individual blog entry
-(html/defsnippet show-blog-entry "blog-entry.html" [:#blogEntry]
-  [entry]
-  [:#title] (html/content (:title entry))
-  [:#author] (html/content (:user-id entry)) ;TODO: decode to username
-  [:#publishDate] (html/content (time-format/unparse (time-format/formatter "EEE, dd MMM yyyy") (time-coerce/from-long (* 1000 (:date-added entry)))))
-  [:#body] (html/html-content (:body entry))
-  [:#titlePhoto] (html/set-attr :src (:image-url entry)))
+(html/defsnippet show-blog-entry "blog.html" [:.blogEntry]
+  [link-title? entry]
+  [:.title :.url] (html/do->
+                    (html/content (:title entry))
+                    (html/set-attr :href (str "/blog/" (:url-title entry))))
+  [:.title :.url] (change-when (not  link-title?) html/unwrap)
+  [:.author] (html/content (:username (:user entry)))
+  [:.publishDate] (html/content (time-format/unparse (time-format/formatter "EEE, dd MMM yyyy") (time-coerce/from-long (* 1000 (:date-added entry)))))
+  [:.body] (html/html-content (:body entry))
+  [:.titlePhoto] (html/set-attr :src (:image-url entry)))
+
+(html/defsnippet show-blog "blog.html" [:#main]
+  [entries current-page page-count items-per-page]
+  [:#entries] (html/content (map (partial show-blog-entry true) entries)))
 
 (html/defsnippet fourohfoursnippet "404.html" [:#main :> :*]
   [url]
@@ -221,13 +229,20 @@
          :title (str "FAQ - " *title-base*)
          :stats stats}))
 
-(defn blog [stats]
-  ; TODO
-)
+(defn blog [stats {:keys [begin limit] :or {begin "0"}}]
+  ; TODO: pagination
+  (let [entries-per-page (if limit (Integer/parseInt limit) blog-entries-per-page)
+        fo (println "getting blog range from" begin ", count:" entries-per-page)
+        entries (data/get-blog-range sdb/simpledb (:db-queries stats) begin entries-per-page)
+        visible-blog-count (data/get-visible-blog-count sdb/simpledb (:db-queries stats))
+        page-count         (math/ceil (/ visible-blog-count entries-per-page))
+        current-page       (inc (math/floor (/ (Integer/parseInt begin) entries-per-page)))]
+    (base {:main (show-blog entries current-page page-count entries-per-page)
+           :stats stats})))
 
 (defn blog-entry [stats url-title]
   (if-let [entry (data/get-blog-entry sdb/simpledb (:db-queries stats) url-title)]
-    (base {:main (show-blog-entry entry)
+    (base {:main (show-blog-entry false entry)
            :title (str (:title entry) " - " *title-base*)
            :stats stats})))
 

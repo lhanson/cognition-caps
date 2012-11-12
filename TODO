@@ -5,6 +5,7 @@
 == Enhancements
     === Missing features
         - Blog UI
+        - Social media links in blog entries
     === General improvements
         - Move page design images to S3.
         - Minify JS and CSS
