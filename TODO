@@ -1,5 +1,9 @@
 = TODO
 
+    Working on:
+        - Test pagination, style it
+        - Factor pagination of query params out of handlers (mutlimethod? helper?)
+
 == Bugs
 
 == Enhancements

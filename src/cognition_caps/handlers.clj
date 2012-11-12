@@ -9,8 +9,7 @@
             [clojure.contrib.math :as math]
             [clj-time.coerce :as time-coerce]
             [clj-time.format :as time-format]
-            [net.cgrand.enlive-html :as html]
-            [clojure.pprint :as pp]))
+            [net.cgrand.enlive-html :as html]))
 
 (declare formatted-price)
 
@@ -40,6 +39,7 @@
     [:.price] (html/content (formatted-price item))))
 
 (defn- is-new? [item]
+(println "is-newing " item)
   (after? (time-coerce/from-long (* (java.lang.Long. (:date-added item)) 1000))
           (minus (now) (months 1))))
 
@@ -50,7 +50,6 @@
   [[:a :.url]] (html/set-attr :href (urls/relative-url item))
   [:img] (html/set-attr :src (:front-0 (:image-urls item)))
   [:.item] (html/do->
-             ;(html/set-attr :data-display-order (:display-order item))
              (change-when (is-new? item)
                           (html/append {:tag :img
                                         :attrs {:class "itemBadge"
@@ -62,28 +61,27 @@
 (defn- offset [pagenum items-per-page]
   (* (dec pagenum) items-per-page))
 
-(html/defsnippet show-items "mainContent.html" [:#main :> :*]
-  [items current-page page-count items-per-page]
-  [:#items :ul] (html/content (map item-model items))
-  [:#pagination :.previous :a]
-    (html/set-attr :href (str "/?begin=" (offset (dec current-page) items-per-page)
-                              "&limit=" items-per-page))
-  [:#pagination :.previous] #(when (> current-page 1) %)
-  [:#pagination :.pageNum]
+(html/defsnippet paginate "pagination.html" [:#pagination]
+  [url-root current-page page-count items-per-page]
+  [:.previous :a]
+    (html/set-attr :href (str url-root "?begin=" (offset (dec current-page) items-per-page) "&limit=" items-per-page))
+  [:.previous] #(when (> current-page 1) %)
+  [:.pageNum]
     (html/clone-for [pagenum (range 1 (inc page-count))]
       html/this-node (html/remove-attr :class)
       [:a] (html/do->
              (html/content (str pagenum))
              (if (= current-page pagenum)
                html/unwrap
-               (html/set-attr :href (str "/?begin=" (offset pagenum items-per-page)
-                                         "&limit=" items-per-page)))))
-  [:#pagination :.next :a]
-    (html/set-attr :href (str "/?begin=" (offset (inc current-page) items-per-page)
-                              "&limit=" items-per-page))
-  [:#pagination :.next] #(when (< current-page page-count) %)
-  ; Remove pagination if only one page is shown
-  [:#pagination] #(when (> (count (html/select % [:li])) 1) %))
+               (html/set-attr :href (str url-root "?begin=" (offset pagenum items-per-page) "&limit=" items-per-page)))))
+  [:.next :a]
+    (html/set-attr :href (str url-root "?begin=" (offset (inc current-page) items-per-page) "&limit=" items-per-page))
+  [:.next] #(when (< current-page page-count) %))
+
+
+(html/defsnippet show-items "mainContent.html" [:#items]
+  [items]
+  [:ul] (html/content (map item-model items)))
 
 ; Snippet for generating markup for an individual item page
 (html/defsnippet show-item "item.html" [:#itemDetails]
@@ -135,16 +133,23 @@
   [:.body] (html/html-content (:body entry))
   [:.titlePhoto] (html/set-attr :src (:image-url entry)))
 
-(html/defsnippet show-blog "blog.html" [:#main]
-  [entries current-page page-count items-per-page]
+(html/defsnippet show-blog "blog.html" [:#entries]
+  [entries]
   [:#entries] (html/content (map (partial show-blog-entry true) entries)))
 
 (html/defsnippet fourohfoursnippet "404.html" [:#main :> :*]
   [url]
   [:code] (html/content url))
 
+(defn- show-paginated [items current-page page-count items-per-page]
+  "Renders a sequence of items, applying pagination as appropriate"
+  (let [tags (:tags (first items))
+        pair (if (or (:item-type-cap tags) (:item-type-merch tags))
+               [show-items nil]
+               [show-blog "/blog"])]
+    (concat ((first pair) items) (paginate (second pair) current-page page-count items-per-page))))
+
 (html/deftemplate base "base.html" [{:keys [title main stats]}]
-  [html/comment-node] nil
   [:title] (if title (html/content title) (html/content *title-base*))
   [:#main] (maybe-append main)
   [:#main :> :a] (change-when (or (nil? title) (= title *title-base*)) html/unwrap)
@@ -154,7 +159,8 @@
       (html/content (str "Response generated in "
                          (/ (- (System/nanoTime) (:start-ts stats)) 1000000.0)
                                  " ms with " @(:db-queries stats) " SimpleDB queries"))
-      identity))
+      identity)
+  [html/comment-node] nil)
 
 ;; =============================================================================
 ;; Pages
@@ -168,7 +174,7 @@
         visible-item-count (data/get-visible-item-count sdb/simpledb (:db-queries stats))
         page-count         (math/ceil (/ visible-item-count items-per-page))
         current-page       (inc (math/floor (/ (Integer/parseInt begin) items-per-page)))]
-    (base {:main (show-items items current-page page-count items-per-page)
+    (base {:main (show-paginated items current-page page-count items-per-page)
            :stats stats})))
 
 (defn caps [stats {:keys [begin limit] :or {begin "0"}}]
@@ -178,7 +184,7 @@
         visible-item-count (data/get-visible-item-count sdb/simpledb (:db-queries stats))
         page-count         (math/ceil (/ visible-item-count items-per-page))
         current-page       (inc (math/floor (/ (Integer/parseInt begin) items-per-page)))]
-    (base {:main (show-items items current-page page-count items-per-page)
+    (base {:main (show-paginated items current-page page-count items-per-page) 
            :stats stats})))
 
 (defn merches [stats {:keys [begin limit] :or {begin "0"}}]
@@ -188,7 +194,7 @@
         visible-item-count (data/get-visible-item-count sdb/simpledb (:db-queries stats))
         page-count         (math/ceil (/ visible-item-count items-per-page))
         current-page       (inc (math/floor (/ (Integer/parseInt begin) items-per-page)))]
-    (base {:main (show-items items current-page page-count items-per-page)
+    (base {:main (show-paginated items current-page page-count items-per-page)
            :stats stats})))
 
 (defn- handle-item [stats item url-title]
@@ -198,13 +204,10 @@
       (do
         (debug (str "Request for url-title '" url-title
                     "' being redirected to new location '" current-title "'"))
-        ; TODO: prime the get-item cache with this result so the redirect is fast
         (redirect (urls/relative-url item) 301))
-      (do
-        (pp/pprint item)
-        (base {:main (show-item item)
-               :title (str (:nom item) " - " *title-base*)
-               :stats stats})))))
+      (base {:main (show-item item)
+             :title (str (:nom item) " - " *title-base*)
+             :stats stats}))))
 
 (defn- item-by-url-title [stats url-title]
   (data/get-item sdb/simpledb (:db-queries stats) url-title))
@@ -230,14 +233,12 @@
          :stats stats}))
 
 (defn blog [stats {:keys [begin limit] :or {begin "0"}}]
-  ; TODO: pagination
   (let [entries-per-page (if limit (Integer/parseInt limit) blog-entries-per-page)
-        fo (println "getting blog range from" begin ", count:" entries-per-page)
         entries (data/get-blog-range sdb/simpledb (:db-queries stats) begin entries-per-page)
         visible-blog-count (data/get-visible-blog-count sdb/simpledb (:db-queries stats))
         page-count         (math/ceil (/ visible-blog-count entries-per-page))
         current-page       (inc (math/floor (/ (Integer/parseInt begin) entries-per-page)))]
-    (base {:main (show-blog entries current-page page-count entries-per-page)
+    (base {:main (show-paginated entries current-page page-count entries-per-page)
            :stats stats})))
 
 (defn blog-entry [stats url-title]

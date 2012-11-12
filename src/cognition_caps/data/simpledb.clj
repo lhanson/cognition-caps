@@ -69,12 +69,12 @@
     (let [prices       (.get-prices this queryCount)
           sizes        (.get-sizes this queryCount)
           users        (.get-users this queryCount)
-          begin-padded (pad-begin-index begin)
-          query        `{select * from items
-                         where (>= :display-order ~begin-padded)
-                         limit ~limit
-                         order-by [:display-order asc]}]
-      (map #(unmarshal-item % prices sizes users) (sdb/query-all sdb-conf query))))
+          begin-padded (pad-begin-index begin)]
+      (map #(unmarshal-item % prices sizes users)
+           (sdb/query sdb-conf `{select * from items
+                                 where (>= :display-order ~begin-padded)
+                                 limit ~limit
+                                 order-by [:display-order asc]}))))
 
   (get-items-range-filter [this queryCount begin limit filter-tag]
     (swap! queryCount inc)
@@ -133,10 +133,10 @@
     (let [users (.get-users this queryCount)
           begin-padded (pad-begin-index begin)]
       (map #(unmarshal-blog % users)
-           (sdb/query-all sdb-conf `{select * from blog
-                                     where (>= :display-order ~begin-padded)
-                                     order-by [:display-order asc]
-                                     limit ~limit}))))
+           (sdb/query sdb-conf `{select * from blog
+                                 where (>= :display-order ~begin-padded)
+                                 order-by [:display-order asc]
+                                 limit ~limit}))))
 
   (get-blog-entry [this queryCount url-title]
     (swap! queryCount inc)

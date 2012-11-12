@@ -287,6 +287,9 @@ nav a:hover { border-bottom: none;}
     padding: 2px 7px 2px 7px;
     margin-right: 15px;
 }
+#entries .blogEntry { border-bottom: 1px dotted black; }
+#entries .blogEntry:last-child { border: none; }
+.blogEntry { margin: 15px 0px 40px 0px; }
 .blogEntry, #thanks {
     padding: 10px;
     text-align: left;
@@ -303,9 +306,11 @@ nav a:hover { border-bottom: none;}
     font-style: italic;
     margin: 10px 0px 10px 0px;
 }
+#faq dd, #sizing, #thanks {
+    margin-bottom: 25px;
+}
 #faq dd, #sizing, .blogEntry .body, #thanks {
     font-family: Georgia, 'Times New Roman', Times, serif;
-    margin-bottom: 25px;
 }
 #faq dd:before {
     content: "A";
