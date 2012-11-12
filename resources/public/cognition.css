@@ -297,6 +297,7 @@ nav a:hover { border-bottom: none;}
     margin-top: 50px; text-align: center;
  }
 #thanks .signature p { margin: 0px; font-style: italic; font-weight: bold; }
+.blogEntry header { margin-bottom: 15px; }
 .blogEntry header p {
     font-family: Georgia, 'Times New Roman', Times, serif;
     font-style: italic;
