@@ -1,17 +1,19 @@
 = TODO
 
     Working on:
-        - Test pagination, style it
         - Factor pagination of query params out of handlers (mutlimethod? helper?)
+        - Factor social media display out of base.html and item.html into social-media.html
 
 == Bugs
+    - From /blog, the main / link doesn't work
+    - Passing limit=0 breaks things. Probably <0 for that or begin all break things
 
 == Enhancements
     === Missing features
-        - Blog UI
         - Social media links in blog entries
     === General improvements
         - Move page design images to S3.
+        - Add more CSS background images to sprites.png: arrow_left, arrow_right, etc
         - Minify JS and CSS
         - Use Sass for CSS
         - Use feedburner?

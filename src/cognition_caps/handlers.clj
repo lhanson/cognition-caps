@@ -39,24 +39,23 @@
     [:.price] (html/content (formatted-price item))))
 
 (defn- is-new? [item]
-(println "is-newing " item)
   (after? (time-coerce/from-long (* (java.lang.Long. (:date-added item)) 1000))
           (minus (now) (months 1))))
 
 ; Snippet to generate item markup for each item on the main page
-(html/defsnippet item-model "mainContent.html" [:#items :.item]
-  [item]
-  [:*] (item-common item)
-  [[:a :.url]] (html/set-attr :href (urls/relative-url item))
-  [:img] (html/set-attr :src (:front-0 (:image-urls item)))
-  [:.item] (html/do->
-             (change-when (is-new? item)
-                          (html/append {:tag :img
-                                        :attrs {:class "itemBadge"
-                                                :src "images/badge_new.png"
-                                                :alt "New item"
-                                                :width "59px"
-                                                :height "59px"}}))))
+(defn- item-model [item]
+  (html/transformation; item-model "mainContent.html" [:#items :.item]
+    [:*] (item-common item)
+    [[:a :.url]] (html/set-attr :href (urls/relative-url item))
+    [:img] (html/set-attr :src (:front-0 (:image-urls item)))
+    [:.item] (html/do->
+               (change-when (is-new? item)
+                            (html/append {:tag :img
+                                          :attrs {:class "itemBadge"
+                                                  :src "images/badge_new.png"
+                                                  :alt "New item"
+                                                  :width "59px"
+                                                  :height "59px"}})))))
 
 (defn- offset [pagenum items-per-page]
   (* (dec pagenum) items-per-page))
@@ -68,7 +67,11 @@
   [:.previous] #(when (> current-page 1) %)
   [:.pageNum]
     (html/clone-for [pagenum (range 1 (inc page-count))]
-      html/this-node (html/remove-attr :class)
+      html/this-node (html/do->
+                       (html/remove-attr :class)
+                       (if (= current-page pagenum)
+                         (html/add-class "active")
+                         identity))
       [:a] (html/do->
              (html/content (str pagenum))
              (if (= current-page pagenum)
@@ -79,9 +82,9 @@
   [:.next] #(when (< current-page page-count) %))
 
 
-(html/defsnippet show-items "mainContent.html" [:#items]
+(html/defsnippet show-items "mainContent.html" [:#main :> :*]
   [items]
-  [:ul] (html/content (map item-model items)))
+  [:.item] (html/clone-for [item items] (item-model item)))
 
 ; Snippet for generating markup for an individual item page
 (html/defsnippet show-item "item.html" [:#itemDetails]
@@ -146,8 +149,11 @@
   (let [tags (:tags (first items))
         pair (if (or (:item-type-cap tags) (:item-type-merch tags))
                [show-items nil]
-               [show-blog "/blog"])]
-    (concat ((first pair) items) (paginate (second pair) current-page page-count items-per-page))))
+               [show-blog "/blog"])
+        nodes ((first pair) items)]
+    (if (> page-count 1)
+      (concat nodes (paginate (second pair) current-page page-count items-per-page))
+      nodes)))
 
 (html/deftemplate base "base.html" [{:keys [title main stats]}]
   [:title] (if title (html/content title) (html/content *title-base*))
