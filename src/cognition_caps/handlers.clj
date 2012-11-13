@@ -172,36 +172,70 @@
 ;; Pages
 ;; =============================================================================
 
-(defn index [stats {:keys [begin limit] :or {begin "0"}}]
+(defn- valid-index? [s minimum]
+  (try
+    (let [intval (Integer/parseInt s)]
+      (if (>= intval minimum)
+        intval))
+    (catch NumberFormatException e false)))
+(defn- valid-begin? [s] (valid-index? s 0))
+(defn- valid-limit? [s] (valid-index? s 1))
+
+(defn paginated-query [query-fn visible-count default-limit stats {:keys [begin limit title]}]
+  "Takes a `query-fn` which accepts a begin index and a count. An argument map
+   is processed, applying `default-limit` as appropriate, and `query-fn` is
+   executed with the computed range. The retrieved items are then passed to the
+   base rendering template.
+
+   Note that the begin index is a string (eventually padded) so we can use it for
+   sort value in SimpleDB, while limit is a number."
+  (let [items-per-page (or (valid-limit? limit) default-limit)
+        begin-index (if (valid-begin? begin) begin "0")
+        items (query-fn begin-index items-per-page)
+        page-count   (math/ceil (/ visible-count items-per-page))
+        current-page (inc (math/floor (/ (Integer/parseInt begin-index) items-per-page)))
+        render-map {:main (show-paginated items current-page page-count items-per-page)
+                    :stats stats}]
+    (base (if title
+            (assoc render-map :title title)
+            render-map))))
+
+(defn index [stats args]
   "Renders the main item listing. Note that pagination assumes 0-based, consecutive
    display ordering of visible items."
-  (let [items-per-page (if limit (Integer/parseInt limit) *items-per-page*)
-        items (data/get-items-range sdb/simpledb (:db-queries stats) begin items-per-page)
-        visible-item-count (data/get-visible-item-count sdb/simpledb (:db-queries stats))
-        page-count         (math/ceil (/ visible-item-count items-per-page))
-        current-page       (inc (math/floor (/ (Integer/parseInt begin) items-per-page)))]
-    (base {:main (show-paginated items current-page page-count items-per-page)
-           :stats stats})))
+  (paginated-query
+    (partial data/get-items-range sdb/simpledb (:db-queries stats))
+    (data/get-visible-item-count sdb/simpledb (:db-queries stats) nil)
+    *items-per-page*
+    stats
+    args))
 
-(defn caps [stats {:keys [begin limit] :or {begin "0"}}]
+(defn caps [stats args]
   "Renders the list of caps. See 'index' docstring for pagination details"
-  (let [items-per-page (if limit (Integer/parseInt limit) *items-per-page*)
-        items (data/get-items-range-filter sdb/simpledb (:db-queries stats) begin items-per-page :item-type-cap)
-        visible-item-count (data/get-visible-item-count sdb/simpledb (:db-queries stats))
-        page-count         (math/ceil (/ visible-item-count items-per-page))
-        current-page       (inc (math/floor (/ (Integer/parseInt begin) items-per-page)))]
-    (base {:main (show-paginated items current-page page-count items-per-page) 
-           :stats stats})))
+  (paginated-query
+    (partial data/get-items-range-filter sdb/simpledb (:db-queries stats) :item-type-cap)
+    (data/get-visible-item-count sdb/simpledb (:db-queries stats) :item-type-cap)
+    *items-per-page*
+    stats
+    (assoc args :title (str "Caps - " *title-base*))))
 
-(defn merches [stats {:keys [begin limit] :or {begin "0"}}]
+(defn merches [stats args]
   "Renders the list of merchandise. See 'index' docstring for pagination details"
-  (let [items-per-page (if limit (Integer/parseInt limit) *items-per-page*)
-        items (data/get-items-range-filter sdb/simpledb (:db-queries stats) begin items-per-page :item-type-merch)
-        visible-item-count (data/get-visible-item-count sdb/simpledb (:db-queries stats))
-        page-count         (math/ceil (/ visible-item-count items-per-page))
-        current-page       (inc (math/floor (/ (Integer/parseInt begin) items-per-page)))]
-    (base {:main (show-paginated items current-page page-count items-per-page)
-           :stats stats})))
+  (paginated-query
+    (partial data/get-items-range-filter sdb/simpledb (:db-queries stats) :item-type-merch)
+    (data/get-visible-item-count sdb/simpledb (:db-queries stats) :item-type-merch)
+    *items-per-page*
+    stats
+    (assoc args :title (str "Merch - " *title-base*))))
+
+(defn blog [stats args]
+  "Displays the main blog page"
+  (paginated-query
+    (partial data/get-blog-range sdb/simpledb (:db-queries stats))
+    (data/get-visible-blog-count sdb/simpledb (:db-queries stats))
+    blog-entries-per-page
+    stats
+    (assoc args :title (str "Blog - " *title-base*))))
 
 (defn- handle-item [stats item url-title]
   (let [current-title (:url-title item)
@@ -228,6 +262,12 @@
     (if (:item-type-merch (:tags merch))
       (handle-item stats merch url-title))))
 
+(defn blog-entry [stats url-title]
+  (if-let [entry (data/get-blog-entry sdb/simpledb (:db-queries stats) url-title)]
+    (base {:main (show-blog-entry false entry)
+           :title (str (:title entry) " - " *title-base*)
+           :stats stats})))
+
 (defn sizing [stats]
   (base {:main (html/html-resource "sizing.html")
          :title (str "Sizing - " *title-base*)
@@ -237,22 +277,6 @@
   (base {:main (html/html-resource "faq.html")
          :title (str "FAQ - " *title-base*)
          :stats stats}))
-
-(defn blog [stats {:keys [begin limit] :or {begin "0"}}]
-  (let [entries-per-page (if limit (Integer/parseInt limit) blog-entries-per-page)
-        entries (data/get-blog-range sdb/simpledb (:db-queries stats) begin entries-per-page)
-        visible-blog-count (data/get-visible-blog-count sdb/simpledb (:db-queries stats))
-        page-count         (math/ceil (/ visible-blog-count entries-per-page))
-        current-page       (inc (math/floor (/ (Integer/parseInt begin) entries-per-page)))]
-    (base {:main (show-paginated entries current-page page-count entries-per-page)
-           :title (str "Blog - " *title-base*)
-           :stats stats})))
-
-(defn blog-entry [stats url-title]
-  (if-let [entry (data/get-blog-entry sdb/simpledb (:db-queries stats) url-title)]
-    (base {:main (show-blog-entry false entry)
-           :title (str (:title entry) " - " *title-base*)
-           :stats stats})))
 
 (defn thanks [stats]
   (base {:main (html/html-resource "thanks.html")

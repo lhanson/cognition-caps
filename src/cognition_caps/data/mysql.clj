@@ -30,10 +30,10 @@
   (get-items-range [this queryCount begin limit]
     (throw (UnsupportedOperationException.
              "Paginated queries to ExpressionEngine are not supported")))
-  (get-items-range-filter [this queryCount begin limit filter-tag]
+  (get-items-range-filter [this queryCount filter-tag begin limit]
     (throw (UnsupportedOperationException.
              "Paginated queries to ExpressionEngine are not supported")))
-  (get-visible-item-count [this queryCount]
+  (get-visible-item-count [this queryCount filter-tag]
     (throw (UnsupportedOperationException.
              "Not implemented for ExpressionEngine")))
   (put-items   [this items queryCount]

@@ -9,9 +9,9 @@
              "Provides a sequence of all visible items currently stored")
   (get-items-range [this queryCount begin limit]
              "Provides a sequence of 'limit' visible items beginning with the given display-order")
-  (get-items-range-filter [this queryCount begin limit filter-tags]
+  (get-items-range-filter [this queryCount filter-tag begin limit]
              "Provides a sequence of 'limit' visible items containing `filter-tag` in :tags, beginning with the given display-order")
-  (get-visible-item-count [this queryCount] "Provides a count of available items for viewing")
+  (get-visible-item-count [this queryCount filter-tag] "Provides a count of available items for viewing, optionally limited by :item-type tags")
   (put-items  [this queryCount items]       "Persists items")
   (get-sizes  [this queryCount]             "Provides a list of available sizes")
   (get-prices [this queryCount]             "Provides a list of price categories")

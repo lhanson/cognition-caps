@@ -81,20 +81,20 @@
 (decorate resource-routes (with-header "Expires" (dates/next-year)))
 
 (defroutes all-routes
-  (GET "/" [& query-params :as request] (handlers/index (:stats request) query-params))
+  (GET "/" [& params :as request] (handlers/index (:stats request) params))
   ; Legacy RSS
   (GET "/index.php/caps/caps.rss" [] (feed/rss-legacy-caps))
   (GET "/index.php/blog/rss_2.0" [] (feed/rss-legacy-blog))
   redirect-routes
   (GET "/:item-type" [item-type & params :as request]
-       (cond (= "caps" item-type)  (handlers/caps (:stats request) request)
-             (= "merch" item-type) (handlers/merches (:stats request) request)))
+       (cond (= "caps" item-type)  (handlers/caps (:stats request) params)
+             (= "merch" item-type) (handlers/merches (:stats request) params)))
   (GET "/:item-type/:url-title" [item-type url-title & params :as request]
        (cond (= "caps" item-type)  (handlers/cap (:stats request) url-title)
              (= "merch" item-type) (handlers/merch (:stats request) url-title)))
   (GET "/sizing" {stats :stats} (handlers/sizing stats))
   (GET "/faq" {stats :stats} (handlers/faq stats))
-  (GET "/blog" [& query-params :as request] (handlers/blog (:stats request) query-params))
+  (GET "/blog" [& params :as request] (handlers/blog (:stats request) params))
   (GET "/blog/:url-title" [url-title & params :as request]
        (handlers/blog-entry (:stats request) url-title))
   (GET "/feeds/all-atom.xml" {stats :stats {accept "accept"} :headers}

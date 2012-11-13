@@ -76,7 +76,7 @@
                                  limit ~limit
                                  order-by [:display-order asc]}))))
 
-  (get-items-range-filter [this queryCount begin limit filter-tag]
+  (get-items-range-filter [this queryCount filter-tag begin limit]
     (swap! queryCount inc)
     (let [prices       (.get-prices this queryCount)
           sizes        (.get-sizes this queryCount)
@@ -89,10 +89,15 @@
                          order-by [:display-order asc]}]
       (map #(unmarshal-item % prices sizes users) (sdb/query sdb-conf query))))
 
-  (get-visible-item-count [this queryCount]
+  (get-visible-item-count [this queryCount filter-tag]
     (swap! queryCount inc)
-    (sdb/query sdb-conf '{select count from items
-                        where (not-null :display-order)}))
+    (let [query (if filter-tag
+                    `{select count from items
+                      where (and (not-null :display-order)
+                                 (= :tags ~filter-tag))}
+                    '{select count from items
+                      where (not-null :display-order)})]
+    (sdb/query sdb-conf query)))
 
   (put-items [this queryCount items]
     (println "Persisting" (count items) "items to SimpleDB")

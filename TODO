@@ -1,11 +1,30 @@
 = TODO
 
     Working on:
-        - Factor pagination of query params out of handlers (mutlimethod? helper?)
         - Factor social media display out of base.html and item.html into social-media.html
 
 == Bugs
-    - Passing limit=0 breaks things. Probably <0 for that or begin all break things
+    === Pagination and non-contiguous display-order values in the "items" SDB domain
+        Since merch is stored in the same domain as caps, pagination based on string sorting of
+        :display-order values breaks because displaying only /caps or /merch will result in
+        non-contiguous and non-zero-based display-order values.
+
+        limit query clauses still work because SimpleDB will do the counting, but
+        if we start at begin index "1", we might still get the first merch item
+        in the collection since the first merch display-order might be "0024".
+
+        SimpleDB's shortcomings are becoming apparent.
+
+        ==== Solutions
+            * move each item-type into its own domain
+                - pros: pagination within item types works easily
+                - cons: breaks all-item pagination/ordering without some further mechanism
+                        requires reworking of data-access code
+            * maintain general :display-order ordering within "items" and also :item-type specific
+                display orders which are zero-based and contiguous by subtype
+                - pros: can sort based on aggregate or subsets
+                - cons: an additional level of field-setting when display orders are changed
+                        unlikely to happen often and should have negligible overhead
 
 == Enhancements
     === Missing features
