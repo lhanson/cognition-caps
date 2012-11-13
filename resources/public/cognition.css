@@ -355,7 +355,12 @@ a:hover {
     text-align: left;
     line-height: 1.5em;
 }
-.blogEntry img { max-width: 1008px; text-align: center; margin: 0 auto;  display: block; }
+.blogEntry img {
+    max-width: 820px;
+    text-align: center;
+    margin: 0 auto;
+    display: block;
+}
 #thanks .signature {
     margin-top: 50px; text-align: center;
  }
