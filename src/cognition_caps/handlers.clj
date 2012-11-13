@@ -245,6 +245,7 @@
         page-count         (math/ceil (/ visible-blog-count entries-per-page))
         current-page       (inc (math/floor (/ (Integer/parseInt begin) entries-per-page)))]
     (base {:main (show-paginated entries current-page page-count entries-per-page)
+           :title (str "Blog - " *title-base*)
            :stats stats})))
 
 (defn blog-entry [stats url-title]
