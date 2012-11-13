@@ -81,6 +81,12 @@
     (html/set-attr :href (str url-root "?begin=" (offset (inc current-page) items-per-page) "&limit=" items-per-page))
   [:.next] #(when (< current-page page-count) %))
 
+(html/defsnippet social-media "social-media.html" [:.socialMedia :> :*]
+  [fb-like-url fb-send-button plusone-url]
+  [:.fb-like] (html/do->
+                (html/set-attr :data-href fb-like-url)
+                (html/set-attr :data-send fb-send-button))
+  [:.g-plusone] (html/set-attr :data-href plusone-url))
 
 (html/defsnippet show-items "mainContent.html" [:#main :> :*]
   [items]
@@ -121,8 +127,8 @@
   (html/set-attr :value (:id item))
   [:#itemInfoWrapper [:input (html/attr= :name "amount")]]
   (html/set-attr :value (:price (first (:prices item))))
-  [:#itemInfoWrapper :.g-plusone]
-  (html/set-attr :data-href (urls/absolute-url item)))
+  [:.socialMedia] (let [current-url (urls/absolute-url item)]
+                    (html/prepend (social-media current-url current-url true))))
 
 ; Snippet for generating markup for an individual blog entry
 (html/defsnippet show-blog-entry "blog.html" [:.blogEntry]
@@ -159,6 +165,13 @@
   [:title] (if title (html/content title) (html/content *title-base*))
   [:#main] (maybe-append main)
   [:#main :> :a] (change-when (or (nil? title) (= title *title-base*)) html/unwrap)
+  [:#footerContent] (let [social (social-media (:facebook-url config) false (:google-plus-url config))
+                          fb-like (html/select social [:.fb-like]) ]
+                      ; reorder the Facebook and +1 buttons in the source to accomodate floated order
+                      (html/prepend (html/at social
+                                             [:.fb-like] nil
+                                             [:.plusone] (html/after fb-like))))
+  [:#facebookLink] (html/set-attr :href (:facebook-url config))
   ; The last thing we do is to set the elapsed time
   [:#requestStats]
     (if stats

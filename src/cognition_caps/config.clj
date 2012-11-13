@@ -14,7 +14,9 @@
      ; headroom for prefix encoding and other such encoding
      :max-string-len 1000
      :url-base "http://www.wearcognition.com"
-     :old-site-url "http://67.222.57.142"}))
+     :old-site-url "http://67.222.57.142"
+     :facebook-url "http://www.facebook.com/pages/Cognition-Caps/165962633453031"
+     :google-plus-url "http://wearcognition.com" }))
 
 (defonce config
   (let [base-log {:out :console :level :info}]

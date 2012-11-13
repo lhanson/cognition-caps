@@ -1,9 +1,8 @@
 = TODO
 
-    Working on:
-        - Factor social media display out of base.html and item.html into social-media.html
-
 == Bugs
+    === Text garbled in /caps/tan-plaid-with-blue-accent
+
     === Pagination and non-contiguous display-order values in the "items" SDB domain
         Since merch is stored in the same domain as caps, pagination based on string sorting of
         :display-order values breaks because displaying only /caps or /merch will result in

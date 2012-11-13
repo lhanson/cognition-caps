@@ -274,6 +274,7 @@ a:hover {
 }
 #itemInfoWrapper .fb-like, #itemInfoWrapper .plusone { vertical-align: top; }
 #itemInfoWrapper .plusone {
+    margin-left: 10px;
     display: inline-block;
 }
 #itemDetails form * { margin-right: 15px; }
