@@ -272,9 +272,9 @@ a:hover {
     margin-bottom: 20px;
     border-bottom: 1px dotted #999;
 }
-#itemInfoWrapper .fb-like, #itemInfoWrapper .plusone { vertical-align: top; }
-#itemInfoWrapper .plusone {
+.plusone {
     margin-left: 10px;
+    vertical-align: top;
     display: inline-block;
 }
 #itemDetails form * { margin-right: 15px; }
@@ -343,10 +343,7 @@ a:hover {
     margin-right: 15px;
 }
 #entries .blogEntry { border-bottom: 1px dotted black; }
-#entries .blogEntry:last-child {
-    border: none;
-    margin-bottom: 15px;
- }
+#entries .blogEntry:last-child { margin-bottom: 15px; }
 .blogEntry {
     margin: 15px auto 40px auto;
     width: 800px;

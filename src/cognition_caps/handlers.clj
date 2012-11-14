@@ -128,7 +128,7 @@
   [:#itemInfoWrapper [:input (html/attr= :name "amount")]]
   (html/set-attr :value (:price (first (:prices item))))
   [:.socialMedia] (let [current-url (urls/absolute-url item)]
-                    (html/prepend (social-media current-url current-url true))))
+                    (html/prepend (social-media current-url true current-url))))
 
 ; Snippet for generating markup for an individual blog entry
 (html/defsnippet show-blog-entry "blog.html" [:.blogEntry]
@@ -140,6 +140,7 @@
   [:.author] (html/content (:username (:user entry)))
   [:.publishDate] (html/content (time-format/unparse (time-format/formatter "EEE, dd MMM yyyy") (time-coerce/from-long (* 1000 (:date-added entry)))))
   [:.body] (html/html-content (:body entry))
+  [:.socialMedia] (html/append (social-media (urls/absolute-url entry) true (urls/absolute-url entry)))
   [:.titlePhoto] (html/set-attr :src (:image-url entry)))
 
 (html/defsnippet show-blog "blog.html" [:#entries]

@@ -1,8 +1,6 @@
 = TODO
 
 == Bugs
-    === Text garbled in /caps/tan-plaid-with-blue-accent
-
     === Pagination and non-contiguous display-order values in the "items" SDB domain
         Since merch is stored in the same domain as caps, pagination based on string sorting of
         :display-order values breaks because displaying only /caps or /merch will result in
@@ -29,6 +27,12 @@
     === Missing features
         - Social media links in blog entries
     === General improvements
+        - Text displayed in +1 is suboptimal, as is how the page displays in lynx
+            - http://stackoverflow.com/questions/6629417/custom-google-1-text-and-image
+            - http://webapps.stackexchange.com/questions/25938/change-google-link-summary-text
+        - RSS feeds could possibly be rendered by the same templates as the live web version
+        - Use memcached and [Spyglass](http://clojurememcached.info/articles/getting_started.html) and
+          minimizing actual queries to SDB.
         - Move page design images to S3.
         - Add more CSS background images to sprites.png: arrow_left, arrow_right, etc
         - Minify JS and CSS
@@ -41,9 +45,6 @@
         - Meta title and description? https://developers.google.com/+/plugins/+1button/#plus-snippet
         - Watch: http://support.google.com/webmasters/bin/answer.py?hl=en&answer=35624
         - Google Sitemap: http://support.google.com/webmasters/bin/answer.py?hl=en&answer=183668
-        - Try these for nav links, etc:
-            text-shadow: white 0.1em 0.1em 0.2em;
-            text-shadow: 2pxpx 2px 2px rgba(255, 255, 255, 1);
         - Admin interface
         - We define records in data.clj but don't always use them, often just creating a map
         - Implement encrypted PayPal buttons to avoid users tampering with prices, etc.
