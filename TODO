@@ -24,9 +24,8 @@
                         unlikely to happen often and should have negligible overhead
 
 == Enhancements
-    === Missing features
-        - Social media links in blog entries
     === General improvements
+        - Admin interface
         - Text displayed in +1 is suboptimal, as is how the page displays in lynx
             - http://stackoverflow.com/questions/6629417/custom-google-1-text-and-image
             - http://webapps.stackexchange.com/questions/25938/change-google-link-summary-text
@@ -34,6 +33,8 @@
         - Use memcached and [Spyglass](http://clojurememcached.info/articles/getting_started.html) and
           minimizing actual queries to SDB.
         - Move page design images to S3.
+        - Serve S3 content from CloudFront CDN. Cheaper, faster, distributed, doesn't store; only pulls from S3 at cache interval.
+        - Use DNS prefetch in document head: <link rel="dns-prefetch" href="//{global:mediadomain}" />
         - Add more CSS background images to sprites.png: arrow_left, arrow_right, etc
         - Minify JS and CSS
         - Use Sass for CSS
@@ -45,7 +46,6 @@
         - Meta title and description? https://developers.google.com/+/plugins/+1button/#plus-snippet
         - Watch: http://support.google.com/webmasters/bin/answer.py?hl=en&answer=35624
         - Google Sitemap: http://support.google.com/webmasters/bin/answer.py?hl=en&answer=183668
-        - Admin interface
         - We define records in data.clj but don't always use them, often just creating a map
         - Implement encrypted PayPal buttons to avoid users tampering with prices, etc.
           https://cms.paypal.com/us/cgi-bin/?cmd=_render-content&content_ID=developer/e_howto_html_encryptedwebpayments#id08A3I0P017Q
