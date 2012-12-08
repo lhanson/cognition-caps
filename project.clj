@@ -16,5 +16,14 @@
                  [org.slf4j/slf4j-log4j12 "1.6.1"]
                  [ring "1.1.6"]
                  [rome "1.0"]]
-  :profiles { :dev { :dependencies [[com.mysql/connectorj "5.1.12"]] } }) ; migration from Hostmonster/MySQL
+  :profiles { :dev { :dependencies [[com.mysql/connectorj "5.1.12"]] } } ; migration from Hostmonster/MySQL
+  :repl-options {
+    ; Some common setup for REPL work
+    :init (do
+            (require '[cemerick.rummage :as sdb]
+                     '[cemerick.rummage.encoding :as enc])
+            (require '[cognition-caps [config :as c] [data :as data]]
+                     '[cognition-caps.data.simpledb :as simpledb] :reload-all)
+            (def client (sdb/create-client (c/config "amazon-access-id") (c/config "amazon-access-key")))
+            (def config (assoc (enc/all-prefixed-config) :client client)))})
 

@@ -69,13 +69,68 @@
         <script src="/js/cognition.js"></script>
         <script type="text/javascript">
             // Facebook
-            (function(d, s, id) {
-                var js, fjs = d.getElementsByTagName(s)[0];
-                if (d.getElementById(id)) return;
-                js = d.createElement(s); js.id = id; js.async = true;
-                js.src = "//connect.facebook.net/en_US/all.js#xfbml=1";
-                fjs.parentNode.insertBefore(js, fjs);
-            } (document, 'script', 'facebook-jssdk'));
+            window.fbAsyncInit = function() {
+                function login() {
+                    //FB.login(function(response) {
+                    //    if (response.authResponse) {
+                    //        // Connected, post our facebook-id so we can open a logged-in session
+                    //        console.log('connected', response);
+                    //        var f = $('<form method="post" action="/skullbong"></form>');
+                    //        f.html('<input type="hidden" name="facebook-id" value="' + response.authResponse.userID + '" />');
+                    //        f.appendTo($('body'));
+                    //        //f.submit();
+                    //    } else {
+                    //        // cancelled
+                    //        console.log('canceled');
+                    //    }
+                    //});
+                }
+                FB.init({
+                  appId      : '460323184018046',
+                  channelUrl : '//www.wearcognition.com/channel.html',
+                  status     : false,
+                  cookie     : true,
+                  xfbml      : true
+                });
+                // Additional init code here
+                FB.getLoginStatus(function(response) {
+                    console.log('getloginstatus:', response);
+                    if (response.status === 'connected') {
+                        FB.api('/me', function(response) {
+                            alert('Your user ID: ' + response.id);
+                        });
+                    }
+                    /* else if (response.status === 'not_authorized') {
+                        // not_authorized
+                        login();
+                    } else {
+                        // not_logged_in
+                        login();
+                    }*/
+                });
+                FB.Event.subscribe('auth.authResponseChange', function(response) {
+                    console.log('auth.authResponseChange', response);
+                });
+                FB.Event.subscribe('auth.statusChange', function(response) {
+                    console.log('auth.statusChange', response);
+                });
+                FB.Event.subscribe('auth.login', function(response) {
+                //    console.log('logged in', response);
+                //    // Post our facebook-id so we can open a logged-in session
+                //    var f = $('<form method="post" action="/skullbong"></form>');
+                //    f.html('<input type="hidden" name="facebook-id" value="' + response.authResponse.userID + '" />');
+                //    f.appendTo($('body'));
+                //    f.submit();
+                    console.log('auth.login', response);
+                });
+            };
+            (function(d, debug){
+                var js, id = 'facebook-jssdk', ref = d.getElementsByTagName('script')[0];
+                if (d.getElementById(id)) {return;}
+                js = d.createElement('script'); js.id = id; js.async = true;
+                js.src = "//connect.facebook.net/en_US/all" + (debug ? "/debug" : "") + ".js";
+                ref.parentNode.insertBefore(js, ref);
+             }(document, false));
 
             // Google Plus
             (function() {

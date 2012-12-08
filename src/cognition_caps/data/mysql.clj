@@ -64,6 +64,9 @@
              "Not implemented for ExpressionEngine")))
   (get-users [this queryCount]
     (throw (UnsupportedOperationException.
+             "Not implemented for ExpressionEngine")))
+  (put-user [this queryCount user]
+    (throw (UnsupportedOperationException.
              "Not implemented for ExpressionEngine"))))
 
 (defn make-MySQLAccess [] (MySQLAccess.))

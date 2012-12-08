@@ -1,28 +1,30 @@
 ;;; DataAccess implementation against Amazon SimpleDB
 (ns cognition-caps.data.simpledb
-  (:use [cognition-caps.data]
-        [clojure.tools.logging]
+  (:use [clojure.tools.logging]
         [clojure.pprint])
-  (:require [clojure.contrib.string :as str]
+  (:require [cognition-caps [config :as config] [data :as data]]
+            [clojure.contrib.string :as str]
             [clojure.stacktrace :as st]
             [cemerick.rummage :as sdb]))
 
 (declare annotate-ordered-values unannotate-ordered-values change-key
          dereference-price dereference-sizes dereference-user flatten-user
          marshal-item merge-large-field unmarshal-item marshal-blog
-         unmarshal-blog unmarshal-ids unmarshal-user split-large-field
-         ensure-tags-set)
+         unmarshal-blog unmarshal-ids marshal-user unmarshal-user
+         split-large-field ensure-tags-set)
 
 (def *items-domain* "items")
 (def *blog-domain* "blog")
-; SimpleDB values can only be 1024 characters long. We'll leave some
-; headroom for prefix encoding and other such encoding
-(def *max-string-len* 1000)
-; The length of the string used to represent display order in the database
-; so that we can properly pad query values.
-(def *display-order-len* 4)
+(def users-domain "users")
 
-(defn- select-item [conf queryCount field-name field-value prices sizes users]
+(defonce sdb-conf
+  (do
+    (info "Creating sdb client")
+    (assoc (enc/all-prefixed-config)
+           :client (sdb/create-client (get config/config "amazon-access-id")
+                                      (get config/config "amazon-access-key")))))
+
+(defn- select-item [queryCount field-name field-value prices sizes users]
   (swap! queryCount inc)
   (if-let [result (sdb/query conf
                              `{select * from items
@@ -33,8 +35,8 @@
   (str (str/repeat (- *display-order-len* (count begin)) "0")
        begin))
 
-(defrecord SimpleDBAccess [conf]
-  DataAccess
+(defrecord SimpleDBAccess []
+  data/DataAccess
   (get-item [this queryCount url-title]
     (let [prices (.get-prices this queryCount)
           sizes (.get-sizes this queryCount)
@@ -154,22 +156,28 @@
   (get-users [this queryCount]
     (swap! queryCount inc)
     (map #(unmarshal-user %)
-         (sdb/query-all conf '{select * from users 
-                               where (not-null ::sdb/id)
-                               order-by [::sdb/id asc]}))))
+         (sdb/query-all sdb-conf `{select * from ~users-domain
+                                     where (not-null ::sdb/id)
+                                     order-by [::sdb/id asc]})))
+
+  (put-user [this queryCount user]
+    (swap! queryCount inc)
+    (try
+      (sdb/put-attrs sdb-conf users-domain (marshal-user user))
+      (catch Exception e (println (st/print-stack-trace e))))))
 
 (defn make-SimpleDBAccess [conf] (SimpleDBAccess. conf))
 
 (defn populate-defaults! [conf]
   "Sets up SimpleDB with our basic set of predefined values"
-  (sdb/create-domain conf *items-domain*)
-  (sdb/create-domain conf *blog-domain*)
-  (sdb/create-domain conf "sizes")
-  (sdb/batch-put-attrs conf "sizes" (map #(change-key % :id ::sdb/id) default-sizes))
-  (sdb/create-domain conf "prices")
-  (sdb/batch-put-attrs conf "prices" (map #(change-key % :id ::sdb/id) default-prices))
-  (sdb/create-domain conf "users")
-  (sdb/batch-put-attrs conf "users" (map #(change-key % :id ::sdb/id) default-users)))
+  (sdb/create-domain sdb-conf *items-domain*)
+  (sdb/create-domain sdb-conf *blog-domain*)
+  (sdb/create-domain sdb-conf "sizes")
+  (sdb/batch-put-attrs sdb-conf "sizes" (map #(change-key % :id ::sdb/id) data/default-sizes))
+  (sdb/create-domain sdb-conf "prices")
+  (sdb/batch-put-attrs sdb-conf "prices" (map #(change-key % :id ::sdb/id) data/default-prices))
+  (sdb/create-domain sdb-conf "users")
+  (sdb/batch-put-attrs sdb-conf "users" (map #(change-key % :id ::sdb/id) data/default-users)))
 
 (defn- annotate-ordered-values [item]
   "If any of the values in the given map are sequences, prepends each of the
@@ -274,9 +282,11 @@
       (merge-large-field :body)
       (dereference-user users)))
 
+(defn marshal-user [user]
+  (change-key user :id ::sdb/id))
+
 (defn unmarshal-user [user]
-  (-> user
-    (unmarshal-ids)))
+  (unmarshal-ids user))
 
 (defn- unmarshal-ids [m]
   (change-key m ::sdb/id :id))

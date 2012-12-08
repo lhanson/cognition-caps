@@ -1,6 +1,7 @@
 (ns cognition-caps.core
   (:use compojure.core
         ring.middleware.reload
+        [ring.middleware.session :only (wrap-session)]
         [clojure.contrib.string :only (replace-re)]
         [clojure.tools.logging :only (info)]
         [cognition-caps.ring :only (redirect)])
@@ -104,6 +105,8 @@
   (GET "/feeds/blog-atom.xml" {stats :stats {accept "accept"} :headers}
        (feed/wrap-content-type accept (feed/atom-blog stats)))
   (GET "/thanks" {stats :stats} (handlers/thanks stats))
+  (GET "/skullbong" {stats :stats} (handlers/admin stats))
+  (POST "/skullbong" [& params :as request] (handlers/admin-login (:stats request) params))
   resource-routes
   (ANY "*" {uri :uri} (route/not-found (handlers/fourohfour uri))))
 
@@ -121,6 +124,7 @@
 (def app (-> (var all-routes)
              (wrap-reload-if-dev)
              handler/api
+             (wrap-session {:root "/skullbong"})
              wrap-stats))
 
 (defn -main []

@@ -49,14 +49,13 @@
     [:*] (item-common item)
     [[:a :.url]] (html/set-attr :href (urls/relative-url item))
     [:img] (html/set-attr :src (:front-0 (:image-urls item)))
-    [:.item] (html/do->
-               (change-when (is-new? item)
-                            (html/append {:tag :img
-                                          :attrs {:class "itemBadge"
-                                                  :src "images/badge_new.png"
-                                                  :alt "New item"
-                                                  :width "59px"
-                                                  :height "59px"}})))))
+    [:.item] (change-when (is-new? item)
+                          (html/append {:tag :img
+                                        :attrs {:class "itemBadge"
+                                                :src "images/badge_new.png"
+                                                :alt "New item"
+                                                :width "59px"
+                                                :height "59px"}}))))
 
 (defn- offset [pagenum items-per-page]
   (* (dec pagenum) items-per-page))
@@ -154,6 +153,10 @@
 (html/defsnippet fourohfoursnippet "404.html" [:#main :> :*]
   [url]
   [:code] (html/content url))
+;
+(html/defsnippet show-admin "admin.html" [:#admin]
+  []
+  )
 
 (defn- show-paginated [items current-page page-count items-per-page]
   "Renders a sequence of items, applying pagination as appropriate"
@@ -166,7 +169,7 @@
       (concat nodes (paginate (second pair) current-page page-count items-per-page))
       nodes)))
 
-(html/deftemplate base "base.html" [{:keys [title main stats]}]
+(html/deftemplate base "base.html" [{:keys [title main stats admin?]}]
   [:title] (if title (html/content title) (html/content *title-base*))
   [:#main] (maybe-append main)
   [:#main :> :a] (change-when (or (nil? title) (= title *title-base*)) html/unwrap)
@@ -179,11 +182,13 @@
   [:#facebookLink] (html/set-attr :href (:facebook-url config))
   ; The last thing we do is to set the elapsed time
   [:#requestStats]
-    (if stats
+    (change-when stats
       (html/content (str "Response generated in "
                          (/ (- (System/nanoTime) (:start-ts stats)) 1000000.0)
-                                 " ms with " @(:db-queries stats) " SimpleDB queries"))
-      identity)
+                                 " ms with " @(:db-queries stats) " SimpleDB queries")))
+  [:body] (change-when admin?
+  ; TODO: this isn't really necessary so far, make sure we use it!
+                       (html/append {:tag "script" :attrs {:src "/js/admin.js"}}))
   [html/comment-node] nil)
 
 ;; =============================================================================
@@ -305,7 +310,21 @@
   (base {:title "Page Not Found"
          :main (fourohfoursnippet uri)}))
 
+(defn admin [stats]
+  (base {:title (str "Admin interface - " *title-base*)
+         :main (show-admin)
+         :admin? true}))
+(defn admin-login [stats {:keys [fb-id fb-access-token]}]
+  (println "Got KEY: " facebook-id)
+; TO VERIFY USER ON SERVER SIDE, request graph.facebook.com/me?access_token=xxxxxxxxxxxxxxxxx
+; and compare the fb-id the client sent us with what facebook says the UID is. 
+; IF we get a JSON object back, and IF the ids match, we're authenticated!
+; if we're authenticated, store our (cognition) uid in the session so we know who's logged in
+  ; TODO bang this into the session somehow
+  (redirect "/skullbong" 302))
+
 ;; =============================================================================
+;;
 ;; Utility functions
 ;; =============================================================================
 
