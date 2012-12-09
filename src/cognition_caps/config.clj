@@ -5,6 +5,8 @@
 
 (defonce base-config
   (let [dev-mode (.exists (java.io.File. "datasource.properties"))]
+    (if dev-mode
+      (println "Dev mode triggered, properties file at" (.getAbsolutePath (java.io.File. "datasource.properties"))))
     {:dev-mode dev-mode
      :app-log-level (if dev-mode :debug :info)
      ; The length of the string used to represent display order in the database
