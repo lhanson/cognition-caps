@@ -1,6 +1,8 @@
 = TODO
 
 == Bugs
+    === http://www.wearcognition.com/index.php/member/176959 doesn't do the raw 404. Don't even render a page.
+
     === Pagination and non-contiguous display-order values in the "items" SDB domain
         Since merch is stored in the same domain as caps, pagination based on string sorting of
         :display-order values breaks because displaying only /caps or /merch will result in
@@ -26,9 +28,14 @@
 == Enhancements
     === General improvements
         - Admin interface
+        - Implement analytics suggestions here: http://news.ycombinator.com/item?id=4875841
         - Text displayed in +1 is suboptimal, as is how the page displays in lynx
             - http://stackoverflow.com/questions/6629417/custom-google-1-text-and-image
             - http://webapps.stackexchange.com/questions/25938/change-google-link-summary-text
+        - Hidden items are still reachable if you know the URL. Either:
+            * 404 them
+            * don't render the "add to cart" button so they can't be purchased,
+              and maybe display some kind of text indicating the item is not available
         - RSS feeds could possibly be rendered by the same templates as the live web version
         - Use memcached and [Spyglass](http://clojurememcached.info/articles/getting_started.html) and
           minimizing actual queries to SDB.

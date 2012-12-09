@@ -226,10 +226,11 @@ a:hover {
     margin: 6px 0px 14px 0px;
 }
 .description p + p { margin-top: 1em; }
-.description, .itemMaterials {
+.description, .itemMaterials, #unavailable {
     line-height: 24px;
     font-family: Georgia, 'Times New Roman', Times, serif;
 }
+#unavailable { font-weight: bold; }
 .itemMaterials{
     color: #555;
     margin-bottom: 1em;

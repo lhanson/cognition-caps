@@ -127,6 +127,8 @@
   (html/set-attr :value (:id item))
   [:#itemInfoWrapper [:input (html/attr= :name "amount")]]
   (html/set-attr :value (:price (first (:prices item))))
+  [[:form (html/attr= :target "paypal")]] (change-when (nil? (:display-order item)) nil)
+  [:#unavailable] (change-when (:display-order item) nil)
   [:.socialMedia] (let [current-url (urls/absolute-url item)]
                     (html/prepend (social-media current-url true current-url))))
 
@@ -136,7 +138,7 @@
   [:.title :.url] (html/do->
                     (html/content (:title entry))
                     (html/set-attr :href (str "/blog/" (:url-title entry))))
-  [:.title :.url] (change-when (not  link-title?) html/unwrap)
+  [:.title :.url] (change-when (not link-title?) html/unwrap)
   [:.author] (html/content (:username (:user entry)))
   [:.publishDate] (html/content (time-format/unparse (time-format/formatter "EEE, dd MMM yyyy") (time-coerce/from-long (* 1000 (:date-added entry)))))
   [:.body] (html/html-content (:body entry))
