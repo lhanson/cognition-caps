@@ -41,6 +41,7 @@
           minimizing actual queries to SDB.
         - Move page design images to S3.
         - Serve S3 content from CloudFront CDN. Cheaper, faster, distributed, doesn't store; only pulls from S3 at cache interval.
+        - Create SDB backup utility. Will need this to populate a dev database and for general data retention
         - Use DNS prefetch in document head: <link rel="dns-prefetch" href="//{global:mediadomain}" />
         - Add more CSS background images to sprites.png: arrow_left, arrow_right, etc
         - Minify JS and CSS
