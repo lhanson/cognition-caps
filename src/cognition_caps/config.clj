@@ -36,7 +36,5 @@
         (merge base-config
                {"amazon-access-id"  (System/getenv "AMAZON_ACCESS_ID")
                 "amazon-access-key" (System/getenv "AMAZON_ACCESS_KEY")})
-        (do
-          (println "Found datasource.properties.example at" (.getAbsolutePath (java.io.File. "datasource.properties.example")))
-          (throw (java.lang.IllegalStateException.
-                   "We appear to be running locally, but no datasource.properties is present")))))))
+        (throw (java.lang.IllegalStateException.
+                 "We appear to be running locally, but no datasource.properties is present"))))))
