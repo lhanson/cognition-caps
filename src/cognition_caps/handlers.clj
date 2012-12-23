@@ -6,9 +6,12 @@
         [clj-time.core :only (after? minus months now)])
   (:require [cognition-caps [data :as data] [urls :as urls]]
             [clojure.contrib.math :as math]
+            [clojure.data.json :as json]
             [clj-time.coerce :as time-coerce]
             [clj-time.format :as time-format]
-            [net.cgrand.enlive-html :as html]))
+            [net.cgrand.enlive-html :as html])
+  (import [java.net URL]
+          [java.io BufferedReader InputStreamReader IOException]))
 
 (declare formatted-price)
 
@@ -45,7 +48,7 @@
 
 ; Snippet to generate item markup for each item on the main page
 (defn- item-model [item]
-  (html/transformation; item-model "mainContent.html" [:#items :.item]
+  (html/transformation
     [:*] (item-common item)
     [[:a :.url]] (html/set-attr :href (urls/relative-url item))
     [:img] (html/set-attr :src (:front-0 (:image-urls item)))
@@ -155,8 +158,13 @@
   [:code] (html/content url))
 ;
 (html/defsnippet show-admin "admin.html" [:#admin]
-  []
-  )
+  [invalid-login user]
+  [:#admin]
+  (change-when invalid-login (html/append {:tag "div"
+                                           :attrs {:class "error"}
+                                           :content "Error: Unable to verify authentication with Facebook"}))
+  [:#user-info :.name] (html/content (:username user))
+  [:#user-info :.id] (html/content (str (:id user))))
 
 (defn- show-paginated [items current-page page-count items-per-page]
   "Renders a sequence of items, applying pagination as appropriate"
@@ -172,7 +180,9 @@
 (html/deftemplate base "base.html" [{:keys [title main stats admin?]}]
   [:title] (if title (html/content title) (html/content *title-base*))
   [:#main] (maybe-append main)
-  [:#main :> :a] (change-when (or (nil? title) (= title *title-base*)) html/unwrap)
+  [:#main :> :a] (if admin?
+                   nil
+                   (change-when (or (nil? title) (= title *title-base*)) html/unwrap))
   [:#footerContent] (let [social (social-media (:facebook-url config) false (:google-plus-url config))
                           fb-like (html/select social [:.fb-like]) ]
                       ; reorder the Facebook and +1 buttons in the source to accomodate floated order
@@ -186,9 +196,7 @@
       (html/content (str "Response generated in "
                          (/ (- (System/nanoTime) (:start-ts stats)) 1000000.0)
                                  " ms with " @(:db-queries stats) " SimpleDB queries")))
-  [:body] (change-when admin?
-  ; TODO: this isn't really necessary so far, make sure we use it!
-                       (html/append {:tag "script" :attrs {:src "/js/admin.js"}}))
+  [:#adminCSS] (if admin? (html/remove-attr :id) nil)
   [html/comment-node] nil)
 
 ;; =============================================================================
@@ -310,18 +318,32 @@
   (base {:title "Page Not Found"
          :main (fourohfoursnippet uri)}))
 
-(defn admin [stats]
-  (base {:title (str "Admin interface - " *title-base*)
-         :main (show-admin)
-         :admin? true}))
-(defn admin-login [stats {:keys [fb-id fb-access-token]}]
-  (println "Got KEY: " facebook-id)
-; TO VERIFY USER ON SERVER SIDE, request graph.facebook.com/me?access_token=xxxxxxxxxxxxxxxxx
-; and compare the fb-id the client sent us with what facebook says the UID is. 
-; IF we get a JSON object back, and IF the ids match, we're authenticated!
-; if we're authenticated, store our (cognition) uid in the session so we know who's logged in
-  ; TODO bang this into the session somehow
-  (redirect "/skullbong" 302))
+(defn admin [stats invalid-login session]
+  (let [user (if (:user-id session)
+               (data/get-user sdb/simpledb (:db-queries stats) (:user-id session)))]
+    (println "Session" session "Loaded user" user)
+    (base {:title (str "Admin - " *title-base*)
+           :main (show-admin invalid-login user)
+           :admin? true
+           :stats stats})))
+
+(defn- valid-login? [fb-id fb-access-token]
+  (try
+    (with-open [stream (.openStream (java.net.URL. (str "https://graph.facebook.com/me?access_token=" fb-access-token)))]
+      (let  [buf (java.io.BufferedReader.
+                   (java.io.InputStreamReader. stream))
+             json (json/read-str (apply str (line-seq buf)))]
+        (= fb-id (get json "id"))))
+    (catch IOException e false)))
+
+(defn admin-login [stats {:keys [fb-id fb-access-token]} session]
+  (if (valid-login? fb-id fb-access-token)
+    (let [user (data/get-user-by sdb/simpledb (:db-queries stats) :facebook-id fb-id)]
+      (assoc (redirect "/skullbong" 302) :session (assoc session :user-id (:id user))))
+    (redirect "/skullbong?invalid-login" 302)))
+
+(defn admin-logout [stats session]
+  (assoc (redirect "/skullbong" 302) :session nil))
 
 ;; =============================================================================
 ;;

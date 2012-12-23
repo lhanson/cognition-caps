@@ -157,8 +157,23 @@
     (swap! queryCount inc)
     (map #(unmarshal-user %)
          (sdb/query-all sdb-conf `{select * from ~users-domain
-                                     where (not-null ::sdb/id)
-                                     order-by [::sdb/id asc]})))
+                                   where (not-null ::sdb/id)
+                                   order-by [::sdb/id asc]})))
+
+  (get-user [this queryCount id]
+    (swap! queryCount inc)
+    (unmarshal-user (first (sdb/query sdb-conf `{select * from ~users-domain
+                                                 where (= ::sdb/id ~id)}))))
+
+  (get-user-by [this queryCount attr value]
+    "Returns a user where attr=value. Note that this cannot be used to
+     query for a user by ::sdb/id, since the query encoding tries to encode
+     the special ID key as well."
+    (swap! queryCount inc)
+    (if (= attr (keyword ":sdb" "id"))
+      (throw (IllegalArgumentException. "Can't query by ::sdb/id")))
+    (unmarshal-user (first (sdb/query sdb-conf `{select * from ~users-domain
+                                                 where (= ~attr ~value)}))))
 
   (put-user [this queryCount user]
     (swap! queryCount inc)

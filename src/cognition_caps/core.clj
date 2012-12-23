@@ -105,8 +105,9 @@
   (GET "/feeds/blog-atom.xml" {stats :stats {accept "accept"} :headers}
        (feed/wrap-content-type accept (feed/atom-blog stats)))
   (GET "/thanks" {stats :stats} (handlers/thanks stats))
-  (GET "/skullbong" {stats :stats} (handlers/admin stats))
-  (POST "/skullbong" [& params :as request] (handlers/admin-login (:stats request) params))
+  (GET "/skullbong" [:as request] (handlers/admin (:stats request) (= "invalid-login" (:query-string request)) (:session request)))
+  (POST "/skullbong/login" [& params :as request] (handlers/admin-login (:stats request) params (:session request)))
+  (POST "/skullbong/logout" [:as request] (handlers/admin-logout (:stats request) (:session request)))
   resource-routes
   (ANY "*" {uri :uri} (route/not-found (handlers/fourohfour uri))))
 

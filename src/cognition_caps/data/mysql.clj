@@ -65,6 +65,12 @@
   (get-users [this queryCount]
     (throw (UnsupportedOperationException.
              "Not implemented for ExpressionEngine")))
+  (get-user [this queryCount id]
+    (throw (UnsupportedOperationException.
+             "Not implemented for ExpressionEngine")))
+  (get-user-by [this queryCount attr value]
+    (throw (UnsupportedOperationException.
+             "Not implemented for ExpressionEngine")))
   (put-user [this queryCount user]
     (throw (UnsupportedOperationException.
              "Not implemented for ExpressionEngine"))))

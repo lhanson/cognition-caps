@@ -23,6 +23,8 @@
   (get-blog-entry [this queryCount url-title] "Provides the blog entry corresponding to the given url-title")
   (put-blog  [this queryCount items]        "Persists blog items")
   (get-visible-blog-count [this queryCount] "Provides a count of available blog entries for viewing")
+  (get-user    [this queryCount id]         "Returns a user matching the given id")
+  (get-user-by [this queryCount attr value] "Queries for a user with attr=value")
   (get-users [this queryCount]              "Returns the users in the system")
   (put-user [this queryCount user]          "Persists a user"))
 

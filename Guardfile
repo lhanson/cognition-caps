@@ -5,5 +5,5 @@
 #   watch(%r{file/path}) { `command(s)` }
 #
 guard 'shell' do
-  watch(%r{^resources/(.*)\.html$}) {|m| `touch src/cognition_caps/handlers.clj` }
+  watch(%r{^resources/.+\.html$}) { `touch src/cognition_caps/handlers.clj` }
 end
