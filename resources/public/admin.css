@@ -1,4 +1,60 @@
 @charset "UTF-8";
 
-#fb-logout { display: none; }
-.error { color: red; font-weight: bold; }
+#fb-logout-wrapper {
+    display: none;
+    text-align: right;
+    margin-bottom: 15px;
+}
+.fb-login-button {
+    margin-top: 100px;
+}
+.error {
+    color: red;
+    font-weight: bold;
+}
+
+#admin section h1 {
+    text-align: center;
+}
+#admin [class^="icon-"] {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    background-image: url(images/glyphicons-halflings.png);
+}
+#admin .icon-plus-sign {
+    background-position: 0 -96px;
+}
+#admin .icon-minus-sign {
+    background-position: -24px -96px;
+}
+#admin #items {
+    float: left;
+    width: 50%;
+    border-right: 1px solid black;
+}
+#admin #items > a {
+    float: right;
+}
+#admin #blogs {
+    float: right;
+    width: 49%;
+    text-align: left;
+}
+#admin .item {
+    background: none;
+    text-align: left;
+    display: block;
+    width: auto;
+    margin: 20px;
+    border-top: 1px solid gray;
+    padding-top: 15px;
+    clear: both;
+}
+#admin .item .itemPrice, #admin .item .itemPrice .price {
+    float: right;
+    font-size: 15px;
+}
+#admin .item img {
+    float: left;
+}

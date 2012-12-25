@@ -1,7 +1,7 @@
 (ns cognition-caps.handlers
   (:use [cognition-caps.config :only (config)]
         [cognition-caps.ring :only (redirect)]
-        [clojure.contrib.string :only (lower-case replace-re)]
+        [clojure.contrib.string :only (lower-case replace-re trim)]
         [clojure.tools.logging :only (debug)]
         [clj-time.core :only (after? minus months now)])
   (:require [cognition-caps [data :as data] [urls :as urls]]
@@ -11,7 +11,7 @@
             [clj-time.format :as time-format]
             [net.cgrand.enlive-html :as html])
   (import [java.net URL]
-          [java.io BufferedReader InputStreamReader IOException]))
+          [java.io BufferedReader InputStreamReader IOException StringReader]))
 
 (declare formatted-price)
 
@@ -41,6 +41,21 @@
   (html/transformation
     [:.fn] (html/content (:nom item))
     [:.price] (html/content (formatted-price item))))
+
+(defn admin-item [item]
+  (let [snippet      (html/at (html/html-snippet "<div/>")
+                              [:*] (html/content (html/html-snippet (:description item))))
+        descr        (apply str (html/emit* (html/select snippet [[:p html/first-of-type]])))
+        description  (if (> (count descr) 80)
+                         (str (trim (subs descr 0 80)) "...")
+                         descr)]
+    (html/transformation
+      [:*] (item-common item)
+      [:img] (let [thumb-urls (filter #(.startsWith (name (key %)) "thumb-") (:image-urls item))
+                   thumb-url (val (first thumb-urls))]
+               (html/set-attr :src thumb-url))
+      [:.description]
+        (html/html-content description))))
 
 (defn- is-new? [item]
   (after? (time-coerce/from-long (* (java.lang.Long. (:date-added item)) 1000))
@@ -158,13 +173,13 @@
   [:code] (html/content url))
 ;
 (html/defsnippet show-admin "admin.html" [:#admin]
-  [invalid-login user]
+  [invalid-login user items]
   [:#admin]
-  (change-when invalid-login (html/append {:tag "div"
-                                           :attrs {:class "error"}
-                                           :content "Error: Unable to verify authentication with Facebook"}))
-  [:#user-info :.name] (html/content (:username user))
-  [:#user-info :.id] (html/content (str (:id user))))
+  (change-when invalid-login
+               (html/append {:tag "div"
+                             :attrs {:class "error"}
+                             :content "Error: Unable to verify authentication with Facebook"}))
+  [:.item] (html/clone-for [item items] (admin-item item)))
 
 (defn- show-paginated [items current-page page-count items-per-page]
   "Renders a sequence of items, applying pagination as appropriate"
@@ -196,7 +211,7 @@
       (html/content (str "Response generated in "
                          (/ (- (System/nanoTime) (:start-ts stats)) 1000000.0)
                                  " ms with " @(:db-queries stats) " SimpleDB queries")))
-  [:#adminCSS] (if admin? (html/remove-attr :id) nil)
+  [ #{:#adminCSS :#adminJS} ] (if admin? (html/remove-attr :id) nil)
   [html/comment-node] nil)
 
 ;; =============================================================================
@@ -320,10 +335,12 @@
 
 (defn admin [stats invalid-login session]
   (let [user (if (:user-id session)
-               (data/get-user sdb/simpledb (:db-queries stats) (:user-id session)))]
+               (data/get-user sdb/simpledb (:db-queries stats) (:user-id session)))
+        items (if user
+                (data/get-items sdb/simpledb (:db-queries stats)))]
     (println "Session" session "Loaded user" user)
     (base {:title (str "Admin - " *title-base*)
-           :main (show-admin invalid-login user)
+           :main (show-admin invalid-login user items)
            :admin? true
            :stats stats})))
 
