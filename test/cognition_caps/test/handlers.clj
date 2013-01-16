@@ -12,7 +12,7 @@
                                       (>= (Integer/parseInt begin) 0)))
                              (>= per-page 1))))
         stats nil
-        handler (partial base-ranged-query query-fn default-limit stats)]
+        handler (partial paginated-query query-fn 0 default-limit stats)]
     (handler {})
     (for [x ["0" "10" "-10" "" "-" "arf"]]
       (do (handler {:begin x})
