@@ -61,7 +61,9 @@
           users (.get-users this queryCount)]
       (map #(unmarshal-item % prices sizes users)
            (sdb/query-all sdb-conf `{select * from items
-                                     where (and (not-null :display-order) (not-null ~sort-key))
+                                     where (and (not-null :display-order)
+                                                (not (= :display-order "-"))
+                                                (not-null ~sort-key))
                                      order-by [~sort-key ~order]}))))
 
   (get-items-range [this queryCount begin limit]
@@ -94,9 +96,11 @@
     (let [query (if filter-tag
                     `{select count from items
                       where (and (not-null :display-order)
+                                 (not (= :display-order "-"))
                                  (= :tags ~filter-tag))}
                     '{select count from items
-                      where (not-null :display-order)})]
+                      where (and (not-null :display-order)
+                                 (not (= :display-order "-")))})]
     (sdb/query sdb-conf query)))
 
   (put-items [this queryCount items]
@@ -153,7 +157,8 @@
   (get-visible-blog-count [this queryCount]
     (swap! queryCount inc)
     (sdb/query sdb-conf '{select count from blog
-                          where (not-null :display-order)}))
+                          where (and (not-null :display-order)
+                                     (not (= :display-order "-")))}))
 
   (get-users [this queryCount]
     (swap! queryCount inc)
