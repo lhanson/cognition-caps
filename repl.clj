@@ -4,4 +4,8 @@
 ; Example to query attributes:
 ; (sdb/get-attrs c "items" 289)
 ; Hide an item
+; (sdb/put-attrs simpledb/sdb-conf "items" {:cemerick.rummage/id 289 :display-order "-"})
+; Hide a batch of items
+; (sdb/batch-put-attrs simpledb/sdb-conf "items" (for [x ids] {:cemerick.rummage/id x :display-order "-"}))
+; Delete an attribute
 ; (sdb/delete-attrs c "items" 289 :attrs #{:display-order})
