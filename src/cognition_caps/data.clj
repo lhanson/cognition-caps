@@ -12,6 +12,7 @@
   (get-items-range-filter [this queryCount filter-tag begin limit]
              "Provides a sequence of 'limit' visible items containing `filter-tag` in :tags, beginning with the given display-order")
   (get-visible-item-count [this queryCount filter-tag] "Provides a count of available items for viewing, optionally limited by :item-type tags")
+  (get-disabled-items [this queryCount]     "Returns a list of items marked disabled")
   (put-items  [this queryCount items]       "Persists items")
   (get-sizes  [this queryCount]             "Provides a list of available sizes")
   (get-prices [this queryCount]             "Provides a list of price categories")

@@ -97,6 +97,16 @@
                       where (not (= :display-order "-"))})]
     (sdb/query conf query)))
 
+  (get-disabled-items [this queryCount]
+    (swap! queryCount inc)
+    (let [prices (.get-prices this queryCount)
+          sizes (.get-sizes this queryCount)
+          users (.get-users this queryCount)]
+      (map #(unmarshal-item % prices sizes users)
+           (sdb/query-all sdb-conf '{select * from items
+                                     where (= :display-order "-")
+                                     order [:date-added desc]}))))
+
   (put-items [this queryCount items]
     (println "Persisting" (count items) "items to SimpleDB")
     (swap! queryCount inc)

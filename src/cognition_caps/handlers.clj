@@ -50,7 +50,10 @@
                          (str (trim (subs descr 0 80)) "...")
                          descr)]
     (html/transformation
-      [:*] (item-common item)
+      [:.item] (html/do->
+                 (item-common item)
+                 (change-when (= (:display-order item) "-")
+                   (html/add-class "disabled")))
       [:img] (let [thumb-urls (filter #(.startsWith (name (key %)) "thumb-") (:image-urls item))
                    thumb-url (val (first thumb-urls))]
                (html/set-attr :src thumb-url))
@@ -64,16 +67,17 @@
 ; Snippet to generate item markup for each item on the main page
 (defn- item-model [item]
   (html/transformation
-    [:*] (item-common item)
+    [:.item] (html/do->
+               (item-common item)
+               (change-when (is-new? item)
+                            (html/append {:tag :img
+                                          :attrs {:class "itemBadge"
+                                                  :src "images/badge_new.png"
+                                                  :alt "New item"
+                                                  :width "59px"
+                                                  :height "59px"}})))
     [[:a :.url]] (html/set-attr :href (urls/relative-url item))
-    [:img] (html/set-attr :src (:front-0 (:image-urls item)))
-    [:.item] (change-when (is-new? item)
-                          (html/append {:tag :img
-                                        :attrs {:class "itemBadge"
-                                                :src "images/badge_new.png"
-                                                :alt "New item"
-                                                :width "59px"
-                                                :height "59px"}}))))
+    [:img] (html/set-attr :src (:front-0 (:image-urls item)))))
 
 (defn- offset [pagenum items-per-page]
   (* (dec pagenum) items-per-page))
@@ -179,6 +183,7 @@
                (html/append {:tag "div"
                              :attrs {:class "error"}
                              :content "Error: Unable to verify authentication with Facebook"}))
+  [#{:#items :#blogs}] (if user identity nil)
   [:.item] (html/clone-for [item items] (admin-item item)))
 
 (defn- show-paginated [items current-page page-count items-per-page]
@@ -211,7 +216,7 @@
       (html/content (str "Response generated in "
                          (/ (- (System/nanoTime) (:start-ts stats)) 1000000.0)
                                  " ms with " @(:db-queries stats) " SimpleDB queries")))
-  [ #{:#adminCSS :#adminJS} ] (if admin? (html/remove-attr :id) nil)
+  [#{:#adminCSS :#adminJS}] (if admin? (html/remove-attr :id) nil)
   [html/comment-node] nil)
 
 ;; =============================================================================
@@ -336,11 +341,11 @@
 (defn admin [stats invalid-login session]
   (let [user (if (:user-id session)
                (data/get-user sdb/simpledb (:db-queries stats) (:user-id session)))
-        items (if user
-                (data/get-items sdb/simpledb (:db-queries stats)))]
+        items (if user (data/get-items sdb/simpledb (:db-queries stats)))
+        disabled (if user (data/get-disabled-items sdb/simpledb (:db-queries stats)))]
     (println "Session" session "Loaded user" user)
     (base {:title (str "Admin - " *title-base*)
-           :main (show-admin invalid-login user items)
+           :main (show-admin invalid-login user (concat items disabled))
            :admin? true
            :stats stats})))
 

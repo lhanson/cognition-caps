@@ -36,6 +36,9 @@
   (get-visible-item-count [this queryCount filter-tag]
     (throw (UnsupportedOperationException.
              "Not implemented for ExpressionEngine")))
+  (get-disabled-items [this queryCount]
+    (throw (UnsupportedOperationException.
+             "Not implemented for ExpressionEngine")))
   (put-items   [this items queryCount]
     (throw (UnsupportedOperationException.
              "Writing to ExpressionEngine is not supported")))
