@@ -57,6 +57,15 @@
       [:img] (let [thumb-urls (filter #(.startsWith (name (key %)) "thumb-") (:image-urls item))
                    thumb-url (val (first thumb-urls))]
                (html/set-attr :src thumb-url))
+      [:a] (if (= "-" (:display-order item))
+             (html/do->
+               (html/set-attr :alt "Mark item available")
+               (html/set-attr :title "Mark item available")
+               (html/transformation [:i] (html/add-class "icon-plus-sign")))
+             (html/do->
+               (html/set-attr :alt "Mark item unavailable")
+               (html/set-attr :title "Mark item unavailable")
+               (html/transformation [:i] (html/add-class "icon-minus-sign"))))
       [:.description]
         (html/html-content description))))
 
