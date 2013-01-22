@@ -45,11 +45,8 @@
 #admin #items > a:hover {
     cursor: pointer;
 }
-#admin .item > a {
+#admin .item form {
     float: right;
-}
-#admin .item > a:hover {
-    cursor: pointer;
 }
 #admin #blogs {
     float: right;

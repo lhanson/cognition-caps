@@ -7,6 +7,7 @@
   (:require [cognition-caps [data :as data] [urls :as urls]]
             [clojure.contrib.math :as math]
             [clojure.data.json :as json]
+            [clojure.string :as s]
             [clj-time.coerce :as time-coerce]
             [clj-time.format :as time-format]
             [net.cgrand.enlive-html :as html])
@@ -48,24 +49,29 @@
         descr        (apply str (html/emit* (html/select snippet [[:p html/first-of-type]])))
         description  (if (> (count descr) 80)
                          (str (trim (subs descr 0 80)) "...")
-                         descr)]
+                         descr)
+        hidden (= "-" (:display-order item))]
     (html/transformation
       [:.item] (html/do->
                  (item-common item)
-                 (change-when (= (:display-order item) "-")
-                   (html/add-class "disabled")))
+                 (change-when hidden (html/add-class "disabled")))
       [:img] (let [thumb-urls (filter #(.startsWith (name (key %)) "thumb-") (:image-urls item))
                    thumb-url (val (first thumb-urls))]
                (html/set-attr :src thumb-url))
-      [:a] (if (= "-" (:display-order item))
-             (html/do->
-               (html/set-attr :alt "Mark item available")
-               (html/set-attr :title "Mark item available")
-               (html/transformation [:i] (html/add-class "icon-plus-sign")))
-             (html/do->
-               (html/set-attr :alt "Mark item unavailable")
-               (html/set-attr :title "Mark item unavailable")
-               (html/transformation [:i] (html/add-class "icon-minus-sign"))))
+      [:form] (let [display-order (if hidden "last" "-")
+                    alt-text      (if hidden "Mark item available" "Mark item unavailable")
+                    img-class     (if hidden "icon-plus-sign" "icon-minus-sign")]
+                (html/do->
+                  (html/transformation [[:input (html/attr= :name "display-order")]]
+                                       (html/set-attr :value display-order))
+                  (html/transformation [[:input (html/attr= :type "image")]]
+                                       (html/do->
+                                         (html/set-attr :alt alt-text)
+                                         (html/set-attr :title alt-text)
+                                         (html/add-class img-class)))
+                  (fn [node]
+                    ((html/set-attr :action (s/replace (first (html/attr-values node :action)) ":id" (:url-title item)))
+                       node))))
       [:.description]
         (html/html-content description))))
 

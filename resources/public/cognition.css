@@ -43,7 +43,7 @@ nav a:hover { border-bottom: none;}
     border-right: 2px solid #b2cd00;
 }
 #topNav li a { color: white; }
-a:hover {
+a:hover, form input:hover {
     -moz-border-radius: 100px;
     -webkit-border-radius: 100px;
     border-radius: 100px;

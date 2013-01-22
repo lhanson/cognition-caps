@@ -8,7 +8,11 @@
         <a alt="Add new item" title="Add new item"><i class="icon-plus-sign"></i></a>
         <article class="item">
             <img class="photo" src="." alt="" width="73" height="73" />
-            <a><i></i></a>
+            <form method="POST" action="/caps/:id/display-order">
+                <input type="hidden" name="_method" value="PUT" />
+                <input type="hidden" name="display-order" value="" />
+                <input type="image" alt="" title="" />
+            </form>
             <h2 class="fn"></h2> - <span class="itemPrice">$<span class="price"></span></span>
             <div class="description"></div>
         </article>
