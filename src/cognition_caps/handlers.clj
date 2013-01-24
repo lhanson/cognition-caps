@@ -127,8 +127,9 @@
   (html/set-attr :value (:id item))
   [:#itemInfoWrapper [:input (html/attr= :name "amount")]]
   (html/set-attr :value (:price (first (:prices item))))
-  [[:form (html/attr= :target "paypal")]] (change-when (nil? (:display-order item)) nil)
-  [:#unavailable] (change-when (:display-order item) nil)
+  ; TODO: the next two transformations are directly dependent on each other. Consolidate logic.
+  [[:form (html/attr= :target "paypal")]] (change-when (data/hidden? item) nil)
+  [:#unavailable] (change-when (not (data/hidden? item)) nil)
   [:.socialMedia] (let [current-url (urls/absolute-url item)]
                     (html/prepend (social-media current-url true current-url))))
 

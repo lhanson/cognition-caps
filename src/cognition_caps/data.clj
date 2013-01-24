@@ -83,3 +83,6 @@
       (s/replace #"'" "")
       (s/replace #"[\W&&[^\.]]+" "-")))
 
+(defn hidden? [item]
+  "Returns whether the item is hidden from the main listing and unavailable for sale"
+  (= "-" (:display-order item)))
