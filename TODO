@@ -27,6 +27,7 @@
 
 == Enhancements
     === General improvements
+        - Scan logs for "Forwarding request to new site" and upload those old images to S3
         - Admin interface
         - Implement analytics suggestions here: http://news.ycombinator.com/item?id=4875841
         - Text displayed in +1 is suboptimal, as is how the page displays in lynx
