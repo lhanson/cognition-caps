@@ -7,3 +7,4 @@ datasource.properties
 .lein-failures
 .lein-deps-sum
 target
+.lein-repl-history
