@@ -2,6 +2,7 @@
   (:use compojure.core
         ring.middleware.reload
         [ring.middleware.session :only (wrap-session)]
+        [ring.middleware.flash :only (wrap-flash)]
         [clojure.contrib.string :only (replace-re)]
         [clojure.tools.logging :only (info)]
         [cognition-caps.ring :only (redirect)])
@@ -93,6 +94,8 @@
   (GET "/:item-type/:url-title" [item-type url-title & params :as request]
        (cond (= "caps" item-type)  (handlers/cap (:stats request) url-title)
              (= "merch" item-type) (handlers/merch (:stats request) url-title)))
+  (PUT "/:item-type/:url-title/:field" [item-type url-title field & params :as request]
+       (handlers/update-item item-type url-title field params request))
   (GET "/sizing" {stats :stats} (handlers/sizing stats))
   (GET "/faq" {stats :stats} (handlers/faq stats))
   (GET "/blog" [& params :as request] (handlers/blog (:stats request) params))
@@ -105,9 +108,9 @@
   (GET "/feeds/blog-atom.xml" {stats :stats {accept "accept"} :headers}
        (feed/wrap-content-type accept (feed/atom-blog stats)))
   (GET "/thanks" {stats :stats} (handlers/thanks stats))
-  (GET "/skullbong" [:as request] (handlers/admin (:stats request) (= "invalid-login" (:query-string request)) (:session request)))
-  (POST "/skullbong/login" [& params :as request] (handlers/admin-login (:stats request) params (:session request)))
-  (POST "/skullbong/logout" [:as request] (handlers/admin-logout (:stats request) (:session request)))
+  (GET "/skullbong" [:as request] (handlers/admin request (= "invalid-login" (:query-string request))))
+  (POST "/skullbong/login" [& params :as request] (handlers/admin-login params request))
+  (POST "/skullbong/logout" [:as request] (handlers/admin-logout request))
   resource-routes
   (ANY "*" {uri :uri} (route/not-found (handlers/fourohfour uri))))
 
@@ -125,7 +128,8 @@
 (def app (-> (var all-routes)
              (wrap-reload-if-dev)
              handler/api
-             (wrap-session {:root "/skullbong"})
+             (wrap-flash)
+             (wrap-session)
              wrap-stats))
 
 (defn -main []

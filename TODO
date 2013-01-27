@@ -28,6 +28,7 @@
 == Enhancements
     === General improvements
         - Scan logs for "Forwarding request to new site" and upload those old images to S3
+        - Use "sold out" image as overlay for sold out items
         - Admin interface
           Use:
           http://www.thebuzzmedia.com/software/imgscalr-java-image-scaling-library/

@@ -77,3 +77,17 @@
 #admin .item img {
     float: left;
 }
+#message {
+    padding: 10px 0px 10px;
+    font-size: 20px;
+    font-family: Georgia, 'Times New Roman', Times, serif;
+}
+#message.success {
+    background-color: #b2cd00;
+    border: 1px solid #b2cd00;
+}
+#message.failure {
+    color: #d63301;
+    background-color: #ffccba;
+    border: 1px solid #d63301;
+}

@@ -212,9 +212,19 @@
       (concat nodes (paginate (second pair) current-page page-count items-per-page))
       nodes)))
 
-(html/deftemplate base "base.html" [{:keys [title main stats admin?]}]
+(defn- render-flash [flash]
+  (fn [node]
+    (if flash
+      ((html/prepend (html/html-snippet (str "<div id=\"message\" class=\""
+                                            (if (:success flash) "success" "failure")
+                                            "\">" (:message flash) "</div>"))) node)
+      node)))
+
+(html/deftemplate base "base.html" [{:keys [title main stats flash admin?]}]
   [:title] (if title (html/content title) (html/content *title-base*))
-  [:#main] (maybe-append main)
+  [:#main] (html/do->
+             (render-flash flash)
+             (maybe-append main))
   [:#main :> :a] (if admin?
                    nil
                    (change-when (or (nil? title) (= title *title-base*)) html/unwrap))
@@ -353,14 +363,15 @@
   (base {:title "Page Not Found"
          :main (fourohfoursnippet uri)}))
 
-(defn admin [stats invalid-login session]
+(defn admin [{:keys [session flash stats]} invalid-login]
   (let [user (if (:user-id session)
                (data/get-user sdb/simpledb (:db-queries stats) (:user-id session)))
         items (if user (data/get-items sdb/simpledb (:db-queries stats)))
         disabled (if user (data/get-disabled-items sdb/simpledb (:db-queries stats)))]
-    (println "Session" session "Loaded user" user)
+    (debug "Session" session "Loaded user" user)
     (base {:title (str "Admin - " *title-base*)
            :main (show-admin invalid-login user (concat items disabled))
+           :flash flash
            :admin? true
            :stats stats})))
 
@@ -373,14 +384,22 @@
         (= fb-id (get json "id"))))
     (catch IOException e false)))
 
-(defn admin-login [stats {:keys [fb-id fb-access-token]} session]
+(defn admin-login [{:keys [fb-id fb-access-token]} {:keys [stats session] {referer "referer"} :headers}]
   (if (valid-login? fb-id fb-access-token)
     (let [user (data/get-user-by sdb/simpledb (:db-queries stats) :facebook-id fb-id)]
-      (assoc (redirect "/skullbong" 302) :session (assoc session :user-id (:id user))))
+      (assoc (redirect referer 302) :session (assoc session :user-id (:id user))))
     (redirect "/skullbong?invalid-login" 302)))
 
-(defn admin-logout [stats session]
-  (assoc (redirect "/skullbong" 302) :session nil))
+(defn admin-logout [{:keys [session] {referer "referer"} :headers}]
+  (assoc (redirect referer 302) :session nil))
+
+(defn update-item [item-type-str url-title field params {:keys [stats session] {referer "referer"} :headers}]
+  (when-let [item-type (cond (= "caps" item-type-str) :item-type-cap
+                             (= "merch" item-type-str) :item-type-merch)]
+    (println "update item type" item-type "url-title" url-title "field" field "value" (params (keyword field)))
+    (println "Session" session)
+    ; TODO: dispatch on success status and customize message
+    (assoc (redirect referer 303) :flash {:success false :message "TODO - item updated successfully?"})))
 
 ;; =============================================================================
 ;;
