@@ -37,10 +37,6 @@
         - Text displayed in +1 is suboptimal, as is how the page displays in lynx
             - http://stackoverflow.com/questions/6629417/custom-google-1-text-and-image
             - http://webapps.stackexchange.com/questions/25938/change-google-link-summary-text
-        - Hidden items are still reachable if you know the URL. Either:
-            * 404 them
-            * don't render the "add to cart" button so they can't be purchased,
-              and maybe display some kind of text indicating the item is not available
         - RSS feeds could possibly be rendered by the same templates as the live web version
         - Use memcached and [Spyglass](http://clojurememcached.info/articles/getting_started.html) and
           minimizing actual queries to SDB.
@@ -54,6 +50,7 @@
         - Use feedburner?
         - Add superfeedr hub link to RSS feeds
         - Pagination. Infinite scroll, with standard paging for fallback.
+          Not currently necessary for items, could be useful for blogs though. Explore options.
         - Implement Schema.org microdata: http://schema.org/docs/gs.html
         - Implement Open Graph protocol: http://ogp.me/
         - Meta title and description? https://developers.google.com/+/plugins/+1button/#plus-snippet
@@ -65,10 +62,10 @@
           Current version of the site uses non-encrypted buttons anyway
 
     === Admin backend
-        - Add a history tracking entity. When a cap attribute is changed, store a
+        - Add a history tracking entity. When an item attribute is changed, store a
           diff into a History domain; something like
-          {:type cap :changed-field "price" :old-value "25" :date-changed "2011-02-01"}.
-          The same could apply to other items as well.
+          {:id 220 :type cap :field "price" :old-value "25" :date-changed "_"}.
+          where _ is a JodaTime DateTime formatted with ISODateTimeFormat.
         - If/when an item is renamed, it cannot be renamed to a name that a different
           item has owned in the past so 301 redirects converge on the unique items
 
