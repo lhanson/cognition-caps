@@ -48,7 +48,7 @@
   (get-prices [this queryCount]
     (throw (UnsupportedOperationException.
              "Not yet implemented since we're not using ExpressionEngine pricing")))
-  (update-item [this queryCount id attr-name attr-value]
+  (update-item [this queryCount url-title attr-name attr-value]
     (throw (UnsupportedOperationException.
              "Writing to ExpressionEngine is not supported")))
   (get-blog [this queryCount]

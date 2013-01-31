@@ -368,7 +368,6 @@
                (data/get-user sdb/simpledb (:db-queries stats) (:user-id session)))
         items (if user (data/get-items sdb/simpledb (:db-queries stats)))
         disabled (if user (data/get-disabled-items sdb/simpledb (:db-queries stats)))]
-    (debug "Session" session "Loaded user" user)
     (base {:title (str "Admin - " *title-base*)
            :main (show-admin invalid-login user (concat items disabled))
            :flash flash
@@ -398,8 +397,8 @@
                              (= "merch" item-type-str) :item-type-merch)]
     (println "update item type" item-type "url-title" url-title "field" field "value" (params (keyword field)))
     (println "Session" session)
-    ; TODO: dispatch on success status and customize message
-    (assoc (redirect referer 303) :flash {:success false :message "TODO - item updated successfully?"})))
+    (data/update-item sdb/simpledb (:db-queries stats) url-title field (params (keyword field)))
+    (assoc (redirect referer 303) :flash {:success true :message "Item updated successfully"})))
 
 ;; =============================================================================
 ;;

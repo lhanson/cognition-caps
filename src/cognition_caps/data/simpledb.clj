@@ -108,7 +108,7 @@
                                      order [:date-added desc]}))))
 
   (put-items [this queryCount items]
-    (println "Persisting" (count items) "items to SimpleDB")
+    (debug "Persisting" (count items) "items to SimpleDB")
     (swap! queryCount inc)
     (try
       (sdb/batch-put-attrs conf *items-domain* (map marshal-item items))
@@ -122,9 +122,12 @@
     (swap! queryCount inc)
       (map unmarshal-ids (sdb/query-all conf '{select * from prices})))
 
-  (update-item [this queryCount id attr-name attr-value]
+  (update-item [this queryCount url-title attr-name attr-value]
     (swap! queryCount inc)
-    (sdb/put-attrs conf *items-domain* {::sdb/id id (keyword attr-name) attr-value}))
+    (let [id (first (sdb/query sdb-conf `{select id from items where (= :url-title ~url-title)}))]
+      (swap! queryCount inc)
+      (debug (str "Updating" url-title ", " attr-name "=" "\"" attr-value "\""))
+      (sdb/put-attrs sdb-conf *items-domain* {::sdb/id id (keyword attr-name) attr-value})))
 
   (get-blog [this queryCount]
     (swap! queryCount inc)

@@ -16,7 +16,7 @@
   (put-items  [this queryCount items]       "Persists items")
   (get-sizes  [this queryCount]             "Provides a list of available sizes")
   (get-prices [this queryCount]             "Provides a list of price categories")
-  (update-item [this queryCount id
+  (update-item [this queryCount url-title
                attr-name attr-value]        "Updates the given attribute")
   (get-blog  [this queryCount]              "Returns all blog entries starting with the latest")
   (get-blog-range [this queryCount begin limit]
