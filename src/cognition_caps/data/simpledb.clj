@@ -7,11 +7,10 @@
             [clojure.stacktrace :as st]
             [cemerick.rummage :as sdb]))
 
-(declare annotate-ordered-values unannotate-ordered-values change-key
-         dereference-price dereference-sizes dereference-user flatten-user
-         marshal-item merge-large-field unmarshal-item marshal-blog
-         unmarshal-blog unmarshal-ids marshal-user unmarshal-user
-         split-large-field ensure-tags-set)
+(declare change-key dereference-price dereference-sizes dereference-user
+         flatten-user flatten-price marshal-item merge-large-field
+         unmarshal-item marshal-blog unmarshal-blog unmarshal-ids marshal-user
+         unmarshal-user split-large-field ensure-tags-set)
 
 (def *items-domain* "items")
 (def *blog-domain* "blog")
@@ -207,35 +206,6 @@
   (sdb/create-domain sdb-conf "users")
   (sdb/batch-put-attrs sdb-conf "users" (map #(change-key % :id ::sdb/id) data/default-users)))
 
-(defn- annotate-ordered-values [item]
-  "If any of the values in the given map are sequences, prepends each of the
-  items in the sequence with a value which will allow the ordering to be
-  preserved upon unmarshalling"
-  (into {}
-    (map (fn [entry]
-           ; We're just hardcoding which attribute(s) are ordered
-           (if (= :image-urls (key entry))
-             [(key entry) (map #(str (format "%02d" %1) "_" %2)
-                               (iterate inc 1)
-                               (val entry))]
-             entry))
-         (seq item))))
-
-(defn- unannotate-ordered-values [item]
-  "Finds multi-valued attributes which have had an order prefixed and
-  reconstitutes them into an ordered sequence"
-  (into {}
-    (map (fn [entry]
-           (let [attr-name (key entry) attr-value (val entry)]
-             ; We're just hardcoding which attribute(s) are ordered
-             (if (= :image-urls attr-name)
-               [attr-name (map #(subs % (inc (.indexOf % "_")))
-                               (if (coll? attr-value)
-                                 (sort attr-value)
-                                 [attr-value])) ]
-               entry)))
-         (seq item))))
-
 (def *flat-image-prefix* "_img_")
 
 (defn- flatten-image-urls [item]
@@ -263,6 +233,11 @@
                  (merge new-item entry)
                  image-urls))))))
 
+(defn- flatten-sizes [item]
+  "Takes the map of sizes and stores them a set of id-qty strings"
+  ; Hardcode "unlimited" until we actually track inventory
+  (assoc item :sizes (map #(str (:id %) ":-1") (:sizes item))))
+
 (defn- ensure-tags-set [m]
   "Ensures that (:tags m) is a set of keywords and not just a single one"
   (if (keyword? (:tags m))
@@ -284,7 +259,10 @@
     (change-key :id ::sdb/id)
     (remove-empty-values)
     (split-large-field :description)
-    (flatten-image-urls)))
+    (flatten-image-urls)
+    (flatten-sizes)
+    (flatten-price)
+    (flatten-user)))
 
 (defn unmarshal-item [item prices sizes users]
   "Reconstitutes the given item after reading from SimpleDB"
@@ -365,10 +343,14 @@
   "Associates the full price map(s) for the given item's price-ids"
   (let [price-ids (:price-ids m)
         price-id-seq (if (coll? price-ids) (seq price-ids) (seq [price-ids]))]
-    (assoc m :prices (map (fn [price-id]
-                            (some #(if (= price-id (:id %)) %)
-                                  prices))
-                          price-id-seq))))
+    (dissoc (assoc m :prices (map (fn [price-id]
+                                    (some #(if (= price-id (:id %)) %)
+                                          prices))
+                                  price-id-seq))
+            :price-ids)))
+
+(defn flatten-price [m]
+  (dissoc (assoc m :price-ids (map :id (:prices m))) :prices))
 
 (defn dereference-sizes [m sizes]
   "Associates a parsed size map for the given item's encoded size-id:quantity string"

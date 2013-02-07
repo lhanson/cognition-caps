@@ -1,5 +1,6 @@
 (ns cognition-caps.data
-  (:use [clj-time.core :only (now)])
+  (:use [clj-time.core :only (now)]
+        [clj-time.coerce :only (to-long)])
   (:require [clojure.string :as s]))
 
 (defprotocol DataAccess
@@ -39,12 +40,13 @@
 ;; Field notes:
 ;; display-order - The order in which items will be displayed to users.
 ;;                 If nil, the item is hidden.
+;; date-added - in seconds, Unix time
 ;; =============================================================================
 (defrecord Item [id nom url-title description image-urls price-ids sizes tags user-id date-added display-order])
 (defn make-Item
   "Creates an Item from the given map, setting defaults when not present"
   [{:keys [id nom url-title description image-urls price-ids sizes tags user-id date-added display-order]
-     :or {url-title id date-added (now) display-order nil}}]
+     :or {url-title id date-added (long (/ (to-long (now)) 1000)) display-order nil}}]
     (Item. id nom url-title description image-urls price-ids sizes tags user-id date-added display-order))
 
 ; id is the legacy ExpressionEngine value

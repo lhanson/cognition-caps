@@ -27,6 +27,11 @@
 
 == Enhancements
     === General improvements
+        - Move from string-padded :display-order to integer, since rummage already does
+          encoding that allows lexicographical sorting
+        - Give up on the "over xxx caps served" banner since it's not working. Have a random
+          phrase there initially, then have jquery randomly swap it out
+          "making sweet caps"  "stitching rad lids", "concocting cranial covers", etc... maybe a cool transition effect
         - Scan logs for "Forwarding request to new site" and upload those old images to S3
         - Use "sold out" image as overlay for sold out items
         - Admin interface

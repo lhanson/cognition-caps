@@ -11,3 +11,8 @@
 ; (sdb/batch-put-attrs simpledb/sdb-conf "items" (for [x ids] {:cemerick.rummage/id x :display-order "-"}))
 ; Delete an attribute
 ; (sdb/delete-attrs c "items" 289 :attrs #{:display-order})
+;
+; How to query items
+; (require '[cognition-caps.data :as data] '[cognition-caps.data.simpledb :as sdb)
+; (data/get-items sdb/simpledb (atom 0))
+; (data/get-disabled-items sdb/simpledb (atom 0))
