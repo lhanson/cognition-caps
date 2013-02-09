@@ -373,5 +373,5 @@
   (dissoc (assoc m :user (first (filter #(= (:user-id m) (:id %)) users))) :user-id))
 
 (defn flatten-user [m]
-  (dissoc (assoc m :user-id (:id (:user m))) :user))
+  (dissoc (assoc m :user-id (or (:user-id m) (:id (:user m)))) :user))
 

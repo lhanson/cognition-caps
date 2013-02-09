@@ -33,6 +33,7 @@
           phrase there initially, then have jquery randomly swap it out
           "making sweet caps"  "stitching rad lids", "concocting cranial covers", etc... maybe a cool transition effect
         - Scan logs for "Forwarding request to new site" and upload those old images to S3
+        - Add new badge on item page to the right of the name/price
         - Use "sold out" image as overlay for sold out items
         - Admin interface
           Use:

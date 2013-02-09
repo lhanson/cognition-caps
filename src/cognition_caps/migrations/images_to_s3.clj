@@ -16,7 +16,7 @@
 ;  |  210x210 | m-0-front.jpg | front/products page (primary image only) |
 ;  |  102x102 | m-0-cart.jpg  | shopping cart page (primary image only)  |
 ;  +=====================================================================+
-;   *m: md5 checksum of the image
+;   *m: md5 checksum of the main image
 ;    n: image number (0=primary, 1=second, 2=third image, etc)
 ;
 ;  On the old site we have:
