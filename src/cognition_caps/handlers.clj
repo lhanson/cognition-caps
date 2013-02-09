@@ -98,7 +98,7 @@
   [:*] (item-common item)
   [:#itemImageWrapper :img] (html/set-attr :src (:main-0 (:image-urls item)))
   [:.description] (html/html-content (:description item))
-  [:.description [:p html/last-of-type]] (html/add-class "itemMaterials")
+  [:.description :> [:p html/last-of-type]] (html/add-class "itemMaterials")
   [#{:#sizeSelection [:label (html/attr= :for "sizeSelection")] :#sizingLink}]
   (change-when (nil? (:sizes item)) nil)
   [:#sizeSelection :option]
