@@ -1,6 +1,6 @@
 cognition-caps
 ==============
-[![Build Status](https://travis-ci.org/lhanson/cognition-caps.png)](https://travis-ci.org/lhanson/cogniton-caps])
+[![Build Status](https://travis-ci.org/lhanson/cognition-caps.png)](https://travis-ci.org/lhanson/cogniton-caps)
 
 This is the software which runs the
 [Cognition Caps website](http://www.wearcognition.com).
