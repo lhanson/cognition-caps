@@ -5,13 +5,14 @@
         [clojure.tools.logging :only (debug)]
         [clj-time.core :only (after? minus months now)])
   (:require [cognition-caps [data :as data] [urls :as urls]]
-            [cognition-caps.data.simpledb :as sdb]
             [clojure.contrib.math :as math]
             [clj-time.coerce :as time-coerce]
             [clj-time.format :as time-format]
             [net.cgrand.enlive-html :as html]))
 
 (declare formatted-price)
+
+(def db (:db-impl config))
 
 (def *title-base* "Cognition Caps")
 (def *items-per-page* 32)
@@ -221,8 +222,8 @@
   "Renders the main item listing. Note that pagination assumes 0-based, consecutive
    display ordering of visible items."
   (paginated-query
-    (partial data/get-items-range sdb/simpledb (:db-queries stats))
-    (data/get-visible-item-count sdb/simpledb (:db-queries stats) nil)
+    (partial data/get-items-range db (:db-queries stats))
+    (data/get-visible-item-count db (:db-queries stats) nil)
     *items-per-page*
     stats
     args))
@@ -230,8 +231,8 @@
 (defn caps [stats args]
   "Renders the list of caps. See 'index' docstring for pagination details"
   (paginated-query
-    (partial data/get-items-range-filter sdb/simpledb (:db-queries stats) :item-type-cap)
-    (data/get-visible-item-count sdb/simpledb (:db-queries stats) :item-type-cap)
+    (partial data/get-items-range-filter db (:db-queries stats) :item-type-cap)
+    (data/get-visible-item-count db (:db-queries stats) :item-type-cap)
     *items-per-page*
     stats
     (assoc args :title (str "Caps - " *title-base*))))
@@ -239,8 +240,8 @@
 (defn merches [stats args]
   "Renders the list of merchandise. See 'index' docstring for pagination details"
   (paginated-query
-    (partial data/get-items-range-filter sdb/simpledb (:db-queries stats) :item-type-merch)
-    (data/get-visible-item-count sdb/simpledb (:db-queries stats) :item-type-merch)
+    (partial data/get-items-range-filter db (:db-queries stats) :item-type-merch)
+    (data/get-visible-item-count db (:db-queries stats) :item-type-merch)
     *items-per-page*
     stats
     (assoc args :title (str "Merch - " *title-base*))))
@@ -248,8 +249,8 @@
 (defn blog [stats args]
   "Displays the main blog page"
   (paginated-query
-    (partial data/get-blog-range sdb/simpledb (:db-queries stats))
-    (data/get-visible-blog-count sdb/simpledb (:db-queries stats))
+    (partial data/get-blog-range db (:db-queries stats))
+    (data/get-visible-blog-count db (:db-queries stats))
     blog-entries-per-page
     stats
     (assoc args :title (str "Blog - " *title-base*))))
@@ -267,7 +268,7 @@
              :stats stats}))))
 
 (defn- item-by-url-title [stats url-title]
-  (data/get-item sdb/simpledb (:db-queries stats) url-title))
+  (data/get-item db (:db-queries stats) url-title))
 
 (defn cap [stats url-title]
   (if-let [cap (item-by-url-title stats url-title)]
@@ -280,7 +281,7 @@
       (handle-item stats merch url-title))))
 
 (defn blog-entry [stats url-title]
-  (if-let [entry (data/get-blog-entry sdb/simpledb (:db-queries stats) url-title)]
+  (if-let [entry (data/get-blog-entry db (:db-queries stats) url-title)]
     (base {:main (show-blog-entry false entry)
            :title (str (:title entry) " - " *title-base*)
            :stats stats})))

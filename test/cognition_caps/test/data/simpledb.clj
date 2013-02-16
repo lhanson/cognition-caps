@@ -7,7 +7,7 @@
 ; Tests that items with fields longer than SimpleDB's 1024 byte limit
 ; are spit into multiple attributes
 (deftest split-large-fields
-  (let [max-size (:max-string-len config)
+  (let [max-size sdb/*max-string-len*
         short-cap (make-Item {:description "short description"})
         long-description (str (apply str (repeat (- max-size 2) "."))
                               " wordSpansBreak" (apply str (repeat 100 ".")))

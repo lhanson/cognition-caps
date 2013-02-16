@@ -29,6 +29,9 @@
     === General improvements
         - Scan logs for "Forwarding request to new site" and upload those old images to S3
         - Admin interface
+          Use:
+          http://www.thebuzzmedia.com/software/imgscalr-java-image-scaling-library/
+          for scaling images on server side
         - Implement analytics suggestions here: http://news.ycombinator.com/item?id=4875841
         - Text displayed in +1 is suboptimal, as is how the page displays in lynx
             - http://stackoverflow.com/questions/6629417/custom-google-1-text-and-image

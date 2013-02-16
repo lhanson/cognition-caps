@@ -1,9 +1,10 @@
 (ns cognition-caps.migrations.images-to-s3
-  (:require [cognition-caps.data :as data]
-            [cognition-caps.data [simpledb :as simpledb] [s3 :as s3]]
+  (:require [cognition-caps [config :as config] [data :as data]]
+            [cognition-caps.data [s3 :as s3] [simpledb :as simpledb]]
             [clojure.string :as s]
             [clojure.java.io :as io]
             [clojure.contrib.shell-out :as shell])
+  (:use [cognition-caps [config :only (config)]])
   (:import [org.apache.commons.codec.digest.DigestUtils]))
 
 ;  Item images required:
@@ -28,6 +29,7 @@
 ;   /images/uploads/cache/25f5c7f0aeeeebac2e096bf0a9e6ef26-100x100.JPG  product page thumbnail
 
 (def *old-prefix* "http://wearcognition.com/images/uploads/")
+(def simpledb (simpledb/make-SimpleDBAccess (:db-impl config)))
 
 (defn- download! [uri file]
   (with-open [in (io/input-stream uri)
@@ -65,10 +67,9 @@
   "Copies images from old ExpressionEngine site to Amazon S3 and updates links"
   ([]
     (println "Migrating images from ExpressionEngine to Amazon S3")
-    (let [simpledb-data simpledb/simpledb
-          sdb-count (atom 0)
-          items (data/get-items simpledb-data sdb-count)]
-      (println "Loaded" (count items) "items from SimpleDB with" @sdb-count "queries")
+    (let [query-count (atom 0)
+          items (data/get-items simpledb query-count)]
+      (println "Loaded" (count items) "items from SimpleDB database with" @query-count "queries")
       (loop [items items]
         (when-not (empty? items)
           (migrate-images! (first items))
@@ -79,8 +80,7 @@
      for the new site, uploads them to S3, and returns the new item.
      If the images in the item aren't hosted on the old site, does nothing."
     (println "Migrating images for item ID" (:id item))
-    (let [simpledb-data simpledb/simpledb
-          url-map (:image-urls item)]
+    (let [url-map (:image-urls item)]
       (if (:item-type-merch (:tags item))
         (println "---- Images: " (:image-urls item)))
       (loop [new-images {}

@@ -25,6 +25,12 @@
   (get-visible-blog-count [this queryCount] "Provides a count of available blog entries for viewing")
   (get-users [this queryCount]              "Returns the users in the system"))
 
+(defn make-stubbed-client []
+  "Stubbed implementation of DataAccess for use in unit tests"
+  (reify DataAccess
+    (get-visible-item-count [this query-count filter-tag] 0)
+    (get-items-range [this queryCount begin limit] [])))
+
 ;; =============================================================================
 ;; Field notes:
 ;; display-order - The order in which items will be displayed to users.

@@ -3,11 +3,9 @@
   (:use [cognition-caps.data]
         [clojure.tools.logging]
         [clojure.pprint])
-  (:require [cognition-caps.config :as config]
-            [clojure.contrib.string :as str]
+  (:require [clojure.contrib.string :as str]
             [clojure.stacktrace :as st]
-            [cemerick.rummage :as sdb]
-            [cemerick.rummage.encoding :as enc]))
+            [cemerick.rummage :as sdb]))
 
 (declare annotate-ordered-values unannotate-ordered-values change-key
          dereference-price dereference-sizes dereference-user flatten-user
@@ -17,39 +15,36 @@
 
 (def *items-domain* "items")
 (def *blog-domain* "blog")
+; SimpleDB values can only be 1024 characters long. We'll leave some
+; headroom for prefix encoding and other such encoding
+(def *max-string-len* 1000)
+; The length of the string used to represent display order in the database
+; so that we can properly pad query values.
+(def *display-order-len* 4)
 
-(defonce sdb-conf
-  (do
-    (info "Creating sdb client")
-    (assoc (enc/all-prefixed-config)
-           :client (sdb/create-client (get config/config "amazon-access-id")
-                                      (get config/config "amazon-access-key")))))
-
-(defn- select-item [queryCount field-name field-value prices sizes users]
+(defn- select-item [conf queryCount field-name field-value prices sizes users]
   (swap! queryCount inc)
-  (if-let [result (sdb/query sdb-conf
+  (if-let [result (sdb/query conf
                              `{select * from items
                                where (= ~field-name ~field-value)})]
     (unmarshal-item (first result) prices sizes users)))
 
 (defn- pad-begin-index [begin]
-  (str (str/repeat (- (get config/config :display-order-len)
-                      (count begin))
-                   "0")
+  (str (str/repeat (- *display-order-len* (count begin)) "0")
        begin))
 
-(defrecord SimpleDBAccess []
+(defrecord SimpleDBAccess [conf]
   DataAccess
   (get-item [this queryCount url-title]
     (let [prices (.get-prices this queryCount)
           sizes (.get-sizes this queryCount)
           users (.get-users this queryCount)
-          item (select-item queryCount :url-title url-title prices sizes users)]
+          item (select-item conf queryCount :url-title url-title prices sizes users)]
       (if item
         item
         (do
           (debug (str "No item found for url-title '" url-title "', querying for a name change"))
-          (select-item queryCount :old-url-title url-title prices sizes users)))))
+          (select-item conf queryCount :old-url-title url-title prices sizes users)))))
 
   (get-items [this queryCount]
     (.get-items this queryCount :display-order 'asc))
@@ -60,10 +55,10 @@
           sizes (.get-sizes this queryCount)
           users (.get-users this queryCount)]
       (map #(unmarshal-item % prices sizes users)
-           (sdb/query-all sdb-conf `{select * from items
-                                     where (and (not (= :display-order "-"))
-                                                (not-null ~sort-key))
-                                     order-by [~sort-key ~order]}))))
+           (sdb/query-all conf `{select * from items
+                                 where (and (not (= :display-order "-"))
+                                            (not-null ~sort-key))
+                                 order-by [~sort-key ~order]}))))
 
   (get-items-range [this queryCount begin limit]
     (swap! queryCount inc)
@@ -72,10 +67,10 @@
           users        (.get-users this queryCount)
           begin-padded (pad-begin-index begin)]
       (map #(unmarshal-item % prices sizes users)
-           (sdb/query sdb-conf `{select * from items
-                                 where (>= :display-order ~begin-padded)
-                                 limit ~limit
-                                 order-by [:display-order asc]}))))
+           (sdb/query conf `{select * from items
+                             where (>= :display-order ~begin-padded)
+                             limit ~limit
+                             order-by [:display-order asc]}))))
 
   (get-items-range-filter [this queryCount filter-tag begin limit]
     (swap! queryCount inc)
@@ -88,7 +83,7 @@
                                     (= :tags ~filter-tag))
                          limit ~limit
                          order-by [:display-order asc]}]
-      (map #(unmarshal-item % prices sizes users) (sdb/query sdb-conf query))))
+      (map #(unmarshal-item % prices sizes users) (sdb/query conf query))))
 
   (get-visible-item-count [this queryCount filter-tag]
     (swap! queryCount inc)
@@ -98,40 +93,40 @@
                                  (= :tags ~filter-tag))}
                     '{select count from items
                       where (not (= :display-order "-"))})]
-    (sdb/query sdb-conf query)))
+    (sdb/query conf query)))
 
   (put-items [this queryCount items]
     (println "Persisting" (count items) "items to SimpleDB")
     (swap! queryCount inc)
     (try
-      (sdb/batch-put-attrs sdb-conf *items-domain* (map marshal-item items))
+      (sdb/batch-put-attrs conf *items-domain* (map marshal-item items))
       (catch Exception e (println (st/print-stack-trace e)))))
 
   (get-sizes [this queryCount]
     (swap! queryCount inc)
-    (map unmarshal-ids (sdb/query-all sdb-conf '{select * from sizes})))
+    (map unmarshal-ids (sdb/query-all conf '{select * from sizes})))
 
   (get-prices [this queryCount]
     (swap! queryCount inc)
-      (map unmarshal-ids (sdb/query-all sdb-conf '{select * from prices})))
+      (map unmarshal-ids (sdb/query-all conf '{select * from prices})))
 
   (update-item [this queryCount id attr-name attr-value]
     (swap! queryCount inc)
-    (sdb/put-attrs sdb-conf *items-domain* {::sdb/id id (keyword attr-name) attr-value}))
+    (sdb/put-attrs conf *items-domain* {::sdb/id id (keyword attr-name) attr-value}))
 
   (get-blog [this queryCount]
     (swap! queryCount inc)
     (let [users (.get-users this queryCount)]
       (map #(unmarshal-blog % users)
-           (sdb/query-all sdb-conf '{select * from blog
-                                       where (not-null :date-added)
-                                       order-by [:date-added desc]}))))
+           (sdb/query-all conf '{select * from blog
+                                 where (not-null :date-added)
+                                 order-by [:date-added desc]}))))
 
   (put-blog [this queryCount items]
     (swap! queryCount inc)
     (try
       (debug "Persisting" (pprint (map marshal-blog items)))
-      (sdb/batch-put-attrs sdb-conf *blog-domain* (map marshal-blog items))
+      (sdb/batch-put-attrs conf *blog-domain* (map marshal-blog items))
       (catch Exception e (println (st/print-stack-trace e)))))
 
   (get-blog-range [this queryCount begin limit]
@@ -139,42 +134,42 @@
     (let [users (.get-users this queryCount)
           begin-padded (pad-begin-index begin)]
       (map #(unmarshal-blog % users)
-           (sdb/query sdb-conf `{select * from blog
-                                 where (>= :display-order ~begin-padded)
-                                 order-by [:display-order asc]
-                                 limit ~limit}))))
+           (sdb/query conf `{select * from blog
+                             where (>= :display-order ~begin-padded)
+                             order-by [:display-order asc]
+                             limit ~limit}))))
 
   (get-blog-entry [this queryCount url-title]
     (swap! queryCount inc)
-    (if-let [raw-entry (first (sdb/query sdb-conf `{select * from blog
-                                                      where (= :url-title ~url-title)}))]
+    (if-let [raw-entry (first (sdb/query conf `{select * from blog
+                                                where (= :url-title ~url-title)}))]
       (let [users (.get-users this queryCount)]
         (unmarshal-blog raw-entry users))))
 
   (get-visible-blog-count [this queryCount]
     (swap! queryCount inc)
-    (sdb/query sdb-conf '{select count from blog
-                          where (not (= :display-order "-"))}))
+    (sdb/query conf '{select count from blog
+                      where (not (= :display-order "-"))}))
 
   (get-users [this queryCount]
     (swap! queryCount inc)
     (map #(unmarshal-user %)
-         (sdb/query-all sdb-conf '{select * from users 
-                                     where (not-null ::sdb/id)
-                                     order-by [::sdb/id asc]}))))
+         (sdb/query-all conf '{select * from users 
+                               where (not-null ::sdb/id)
+                               order-by [::sdb/id asc]}))))
 
-(defonce simpledb (SimpleDBAccess.))
+(defn make-SimpleDBAccess [conf] (SimpleDBAccess. conf))
 
-(defn populate-defaults! []
+(defn populate-defaults! [conf]
   "Sets up SimpleDB with our basic set of predefined values"
-  (sdb/create-domain sdb-conf *items-domain*)
-  (sdb/create-domain sdb-conf *blog-domain*)
-  (sdb/create-domain sdb-conf "sizes")
-  (sdb/batch-put-attrs sdb-conf "sizes" (map #(change-key % :id ::sdb/id) default-sizes))
-  (sdb/create-domain sdb-conf "prices")
-  (sdb/batch-put-attrs sdb-conf "prices" (map #(change-key % :id ::sdb/id) default-prices))
-  (sdb/create-domain sdb-conf "users")
-  (sdb/batch-put-attrs sdb-conf "users" (map #(change-key % :id ::sdb/id) default-users)))
+  (sdb/create-domain conf *items-domain*)
+  (sdb/create-domain conf *blog-domain*)
+  (sdb/create-domain conf "sizes")
+  (sdb/batch-put-attrs conf "sizes" (map #(change-key % :id ::sdb/id) default-sizes))
+  (sdb/create-domain conf "prices")
+  (sdb/batch-put-attrs conf "prices" (map #(change-key % :id ::sdb/id) default-prices))
+  (sdb/create-domain conf "users")
+  (sdb/batch-put-attrs conf "users" (map #(change-key % :id ::sdb/id) default-users)))
 
 (defn- annotate-ordered-values [item]
   "If any of the values in the given map are sequences, prepends each of the
@@ -301,7 +296,7 @@
   "If the given map has a :value for `field` larger than the max, it is
   split into multiple integer-suffixed attributes. Assumes that `field` is a
   keyword."
-  (if (> (count (field m)) (:max-string-len config/config))
+  (if (> (count (field m)) *max-string-len*)
     (do
       (debug "Splitting" field "on" m)
       (dissoc
@@ -310,7 +305,7 @@
                          :_index (inc (:_index m-))))
                 (assoc m :_index 1)
                 ; split up the description on whitespace in chunks of up to our maximum configured value
-                (long-split #"(?:\S++\s++)+" (:max-string-len config/config) (field m)))
+                (long-split #"(?:\S++\s++)+" *max-string-len* (field m)))
         field :_index))
     m))
 

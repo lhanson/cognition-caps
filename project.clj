@@ -15,5 +15,6 @@
                  [org.slf4j/slf4j-log4j12 "1.6.1"]
                  [ring "1.1.6"]
                  [rome "1.0"]]
-  :dev-dependencies [[com.mysql/connectorj "5.1.12"]]) ; migration from Hostmonster/MySQL
+  :profiles { :dev { :dependencies [[com.mysql/connectorj "5.1.12"]] } ; migration from Hostmonster/MySQL
+              :test { :jvm-opts ["-Dtest.mode=true"] }})
 
