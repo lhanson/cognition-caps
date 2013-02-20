@@ -10,7 +10,7 @@
 (defonce base-config
   (let [dev-mode (.exists (java.io.File. "datasource.properties"))]
     {:dev-mode dev-mode
-     :heroku-mode (= (System/getenv "LEIN_NO_DEV") "yes")
+     :heroku-mode (System/getenv "AMAZON_ACCESS_ID")
      :app-log-level (if dev-mode :debug :info)
      :url-base "http://www.wearcognition.com"
      :old-site-url "http://67.222.57.142"
@@ -18,7 +18,7 @@
      :google-plus-url "http://wearcognition.com" }))
 
 (defn- make-sdb-client [conf]
-  (log/info "Creating sdb client")
+  (log/debug "Creating sdb client")
   (simpledb/make-SimpleDBAccess
     (assoc (enc/all-prefixed-config)
            :client (rummage/create-client (conf "amazon-access-id")
@@ -30,7 +30,7 @@
       "com.amazonaws"     (assoc base-log :level :warn)
       "org.eclipse.jetty" (assoc base-log :level :info)
       "cognition-caps"    (assoc base-log :level (:app-log-level base-config)))
-    (log/info "Loggers initialized")
+    (log/debug "Loggers initialized")
 
     (let [c (cond
               (:dev-mode base-config)    ; We're running locally, read properties from a file
