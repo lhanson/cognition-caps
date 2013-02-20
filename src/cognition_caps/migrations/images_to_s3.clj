@@ -29,7 +29,7 @@
 ;   /images/uploads/cache/25f5c7f0aeeeebac2e096bf0a9e6ef26-100x100.JPG  product page thumbnail
 
 (def *old-prefix* "http://wearcognition.com/images/uploads/")
-(def simpledb (simpledb/make-SimpleDBAccess (:db-impl config)))
+(def simpledb (:db-impl config))
 
 (defn- download! [uri file]
   (with-open [in (io/input-stream uri)

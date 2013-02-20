@@ -14,9 +14,9 @@
 (defroutes redirect-routes
   ;;; Temporariy redirects to specific files on our old site
   (GET ["/images/:imagepath", :imagepath #"(?i)(?:uploads|cache)/.+\.(?:jpg|jpeg|png)$"] {uri :uri}
-       (do
-         (info (str "Forwarding request to old site: " uri))
-         (redirect (str (:old-site-url c/config) uri) 302)))
+       (let [new-url (str (:old-site-url c/config) uri)]
+         (info (str "Forwarding request to old site: " new-url))
+         (redirect new-url 302)))
 
   ;;; Permanent redirects to specific files on our old site
   (GET "/images/favicon(4).ico" [] (redirect "/favicon.ico"))

@@ -1,6 +1,6 @@
 (ns cognition-caps.test.core
   (:use cognition-caps.core :reload
-        [cognition-caps.config :only (base-config)]
+        [cognition-caps.config :only (config)]
         clojure.test
         [clojure.string :only (upper-case)]))
 
@@ -35,7 +35,7 @@
     (assert-status 404 (request "/index.php" :method :post :query-string "/member/register") error-msg)))
 
 (deftest canonicalization
-  (let [url (str (:cap-url-prefix base-config) "some-cap")
+  (let [url (str (:cap-url-prefix config) "some-cap")
         url-trailing (str url "/")]
     (assert-redirect (request url-trailing) 301 url
                      "Trailing slashes redirect to URL without them")
@@ -63,5 +63,5 @@
                "/images/uploads/00445d34233252c8d6510dfab2217bda.png"
                "/images/uploads/00445d34233252c8d6510dfab2217bda.png"
                "/images/uploads/cache/00445d34233252c8d6510dfab2217bda-100x117.JPG"]]
-    (assert-redirect (request url) 302 (str (:old-site-url base-config) url)
+    (assert-redirect (request url) 302 (str (:old-site-url config) url)
                      "Links to images on the old site are redirected there")))

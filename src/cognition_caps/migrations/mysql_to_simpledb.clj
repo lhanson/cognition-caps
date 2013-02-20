@@ -2,7 +2,8 @@
   (:require [cognition-caps.data :as data]
             [cognition-caps.data [mysql :as mysql] [simpledb :as simpledb]]
             [cognition-caps.migrations.images-to-s3 :as images]
-            [cemerick.rummage :as sdb]))
+            [cemerick.rummage :as sdb])
+  (:use [cognition-caps [config :only (config)]]))
 
 (declare add-sizes)
 
@@ -14,7 +15,7 @@
   (let [mysql-count   (atom 0)
         sdb-count     (atom 0)
         mysql-data    (mysql/make-MySQLAccess) ; ExpressionEngine database for old site
-        simpledb-data simpledb/simpledb
+        simpledb-data (:db-impl config)
         sizes         (data/get-sizes simpledb-data sdb-count)
         items         (->> (data/get-items mysql-data mysql-count)
                         (map #(add-sizes % sizes))
