@@ -365,9 +365,9 @@
 
 (defn admin [{:keys [session flash stats]} invalid-login]
   (let [user (if (:user-id session)
-               (data/get-user sdb/simpledb (:db-queries stats) (:user-id session)))
-        items (if user (data/get-items sdb/simpledb (:db-queries stats)))
-        disabled (if user (data/get-disabled-items sdb/simpledb (:db-queries stats)))]
+               (data/get-user db (:db-queries stats) (:user-id session)))
+        items (if user (data/get-items db (:db-queries stats)))
+        disabled (if user (data/get-disabled-items db (:db-queries stats)))]
     (base {:title (str "Admin - " *title-base*)
            :main (show-admin invalid-login user (concat items disabled))
            :flash flash
@@ -385,7 +385,7 @@
 
 (defn admin-login [{:keys [fb-id fb-access-token]} {:keys [stats session] {referer "referer"} :headers}]
   (if (valid-login? fb-id fb-access-token)
-    (let [user (data/get-user-by sdb/simpledb (:db-queries stats) :facebook-id fb-id)]
+    (let [user (data/get-user-by db (:db-queries stats) :facebook-id fb-id)]
       (assoc (redirect referer 302) :session (assoc session :user-id (:id user))))
     (redirect "/skullbong?invalid-login" 302)))
 
@@ -397,7 +397,7 @@
                              (= "merch" item-type-str) :item-type-merch)]
     (println "update item type" item-type "url-title" url-title "field" field "value" (params (keyword field)))
     (println "Session" session)
-    (data/update-item sdb/simpledb (:db-queries stats) url-title field (params (keyword field)))
+    (data/update-item db (:db-queries stats) url-title field (params (keyword field)))
     (assoc (redirect referer 303) :flash {:success true :message "Item updated successfully"})))
 
 ;; =============================================================================

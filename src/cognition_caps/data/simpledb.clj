@@ -2,7 +2,7 @@
 (ns cognition-caps.data.simpledb
   (:use [clojure.tools.logging]
         [clojure.pprint])
-  (:require [cognition-caps [config :as config] [data :as data]]
+  (:require [cognition-caps.data :as data]
             [clojure.contrib.string :as str]
             [clojure.stacktrace :as st]
             [cemerick.rummage :as sdb]))
@@ -16,14 +16,14 @@
 (def *blog-domain* "blog")
 (def users-domain "users")
 
-(defonce sdb-conf
-  (do
-    (info "Creating sdb client")
-    (assoc (enc/all-prefixed-config)
-           :client (sdb/create-client (get config/config "amazon-access-id")
-                                      (get config/config "amazon-access-key")))))
+; SimpleDB values can only be 1024 characters long. We'll leave some
+; headroom for prefix encoding and other such encoding
+(def *max-string-len* 1000)
+; The length of the string used to represent display order in the database
+; so that we can properly pad query values.
+(def *display-order-len* 4)
 
-(defn- select-item [queryCount field-name field-value prices sizes users]
+(defn- select-item [queryCount conf field-name field-value prices sizes users]
   (swap! queryCount inc)
   (if-let [result (sdb/query conf
                              `{select * from items
@@ -34,7 +34,7 @@
   (str (str/repeat (- *display-order-len* (count begin)) "0")
        begin))
 
-(defrecord SimpleDBAccess []
+(defrecord SimpleDBAccess [conf]
   data/DataAccess
   (get-item [this queryCount url-title]
     (let [prices (.get-prices this queryCount)
@@ -102,7 +102,7 @@
           sizes (.get-sizes this queryCount)
           users (.get-users this queryCount)]
       (map #(unmarshal-item % prices sizes users)
-           (sdb/query-all sdb-conf '{select * from items
+           (sdb/query-all conf '{select * from items
                                      where (= :display-order "-")
                                      order [:date-added desc]}))))
 
@@ -123,10 +123,10 @@
 
   (update-item [this queryCount url-title attr-name attr-value]
     (swap! queryCount inc)
-    (let [id (first (sdb/query sdb-conf `{select id from items where (= :url-title ~url-title)}))]
+    (let [id (first (sdb/query conf `{select id from items where (= :url-title ~url-title)}))]
       (swap! queryCount inc)
       (debug (str "Updating" url-title ", " attr-name "=" "\"" attr-value "\""))
-      (sdb/put-attrs sdb-conf *items-domain* {::sdb/id id (keyword attr-name) attr-value})))
+      (sdb/put-attrs conf *items-domain* {::sdb/id id (keyword attr-name) attr-value})))
 
   (get-blog [this queryCount]
     (swap! queryCount inc)
@@ -168,13 +168,13 @@
   (get-users [this queryCount]
     (swap! queryCount inc)
     (map #(unmarshal-user %)
-         (sdb/query-all sdb-conf `{select * from ~users-domain
+         (sdb/query-all conf `{select * from ~users-domain
                                    where (not-null ::sdb/id)
                                    order-by [::sdb/id asc]})))
 
   (get-user [this queryCount id]
     (swap! queryCount inc)
-    (unmarshal-user (first (sdb/query sdb-conf `{select * from ~users-domain
+    (unmarshal-user (first (sdb/query conf `{select * from ~users-domain
                                                  where (= ::sdb/id ~id)}))))
 
   (get-user-by [this queryCount attr value]
@@ -184,27 +184,27 @@
     (swap! queryCount inc)
     (if (= attr (keyword ":sdb" "id"))
       (throw (IllegalArgumentException. "Can't query by ::sdb/id")))
-    (unmarshal-user (first (sdb/query sdb-conf `{select * from ~users-domain
+    (unmarshal-user (first (sdb/query conf `{select * from ~users-domain
                                                  where (= ~attr ~value)}))))
 
   (put-user [this queryCount user]
     (swap! queryCount inc)
     (try
-      (sdb/put-attrs sdb-conf users-domain (marshal-user user))
+      (sdb/put-attrs conf users-domain (marshal-user user))
       (catch Exception e (println (st/print-stack-trace e))))))
 
 (defn make-SimpleDBAccess [conf] (SimpleDBAccess. conf))
 
 (defn populate-defaults! [conf]
   "Sets up SimpleDB with our basic set of predefined values"
-  (sdb/create-domain sdb-conf *items-domain*)
-  (sdb/create-domain sdb-conf *blog-domain*)
-  (sdb/create-domain sdb-conf "sizes")
-  (sdb/batch-put-attrs sdb-conf "sizes" (map #(change-key % :id ::sdb/id) data/default-sizes))
-  (sdb/create-domain sdb-conf "prices")
-  (sdb/batch-put-attrs sdb-conf "prices" (map #(change-key % :id ::sdb/id) data/default-prices))
-  (sdb/create-domain sdb-conf "users")
-  (sdb/batch-put-attrs sdb-conf "users" (map #(change-key % :id ::sdb/id) data/default-users)))
+  (sdb/create-domain conf *items-domain*)
+  (sdb/create-domain conf *blog-domain*)
+  (sdb/create-domain conf "sizes")
+  (sdb/batch-put-attrs conf "sizes" (map #(change-key % :id ::sdb/id) data/default-sizes))
+  (sdb/create-domain conf "prices")
+  (sdb/batch-put-attrs conf "prices" (map #(change-key % :id ::sdb/id) data/default-prices))
+  (sdb/create-domain conf "users")
+  (sdb/batch-put-attrs conf "users" (map #(change-key % :id ::sdb/id) data/default-users)))
 
 (def *flat-image-prefix* "_img_")
 
