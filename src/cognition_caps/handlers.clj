@@ -82,6 +82,7 @@
 ; Snippet to generate item markup for each item on the main page
 (defn- item-model [item]
   (html/transformation
+    [:img] (html/set-attr :src (:front-0 (:image-urls item)))
     [:.item] (html/do->
                (item-common item)
                (change-when (is-new? item)
@@ -91,8 +92,7 @@
                                                   :alt "New item"
                                                   :width "59px"
                                                   :height "59px"}})))
-    [[:a :.url]] (html/set-attr :href (urls/relative-url item))
-    [:img] (html/set-attr :src (:front-0 (:image-urls item)))))
+    [[:a :.url]] (html/set-attr :href (urls/relative-url item))))
 
 (defn- offset [pagenum items-per-page]
   (* (dec pagenum) items-per-page))
@@ -220,7 +220,8 @@
                                             "\">" (:message flash) "</div>"))) node)
       node)))
 
-(html/deftemplate base "base.html" [{:keys [title main stats flash admin?]}]
+(html/deftemplate base "base.html" [{:keys [title main stats flash admin? logged-in?]}]
+  [html/comment-node] nil
   [:title] (if title (html/content title) (html/content *title-base*))
   [:#main] (html/do->
              (render-flash flash)
@@ -235,14 +236,14 @@
                                              [:.fb-like] nil
                                              [:.plusone] (html/after fb-like))))
   [:#facebookLink] (html/set-attr :href (:facebook-url config))
+  [#{:#adminCSS :#adminJS}] (if admin? (html/remove-attr :id) nil)
+  [:body] (change-when logged-in? (html/add-class "logged-in"))
   ; The last thing we do is to set the elapsed time
   [:#requestStats]
     (change-when stats
       (html/content (str "Response generated in "
                          (/ (- (System/nanoTime) (:start-ts stats)) 1000000.0)
-                                 " ms with " @(:db-queries stats) " SimpleDB queries")))
-  [#{:#adminCSS :#adminJS}] (if admin? (html/remove-attr :id) nil)
-  [html/comment-node] nil)
+                                 " ms with " @(:db-queries stats) " SimpleDB queries"))))
 
 ;; =============================================================================
 ;; Pages
@@ -372,6 +373,7 @@
            :main (show-admin invalid-login user (concat items disabled))
            :flash flash
            :admin? true
+           :logged-in? user
            :stats stats})))
 
 (defn- valid-login? [fb-id fb-access-token]

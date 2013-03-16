@@ -1,3 +1,9 @@
+// Ignore console on platforms where it is not available
+if (typeof(window.console) == "undefined") {
+    console = {};
+    console.log = console.warn = console.error = function(a) {};
+}
+
 // Facebook
 window.fbAsyncInit = function() {
     $('#fb-logout').click(function() {
@@ -17,28 +23,32 @@ window.fbAsyncInit = function() {
     });
     // Additional init code here
     FB.getLoginStatus(function(response) {
-        console.log('getloginstatus:', response);
-        if (response.status === 'connected') {
-            FB.api('/me', function(response) {
-                console.log('Your user ID: ' + response.id);
-            });
-            $('.fb-login-button, #fb-logout-wrapper').toggle()
-        }
-        else if (response.status === 'not_authorized') {
-            // User logged into Facebook but not authorized
-            console.log('logged into FB but not authorized');
-        } else {
-            // User not logged in
-            console.log('not logged in');
-        }
-        FB.Event.subscribe('auth.login', function(response) {
-            console.log('got auth.login event', response);
+        function cognitionLogin(userID, accessToken) {
             // Post our facebook-id so we can open a logged-in session
             var f = $('<form method="post" action="/skullbong/login"></form>');
-            f.html('<input type="hidden" name="fb-id" value="' + response.authResponse.userID + '" />' +
-                   '<input type="hidden" name="fb-access-token" value="' + response.authResponse.accessToken + '" />');
+            f.html('<input type="hidden" name="fb-id" value="' + userID + '" />' +
+                   '<input type="hidden" name="fb-access-token" value="' + accessToken + '" />');
             f.appendTo($('body'));
             f.submit();
+        }
+        if (response.status === 'connected') {
+            // Logged into Facebook
+            if (!$('body').hasClass('logged-in')) {
+                // Need to tell the server what Facebook user we are
+                FB.api('/me', function(meResponse) {
+                    cognitionLogin(response.authResponse.userID, response.authResponse.accessToken);
+                });
+            }
+            $('.fb-login-button, #fb-logout-wrapper').toggle();
+        }
+        else if (response.status === 'not_authorized') {
+            console.log('Logged into Facebook but not authorized');
+        } else {
+            console.log('User is not logged into Facebook');
+        }
+        FB.Event.subscribe('auth.login', function(response) {
+            console.log('Got Facebook auth.login event', response);
+            cognitionLogin(response.authResponse.userID, response.authResponse.accessToken);
         });
     });
 };

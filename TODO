@@ -55,6 +55,7 @@
         - Use Sass for CSS
         - Use feedburner?
         - Add superfeedr hub link to RSS feeds
+        - Consider SubToMe button https://www.subtome.com/publishers.html
         - Pagination. Infinite scroll, with standard paging for fallback.
           Not currently necessary for items, could be useful for blogs though. Explore options.
         - Implement Schema.org microdata: http://schema.org/docs/gs.html
