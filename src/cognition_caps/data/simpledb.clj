@@ -40,12 +40,12 @@
     (let [prices (.get-prices this queryCount)
           sizes (.get-sizes this queryCount)
           users (.get-users this queryCount)
-          item (select-item conf queryCount :url-title url-title prices sizes users)]
+          item (select-item queryCount conf :url-title url-title prices sizes users)]
       (if item
         item
         (do
           (debug (str "No item found for url-title '" url-title "', querying for a name change"))
-          (select-item conf queryCount :old-url-title url-title prices sizes users)))))
+          (select-item queryCount conf :old-url-title url-title prices sizes users)))))
 
   (get-items [this queryCount]
     (.get-items this queryCount :display-order 'asc))
