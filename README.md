@@ -2,8 +2,8 @@ cognition-caps
 ==============
 [![Build Status](https://travis-ci.org/lhanson/cognition-caps.png)](https://travis-ci.org/lhanson/cogniton-caps)
 
-This is the software which runs the
-[Cognition Caps website](http://www.wearcognition.com).
+This is the software which formerly ran the
+[Cognition Caps website](http://www.wearcognition.com) (now defunct).
 
 It's written in Clojure because it's awesome and I'm silly like that.
 
